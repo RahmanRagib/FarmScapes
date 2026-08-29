@@ -15,19 +15,21 @@
 
 struct Animal {
 	int x, y;
-	int type;           // 0 = Hen, 1 = Cow, 2 = Sheep
-	int fedState;       // 0 = Hungry, 1 = Fed
-	int produceTimer;   // Timer ticks while fed
-	int hasProduce;     // 1 if egg/milk/wool is ready for harvest
-	int isAlive;        // 1 if active in pen
+	int type;            // 0 = Hen, 1 = Cow, 2 = Sheep
+	int fedState;        // 0 = Hungry, 1 = Fed
+	int produceTimer;    // Timer ticks while fed
+	int hasProduce;      // 1 if egg/milk/wool is ready for harvest
+	int isAlive;         // 1 if active in pen
 };
 
-// --- ANIMAL EXTERNS ---
+// --- ANIMAL & FARM MAN EXTERNS ---
 extern int gameState;
 extern struct Animal hens[MAX_ANIMALS_PER_TYPE];
 extern struct Animal cows[MAX_ANIMALS_PER_TYPE];
 extern struct Animal sheep[MAX_ANIMALS_PER_TYPE];
 extern int henCount, cowCount, sheepCount;
+
+extern int farmmanX, farmmanY;
 
 // --- ANIMAL GROWTH UPDATE (Called every 1 sec via iSetTimer) ---
 inline void updateAnimalGrowth() {
@@ -39,7 +41,7 @@ inline void updateAnimalGrowth() {
 			hens[i].produceTimer++;
 			if (hens[i].produceTimer >= 3) {
 				hens[i].hasProduce = 1;
-				hens[i].fedState = 0; // Requires feeding again for next batch
+				hens[i].fedState = 0;
 				hens[i].produceTimer = 0;
 			}
 		}
