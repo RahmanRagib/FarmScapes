@@ -19,6 +19,72 @@ extern int henBuyPrice, cowBuyPrice, sheepBuyPrice;
 extern int selectedRanchTool; // 1 = Feed, 2 = Collect
 extern int isRanchMarketOpen;
 
+// Farm Man Position
+int farmmanX = 400;
+int farmmanY = 130;
+
+// --- ROAD CONSTRAINT CHECKER ---
+// Returns 1 if the target (x, y) is on a valid road/path, 0 otherwise
+inline int isValidRoad(int x, int y) {
+	// Main horizontal road at the bottom
+	if (y >= 115 && y <= 155 && x >= 80 && x <= 720) return 1;
+	// Path to Left Pen (Hens)
+	if (x >= 120 && x <= 160 && y >= 115 && y <= 200) return 1;
+	// Path to Middle Pen (Cows)
+	if (x >= 330 && x <= 370 && y >= 115 && y <= 280) return 1;
+	// Path to Right Pen (Sheep)
+	if (x >= 630 && x <= 670 && y >= 115 && y <= 250) return 1;
+
+	return 0;
+}
+
+// --- MOVE FARM MAN WITH ROAD RESTRICTION ---
+inline void moveFarmMan(int dx, int dy) {
+	int newX = farmmanX + dx;
+	int newY = farmmanY + dy;
+	if (isValidRoad(newX, newY)) {
+		farmmanX = newX;
+		farmmanY = newY;
+	}
+}
+
+// --- COLLECT PRODUCE WHEN NEAR ANIMALS ---
+inline void collectProduceByFarmMan() {
+	// Check Hens
+	for (int i = 0; i < henCount; i++) {
+		if (hens[i].isAlive && hens[i].hasProduce) {
+			int distSq = (farmmanX - hens[i].x) * (farmmanX - hens[i].x) + (farmmanY - hens[i].y) * (farmmanY - hens[i].y);
+			if (distSq <= 2500) { // Within ~50 pixels distance
+				countEgg++;
+				hens[i].hasProduce = 0;
+				hens[i].produceTimer = 0;
+			}
+		}
+	}
+	// Check Cows
+	for (int i = 0; i < cowCount; i++) {
+		if (cows[i].isAlive && cows[i].hasProduce) {
+			int distSq = (farmmanX - cows[i].x) * (farmmanX - cows[i].x) + (farmmanY - cows[i].y) * (farmmanY - cows[i].y);
+			if (distSq <= 2500) {
+				countMilk++;
+				cows[i].hasProduce = 0;
+				cows[i].produceTimer = 0;
+			}
+		}
+	}
+	// Check Sheep
+	for (int i = 0; i < sheepCount; i++) {
+		if (sheep[i].isAlive && sheep[i].hasProduce) {
+			int distSq = (farmmanX - sheep[i].x) * (farmmanX - sheep[i].x) + (farmmanY - sheep[i].y) * (farmmanY - sheep[i].y);
+			if (distSq <= 2500) {
+				countWool++;
+				sheep[i].hasProduce = 0;
+				sheep[i].produceTimer = 0;
+			}
+		}
+	}
+}
+
 // --- INITIALIZE RANCH DATA ---
 inline void initLevel2() {
 	countFeed = 5;
@@ -35,35 +101,35 @@ inline void initLevel2() {
 	cowBuyPrice = 100;
 	sheepBuyPrice = 70;
 
+	farmmanX = 400;
+	farmmanY = 130;
+
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
 		hens[i].isAlive = 0;
 		cows[i].isAlive = 0;
 		sheep[i].isAlive = 0;
 	}
 
-	// 1. Initial Setup: 2 Hens (Centered correctly on the ground in the left pen)
+	// 1. Initial Setup: 2 Hens
 	henCount = 2;
 	hens[0].x = 100; hens[0].y = 170; hens[0].type = ANIMAL_HEN; hens[0].fedState = 0; hens[0].produceTimer = 0; hens[0].hasProduce = 0; hens[0].isAlive = 1;
 	hens[1].x = 170; hens[1].y = 170; hens[1].type = ANIMAL_HEN; hens[1].fedState = 0; hens[1].produceTimer = 0; hens[1].hasProduce = 0; hens[1].isAlive = 1;
 
-	// Pre-assign coordinates for future Hen purchases (Slot 3 & 4)
 	hens[2].x = 100; hens[2].y = 110; hens[2].type = ANIMAL_HEN; hens[2].fedState = 0; hens[2].produceTimer = 0; hens[2].hasProduce = 0; hens[2].isAlive = 0;
 	hens[3].x = 170; hens[3].y = 110; hens[3].type = ANIMAL_HEN; hens[3].fedState = 0; hens[3].produceTimer = 0; hens[3].hasProduce = 0; hens[3].isAlive = 0;
 
-	// 2. Initial Setup: 1 Cow (Middle Pen)
+	// 2. Initial Setup: 1 Cow
 	cowCount = 1;
 	cows[0].x = 310; cows[0].y = 260; cows[0].type = ANIMAL_COW; cows[0].fedState = 0; cows[0].produceTimer = 0; cows[0].hasProduce = 0; cows[0].isAlive = 1;
 
-	// Pre-assign coordinates for future Cow purchases (Slots 2, 3 & 4)
 	cows[1].x = 410; cows[1].y = 260; cows[1].type = ANIMAL_COW; cows[1].fedState = 0; cows[1].produceTimer = 0; cows[1].hasProduce = 0; cows[1].isAlive = 0;
 	cows[2].x = 310; cows[2].y = 180; cows[2].type = ANIMAL_COW; cows[2].fedState = 0; cows[2].produceTimer = 0; cows[2].hasProduce = 0; cows[2].isAlive = 0;
 	cows[3].x = 410; cows[3].y = 180; cows[3].type = ANIMAL_COW; cows[3].fedState = 0; cows[3].produceTimer = 0; cows[3].hasProduce = 0; cows[3].isAlive = 0;
 
-	// 3. Initial Setup: 1 Sheep (Right Pen)
+	// 3. Initial Setup: 1 Sheep
 	sheepCount = 1;
 	sheep[0].x = 610; sheep[0].y = 230; sheep[0].type = ANIMAL_SHEEP; sheep[0].fedState = 0; sheep[0].produceTimer = 0; sheep[0].hasProduce = 0; sheep[0].isAlive = 1;
 
-	// Pre-assign coordinates for future Sheep purchases (Slots 2, 3 & 4)
 	sheep[1].x = 690; sheep[1].y = 230; sheep[1].type = ANIMAL_SHEEP; sheep[1].fedState = 0; sheep[1].produceTimer = 0; sheep[1].hasProduce = 0; sheep[1].isAlive = 0;
 	sheep[2].x = 610; sheep[2].y = 160; sheep[2].type = ANIMAL_SHEEP; sheep[2].fedState = 0; sheep[2].produceTimer = 0; sheep[2].hasProduce = 0; sheep[2].isAlive = 0;
 	sheep[3].x = 690; sheep[3].y = 160; sheep[3].type = ANIMAL_SHEEP; sheep[3].fedState = 0; sheep[3].produceTimer = 0; sheep[3].hasProduce = 0; sheep[3].isAlive = 0;
@@ -73,7 +139,6 @@ inline void initLevel2() {
 inline void renderAnimal(struct Animal *a, const char* bmpPath) {
 	if (!a->isAlive) return;
 
-	// Use iShowBMP2 to mask out the black background pixels
 	iShowBMP2(a->x, a->y, (char*)bmpPath, 0);
 
 	if (a->hasProduce) {
@@ -150,10 +215,15 @@ inline void drawLevel2() {
 	iSetColor(255, 255, 255);
 	iShowBMPAlternative(0, 0, (char*)"assets/level2_bg.bmp");
 
+	// Draw Animals
 	for (int i = 0; i < henCount; i++) renderAnimal(&hens[i], "assets/hen.bmp");
 	for (int i = 0; i < cowCount; i++) renderAnimal(&cows[i], "assets/cow.bmp");
 	for (int i = 0; i < sheepCount; i++) renderAnimal(&sheep[i], "assets/sheep.bmp");
 
+	// Draw Farm Man on the road
+	iShowBMP2(farmmanX, farmmanY, (char*)"assets/farmman1.bmp", 0);
+
+	// UI Toolbar at the bottom
 	iSetColor(190, 155, 110);
 	iFilledRectangle(250, 20, 300, 60);
 
