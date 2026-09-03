@@ -500,35 +500,49 @@ void fixedUpdate() {
 		if (isSpecialKeyPressed(GLUT_KEY_RIGHT)) moveFarmMan(step, 0);
 	}
 
-	// --- DIALOGUE TRIGGER ---
+	// 3. DIALOGUE TOGGLE & LEVEL TRANSITION
 	if (gameState == STATE_TOWN) {
 		int eIsDown = isKeyPressed('e') || isKeyPressed('E');
 		if (eIsDown && !eKeyPressedLastFrame) {
 			if (showDialogue) {
+				// Close dialogue window
 				showDialogue = 0;
-				if (strcmp(npcName, "Nadira") == 0) gameState = STATE_LEVEL_1;
-				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked) gameState = STATE_LEVEL_2;
-			}
-			else if (playerX >= 480 && playerX <= 700 && playerY >= 320 && playerY <= 460) {
-				strcpy(npcName, "Nadira");
-				strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
-				showDialogue = 1;
-			}
-			else if (playerX >= 450 && playerX <= 680 && playerY >= 210 && playerY <= 310) {
-				strcpy(npcName, "Ragib");
-				if (playerGold >= 100) {
-					level2Unlocked = 1;
-					strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 2.");
+
+				// Enter level ONLY if conditions are met
+				if (strcmp(npcName, "Nadira") == 0) {
+					gameState = STATE_LEVEL_1;
 				}
-				else {
-					strcpy(dialogueText, "Welcome to the Ranch! Earn 100 gold in Level 1 first.");
+				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked) {
+					gameState = STATE_LEVEL_2;
 				}
-				showDialogue = 1;
+				else if (strcmp(npcName, "Anika") == 0 && level3Unlocked) {
+					// gameState = STATE_LEVEL_3;
+				}
+				// If level is locked, showDialogue set to 0 closes dialogue box and stays in STATE_TOWN
 			}
-			else if (playerX >= 450 && playerX <= 680 && playerY >= 100 && playerY <= 200) {
-				strcpy(npcName, "Anika");
-				strcpy(dialogueText, level3Unlocked ? "Entering Fishery..." : "Welcome to the Fishery! Clear Level 2 first.");
-				showDialogue = 1;
+			else {
+				// Open dialogue prompt based on proximity
+				if (playerX >= 480 && playerX <= 700 && playerY >= 320 && playerY <= 460) {
+					strcpy(npcName, "Nadira");
+					strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
+					showDialogue = 1;
+				}
+				else if (playerX >= 450 && playerX <= 680 && playerY >= 210 && playerY <= 310) {
+					strcpy(npcName, "Ragib");
+					if (playerGold >= 100) {
+						level2Unlocked = 1;
+						strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 2.");
+					}
+					else {
+						strcpy(dialogueText, "Welcome to the Ranch! Earn 100 gold in Level 1 first.");
+					}
+					showDialogue = 1;
+				}
+				else if (playerX >= 450 && playerX <= 680 && playerY >= 100 && playerY <= 200) {
+					strcpy(npcName, "Anika");
+					strcpy(dialogueText, level3Unlocked ? "Entering Fishery..." : "Welcome to the Fishery! Clear Level 2 first.");
+					showDialogue = 1;
+				}
 			}
 		}
 		eKeyPressedLastFrame = eIsDown;
@@ -536,27 +550,21 @@ void fixedUpdate() {
 }
 
 void iKeyboard(unsigned char key) {
-	if (gameState == STATE_TOWN) {
-		if (key == 'e' || key == 'E') {
-			if (showDialogue) {
-				showDialogue = 0;
-				if (strcmp(npcName, "Nadira") == 0) gameState = STATE_LEVEL_1;
-				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked) gameState = STATE_LEVEL_2;
-				return;
-			}
-		}
-	}
-	else if (gameState == STATE_LEVEL_2) {
+	if (gameState == STATE_LEVEL_2) {
 		if (isRanchMarketOpen) {
 			if (key == 27) isRanchMarketOpen = 0; // ESC to close market
 		}
 		else {
-			// Press Spacebar (' ') or Enter ('\r') to harvest produce when farm man is near
 			if (key == ' ' || key == '\r') {
 				collectProduceByFarmMan();
 			}
 		}
 	}
+}
+
+// --- 3. ANIMATION TIMER CALLBACK ---
+void iAnim() {
+	fixedUpdate(); // Ensures continuous frame movement executes
 }
 
 void updateSeasonTimer() {
@@ -577,7 +585,7 @@ void updateLoading() {
 	}
 }
 
-void iAnim() {}
+
 
 int main() {
 	initFarmGrid();
@@ -595,4 +603,3 @@ int main() {
 	iStart();
 	return 0;
 }
-		
