@@ -332,127 +332,113 @@ void iMouse(int button, int state, int mx, int my) {
 			}
 		}
 
-		// 5. LEVEL 2 STATE (Ranch Mouse Controls, Bounded Spawning, Feeding, and Collecting)
+		// 5. LEVEL 2 STATE
 		else if (gameState == STATE_LEVEL_2) {
-			if (mx >= 430 && mx <= 530 && my >= 552 && my <= 586) {
-				isRanchMarketOpen = !isRanchMarketOpen;
-				return;
-			}
-			else if (mx >= 545 && mx <= 655 && my >= 552 && my <= 586) {
-				gameState = STATE_TOWN;
-				return;
-			}
-			else if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586) {
-				gameState = STATE_MENU;
-				return;
+			// Top HUD Navigation Buttons
+			if (my >= 552 && my <= 586) {
+				if (mx >= 430 && mx <= 530) { isRanchMarketOpen = !isRanchMarketOpen; return; }
+				if (mx >= 545 && mx <= 655) { gameState = STATE_TOWN; return; }
+				if (mx >= 670 && mx <= 780) { gameState = STATE_MENU; return; }
 			}
 
-			// Ranch Market Overlay Interactions
+			// Ranch Market Overlay
 			if (isRanchMarketOpen) {
 				if (mx >= 600 && mx <= 680 && my >= 90 && my <= 120) {
 					isRanchMarketOpen = 0;
 					return;
 				}
-				// Sell Produce
-				if (mx >= 320 && mx <= 385 && my >= 395 && my <= 417 && countEgg > 0) {
-					countEgg--; playerGold += eggSellPrice;
+
+				if (mx >= 320 && mx <= 385) {
+					if (my >= 395 && my <= 417 && countEgg > 0)  { countEgg--;  playerGold += eggSellPrice; }
+					if (my >= 345 && my <= 367 && countMilk > 0) { countMilk--; playerGold += milkSellPrice; }
+					if (my >= 295 && my <= 317 && countWool > 0) { countWool--; playerGold += woolSellPrice; }
 				}
-				else if (mx >= 320 && mx <= 385 && my >= 345 && my <= 367 && countMilk > 0) {
-					countMilk--; playerGold += milkSellPrice;
-				}
-				else if (mx >= 320 && mx <= 385 && my >= 295 && my <= 317 && countWool > 0) {
-					countWool--; playerGold += woolSellPrice;
-				}
-				// Buy Feed & Animals (bounded tightly inside respective pens)
-				else if (mx >= 610 && mx <= 675 && my >= 395 && my <= 417 && playerGold >= feedBuyPrice) {
-					playerGold -= feedBuyPrice; countFeed++;
-				}
-				else if (mx >= 610 && mx <= 675 && my >= 345 && my <= 367 && playerGold >= henBuyPrice) {
-					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
-						if (!hens[i].isAlive) {
-							playerGold -= henBuyPrice;
-							hens[i].isAlive = 1;
-							hens[i].x = 70 + (i % 2) * 55;
-							hens[i].y = 150 + (i / 2) * 55;
-							henCount = (i + 1 > henCount) ? i + 1 : henCount;
-							break;
+
+				if (mx >= 610 && mx <= 675) {
+					if (my >= 395 && my <= 417 && playerGold >= feedBuyPrice) {
+						playerGold -= feedBuyPrice;
+						countFeed++;
+					}
+					else if (my >= 345 && my <= 367 && playerGold >= henBuyPrice) {
+						for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
+							if (!hens[i].isAlive) {
+								playerGold -= henBuyPrice;
+								hens[i].isAlive = 1;
+								hens[i].x = 70 + (i % 2) * 55;
+								hens[i].y = 150 + (i / 2) * 55;
+								if (i + 1 > henCount) henCount = i + 1;
+								break;
+							}
 						}
 					}
-				}
-				else if (mx >= 610 && mx <= 675 && my >= 295 && my <= 317 && playerGold >= cowBuyPrice) {
-					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
-						if (!cows[i].isAlive) {
-							playerGold -= cowBuyPrice;
-							cows[i].isAlive = 1;
-							cows[i].x = 380 + (i % 2) * 60;
-							cows[i].y = 220 + (i / 2) * 60;
-							cowCount = (i + 1 > cowCount) ? i + 1 : cowCount;
-							break;
+					else if (my >= 295 && my <= 317 && playerGold >= cowBuyPrice) {
+						for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
+							if (!cows[i].isAlive) {
+								playerGold -= cowBuyPrice;
+								cows[i].isAlive = 1;
+								cows[i].x = 380 + (i % 2) * 60;
+								cows[i].y = 220 + (i / 2) * 60;
+								if (i + 1 > cowCount) cowCount = i + 1;
+								break;
+							}
 						}
 					}
-				}
-				else if (mx >= 610 && mx <= 675 && my >= 245 && my <= 267 && playerGold >= sheepBuyPrice) {
-					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
-						if (!sheep[i].isAlive) {
-							playerGold -= sheepBuyPrice;
-							sheep[i].isAlive = 1;
-							sheep[i].x = 580 + (i % 2) * 60;
-							sheep[i].y = 180 + (i / 2) * 60;
-							sheepCount = (i + 1 > sheepCount) ? i + 1 : sheepCount;
-							break;
+					else if (my >= 245 && my <= 267 && playerGold >= sheepBuyPrice) {
+						for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
+							if (!sheep[i].isAlive) {
+								playerGold -= sheepBuyPrice;
+								sheep[i].isAlive = 1;
+								sheep[i].x = 580 + (i % 2) * 60;
+								sheep[i].y = 180 + (i / 2) * 60;
+								if (i + 1 > sheepCount) sheepCount = i + 1;
+								break;
+							}
 						}
 					}
 				}
 				return;
 			}
 
-			// Toolbar Selection (Feed / Collect)
+			// Bottom Toolbar Selection
 			if (my >= 28 && my <= 72) {
-				if (mx >= 270 && mx <= 390) selectedRanchTool = 1; // Feed Tool
-				if (mx >= 410 && mx <= 530) selectedRanchTool = 2; // Collect Tool
-				return;
+				if (mx >= 270 && mx <= 390) { selectedRanchTool = 1; return; }
+				if (mx >= 410 && mx <= 530) { selectedRanchTool = 2; return; }
 			}
 
-			// --- ANIMAL FEEDING & COLLECTING INTERACTIONS ---
-			for (int i = 0; i < henCount; i++) {
-				if (hens[i].isAlive && mx >= hens[i].x && mx <= hens[i].x + 48 && my >= hens[i].y && my <= hens[i].y + 48) {
-					if (selectedRanchTool == 1 && countFeed > 0 && hens[i].fedState == 0) {
-						countFeed--;
-						hens[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
-					}
-					else if (selectedRanchTool == 2 && hens[i].hasProduce) {
-						hens[i].hasProduce = 0;
-						countEgg++;
+			// Animal Interactions (Gated by Pen Proximity)
+			if (isNearHenPen()) {
+				for (int i = 0; i < henCount; i++) {
+					if (hens[i].isAlive && mx >= hens[i].x && mx <= hens[i].x + 48 && my >= hens[i].y && my <= hens[i].y + 48) {
+						if (selectedRanchTool == 1 && countFeed > 0 && hens[i].fedState == 0) {
+							countFeed--; hens[i].fedState = 1; ranchTimer = 20; isRanchTimerActive = 1;
+						}
+						else if (selectedRanchTool == 2 && hens[i].hasProduce) {
+							hens[i].hasProduce = 0; countEgg++;
+						}
 					}
 				}
 			}
-			for (int i = 0; i < cowCount; i++) {
-				if (cows[i].isAlive && mx >= cows[i].x && mx <= cows[i].x + 48 && my >= cows[i].y && my <= cows[i].y + 48) {
-					if (selectedRanchTool == 1 && countFeed > 0 && cows[i].fedState == 0) {
-						countFeed--;
-						cows[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
-					}
-					else if (selectedRanchTool == 2 && cows[i].hasProduce) {
-						cows[i].hasProduce = 0;
-						countMilk++;
+			else if (isNearCowPen()) {
+				for (int i = 0; i < cowCount; i++) {
+					if (cows[i].isAlive && mx >= cows[i].x && mx <= cows[i].x + 48 && my >= cows[i].y && my <= cows[i].y + 48) {
+						if (selectedRanchTool == 1 && countFeed > 0 && cows[i].fedState == 0) {
+							countFeed--; cows[i].fedState = 1; ranchTimer = 20; isRanchTimerActive = 1;
+						}
+						else if (selectedRanchTool == 2 && cows[i].hasProduce) {
+							cows[i].hasProduce = 0; countMilk++;
+						}
 					}
 				}
 			}
-			for (int i = 0; i < sheepCount; i++) {
-				if (sheep[i].isAlive && mx >= sheep[i].x && mx <= sheep[i].x + 48 && my >= sheep[i].y && my <= sheep[i].y + 48) {
-					if (selectedRanchTool == 1 && countFeed > 0 && sheep[i].fedState == 0) {
-						countFeed--;
-						sheep[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
-					}
-					else if (selectedRanchTool == 2 && sheep[i].hasProduce) {
-						sheep[i].hasProduce = 0;
-						countWool++;
+			else if (isNearSheepPen()) {
+				for (int i = 0; i < sheepCount; i++) {
+					if (sheep[i].isAlive && mx >= sheep[i].x && mx <= sheep[i].x + 48 && my >= sheep[i].y && my <= sheep[i].y + 48) {
+						if (selectedRanchTool == 1 && countFeed > 0 && sheep[i].fedState == 0) {
+							countFeed--; sheep[i].fedState = 1; ranchTimer = 20; isRanchTimerActive = 1;
+						}
+						else if (selectedRanchTool == 2 && sheep[i].hasProduce) {
+							sheep[i].hasProduce = 0; countWool++;
+						}
 					}
 				}
 			}
@@ -491,11 +477,9 @@ void fixedUpdate() {
 		}
 	}
 
-	// 2. Level 2 Farm Man Movement via Arrow Keys on Roads
+	// 2. Level 2 Farm Man Movement (Sideways Only via Left/Right Arrow Keys)
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen) {
 		int step = 8;
-		if (isSpecialKeyPressed(GLUT_KEY_UP)) moveFarmMan(0, step);
-		if (isSpecialKeyPressed(GLUT_KEY_DOWN)) moveFarmMan(0, -step);
 		if (isSpecialKeyPressed(GLUT_KEY_LEFT)) moveFarmMan(-step, 0);
 		if (isSpecialKeyPressed(GLUT_KEY_RIGHT)) moveFarmMan(step, 0);
 	}
@@ -556,7 +540,12 @@ void iKeyboard(unsigned char key) {
 		}
 		else {
 			if (key == ' ' || key == '\r') {
-				collectProduceByFarmMan();
+				if (selectedRanchTool == 1) {
+					feedAnimalsByFarmMan();
+				}
+				else if (selectedRanchTool == 2) {
+					collectProduceByFarmMan();
+				}
 			}
 		}
 	}
