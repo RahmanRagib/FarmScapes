@@ -120,7 +120,7 @@ void iDraw() {
 void iMouse(int button, int state, int mx, int my) {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 
-		// 1. MENU
+		// 1. MENU STATE
 		if (gameState == STATE_MENU) {
 			if (mx >= 290 && mx <= 510 && my >= 410 && my <= 480) {
 				gameState = STATE_LOADING;
@@ -133,7 +133,7 @@ void iMouse(int button, int state, int mx, int my) {
 				exit(0);
 			}
 		}
-		// 2. SETTINGS / CREDITS
+		// 2. SETTINGS / CREDITS STATE
 		else if (gameState == STATE_SETTINGS) {
 			if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410) toggleMusic();
 			else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290) gameState = STATE_MENU;
@@ -172,7 +172,7 @@ void iMouse(int button, int state, int mx, int my) {
 				return;
 			}
 
-			// Marketplace Overlay Interactions
+			// Market Overlay
 			if (isMarketOpen) {
 				if (mx >= 600 && mx <= 680 && my >= 80 && my <= 110) {
 					isMarketOpen = 0;
@@ -226,10 +226,10 @@ void iMouse(int button, int state, int mx, int my) {
 
 			// Toolbar Selection
 			if (my >= 20 && my <= 80) {
-				if (mx >= 160 && mx <= 270) selectedTool = 1; // PLOW
-				if (mx >= 280 && mx <= 390) selectedTool = 2; // PLANT
-				if (mx >= 400 && mx <= 510) selectedTool = 3; // WATER
-				if (mx >= 520 && mx <= 640) selectedTool = 4; // HARVEST
+				if (mx >= 160 && mx <= 270) selectedTool = 1;
+				if (mx >= 280 && mx <= 390) selectedTool = 2;
+				if (mx >= 400 && mx <= 510) selectedTool = 3;
+				if (mx >= 520 && mx <= 640) selectedTool = 4;
 			}
 
 			// Tile Interactions
@@ -238,15 +238,12 @@ void iMouse(int button, int state, int mx, int my) {
 					Tile *t = &farmGrid[r][c];
 
 					if (mx >= t->x && mx <= t->x + 80 && my >= t->y && my <= t->y + 80) {
-
-						// 1. PLOW
 						if (selectedTool == 1) {
 							if (t->state == CROP_EMPTY || t->state == CROP_ROTTEN) {
 								t->state = CROP_PLOWED;
 								t->growTimer = 0;
 							}
 						}
-						// 2. PLANT
 						else if (selectedTool == 2 && t->state == CROP_PLOWED) {
 							if (seedBerry > 0) {
 								seedBerry--;
@@ -279,14 +276,12 @@ void iMouse(int button, int state, int mx, int my) {
 								}
 							}
 						}
-						// 3. WATER
 						else if (selectedTool == 3) {
 							if (t->state == CROP_SEEDED || t->state == BERRY_TREE) {
 								t->state = CROP_WATERED;
 								t->growTimer = 0;
 							}
 						}
-						// 4. HARVEST
 						else if (selectedTool == 4) {
 							if (t->state == CROP_READY) {
 								if (cropRiceCount < MAX_INVENTORY_CAP) {
@@ -331,7 +326,6 @@ void iMouse(int button, int state, int mx, int my) {
 				}
 			}
 		}
-
 		// 5. LEVEL 2 STATE
 		else if (gameState == STATE_LEVEL_2) {
 			// Top HUD Navigation Buttons
@@ -399,10 +393,10 @@ void iMouse(int button, int state, int mx, int my) {
 				return;
 			}
 
-			// Bottom Toolbar Selection
-			if (my >= 28 && my <= 72) {
-				if (mx >= 270 && mx <= 390) { selectedRanchTool = 1; return; }
-				if (mx >= 410 && mx <= 530) { selectedRanchTool = 2; return; }
+			// Upper Right Toolbar Selection
+			if (my >= 485 && my <= 521) {
+				if (mx >= 543 && mx <= 655) { selectedRanchTool = 1; return; }
+				if (mx >= 667 && mx <= 779) { selectedRanchTool = 2; return; }
 			}
 
 			// Animal Interactions (Gated by Pen Proximity)
@@ -445,7 +439,6 @@ void iMouse(int button, int state, int mx, int my) {
 		}
 	}
 }
-
 void iMouseMove(int mx, int my) {}
 void iPassiveMouseMove(int mx, int my) {}
 
