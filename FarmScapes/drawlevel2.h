@@ -24,8 +24,7 @@ extern int isRanchMarketOpen;
 
 // Farm Man Position
 int farmmanX = 400;
-int farmmanY = 130;
-
+int farmmanY = 50;
 // --- PEN PROXIMITY CHECKERS ---
 inline int isNearHenPen() {
 	return (farmmanX >= 80 && farmmanX <= 220);
@@ -41,15 +40,14 @@ inline int isNearSheepPen() {
 
 // --- ROAD CONSTRAINT CHECKER (SIDEWAYS ONLY) ---
 inline int isValidRoad(int x, int y) {
-	// Restrict strictly to main horizontal road at y = 130
-	if (y == 130 && x >= 80 && x <= 720) return 1;
+	if (y == 90 && x >= 80 && x <= 720) return 1;
 	return 0;
 }
 
 // --- MOVE FARM MAN WITH ROAD RESTRICTION ---
 inline void moveFarmMan(int dx, int dy) {
 	int newX = farmmanX + dx;
-	int newY = 130; // Keep Y fixed to force sideways movement on road
+	int newY = 90; // Keep Y fixed at 90
 	if (isValidRoad(newX, newY)) {
 		farmmanX = newX;
 	}
@@ -139,7 +137,7 @@ inline void initLevel2() {
 	sheepBuyPrice = 70;
 
 	farmmanX = 400;
-	farmmanY = 130;
+	farmmanY = 50; // Lowered starting position
 
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
 		hens[i].isAlive = 0;
@@ -147,7 +145,6 @@ inline void initLevel2() {
 		sheep[i].isAlive = 0;
 	}
 
-	// Initial Setup
 	henCount = 2;
 	hens[0].x = 100; hens[0].y = 170; hens[0].type = ANIMAL_HEN; hens[0].fedState = 0; hens[0].produceTimer = 0; hens[0].hasProduce = 0; hens[0].isAlive = 1;
 	hens[1].x = 170; hens[1].y = 170; hens[1].type = ANIMAL_HEN; hens[1].fedState = 0; hens[1].produceTimer = 0; hens[1].hasProduce = 0; hens[1].isAlive = 1;
@@ -244,23 +241,28 @@ inline void drawLevel2() {
 	for (int i = 0; i < cowCount; i++) renderAnimal(&cows[i], "assets/cow.bmp");
 	for (int i = 0; i < sheepCount; i++) renderAnimal(&sheep[i], "assets/sheep.bmp");
 
-	// Draw Farm Man on the road
+	// Draw Farm Man
 	iShowBMP2(farmmanX, farmmanY, (char*)"assets/farmman1.bmp", 0);
 
-	// UI Toolbar at the bottom
-	iSetColor(190, 155, 110);
-	iFilledRectangle(250, 20, 300, 60);
+	// --- UPPER RIGHT TOOLBAR (BELOW HUD) ---
+	iSetColor(50, 28, 14);
+	iFilledRectangle(538, 480, 246, 46);
+	iSetColor(140, 95, 45);
+	iRectangle(538, 480, 246, 46);
 
+	// Feed Tool Button
 	if (selectedRanchTool == 1) iSetColor(45, 160, 55); else iSetColor(120, 100, 80);
-	iFilledRectangle(270, 28, 120, 44);
+	iFilledRectangle(543, 485, 112, 36);
 	iSetColor(255, 255, 255);
-	iText(295, 44, (char*)"FEED ANIMAL", GLUT_BITMAP_HELVETICA_10);
+	iText(560, 498, (char*)"FEED ANIMAL", GLUT_BITMAP_HELVETICA_10);
 
+	// Collect Tool Button
 	if (selectedRanchTool == 2) iSetColor(45, 160, 55); else iSetColor(120, 100, 80);
-	iFilledRectangle(410, 28, 120, 44);
+	iFilledRectangle(667, 485, 112, 36);
 	iSetColor(255, 255, 255);
-	iText(428, 44, (char*)"COLLECT", GLUT_BITMAP_HELVETICA_10);
+	iText(695, 498, (char*)"COLLECT", GLUT_BITMAP_HELVETICA_10);
 
+	// Top HUD
 	iSetColor(40, 40, 40);
 	iFilledRectangle(0, 540, 800, 60);
 
