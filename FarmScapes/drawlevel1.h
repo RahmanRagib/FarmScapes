@@ -20,26 +20,26 @@ extern int tomatoBuyPrice, tomatoSellPrice;
 extern int berryBuyPrice, berrySellPrice;
 
 inline void drawMarketplaceUI() {
-	
+
 	iSetColor(50, 28, 14);
 	iFilledRectangle(100, 70, 600, 440);
 
-	
+
 	iSetColor(140, 95, 45);
 	iRectangle(100, 70, 600, 440);
 
-	
+
 	iShowBMPAlternative2(280, 465, "assets/market.bmp", 0xFFFFFF);
 
-	
+
 	iShowBMPAlternative2(130, 435, "assets/gold.bmp", 0xFFFFFF);
 	char buf[64];
 	sprintf_s(buf, sizeof(buf), "$%d", playerGold);
 	iSetColor(240, 200, 80);
 	iText(270, 442, buf, GLUT_BITMAP_HELVETICA_18);
 
-	
-	
+
+
 	iShowBMPAlternative2(130, 400, "assets/scrops.bmp", 0xFFFFFF);
 
 	iSetColor(230, 210, 170);
@@ -126,7 +126,7 @@ inline void drawLevel1() {
 				iShowBMPAlternative(t.x, t.y, "assets/tile_tomato_ripe.bmp");
 				break;
 			case BERRY_TREE:
-				iShowBMPAlternative(t.x, t.y, "assets/tile_berrytree.bmp");
+				iShowBMPAlternative(t.x, t.y, "assets/tile_seeded.bmp");
 				break;
 			case BERRY_READY:
 				iShowBMPAlternative(t.x, t.y, "assets/tile_berry.bmp");
