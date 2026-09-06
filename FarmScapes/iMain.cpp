@@ -476,8 +476,8 @@ void fixedUpdate() {
 	// 2. Level 2 Farm Man Movement (Sideways Only via Left/Right Arrow Keys)
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen) {
 		int step = 8;
-		if (isSpecialKeyPressed(GLUT_KEY_LEFT)) moveFarmMan(-step, 0);
-		if (isSpecialKeyPressed(GLUT_KEY_RIGHT)) moveFarmMan(step, 0);
+		if (isKeyPressed('a') || isKeyPressed('A')) moveFarmMan(-step, 0);
+		if (isKeyPressed('d') || isKeyPressed('D')) moveFarmMan(step, 0);
 	}
 
 	// 3. DIALOGUE TOGGLE & LEVEL TRANSITION
