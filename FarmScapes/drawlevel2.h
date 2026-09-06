@@ -22,39 +22,38 @@ extern int henBuyPrice, cowBuyPrice, sheepBuyPrice;
 extern int selectedRanchTool; // 1 = Feed, 2 = Collect
 extern int isRanchMarketOpen;
 
-// Farm Man Position
-int farmmanX = 400;
-int farmmanY = 50;
+extern int ranchmanX;
+extern int ranchmanY; // Default Y is 90
+
 // --- PEN PROXIMITY CHECKERS ---
 inline int isNearHenPen() {
-	return (farmmanX >= 80 && farmmanX <= 220);
+	return (ranchmanX >= 80 && ranchmanX <= 220);
 }
 
 inline int isNearCowPen() {
-	return (farmmanX >= 280 && farmmanX <= 450);
+	return (ranchmanX >= 280 && ranchmanX <= 450);
 }
 
 inline int isNearSheepPen() {
-	return (farmmanX >= 550 && farmmanX <= 720);
+	return (ranchmanX >= 550 && ranchmanX <= 720);
 }
 
 // --- ROAD CONSTRAINT CHECKER (SIDEWAYS ONLY) ---
-inline int isValidRoad(int x, int y) {
-	if (y == 90 && x >= 80 && x <= 720) return 1;
+inline int isValidRoad(int x) {
+	if (x >= 80 && x <= 720) return 1;
 	return 0;
 }
 
-// --- MOVE FARM MAN WITH ROAD RESTRICTION ---
-inline void moveFarmMan(int dx, int dy) {
-	int newX = farmmanX + dx;
-	int newY = 90; // Keep Y fixed at 90
-	if (isValidRoad(newX, newY)) {
-		farmmanX = newX;
+// --- MOVE RANCH MAN WITH ROAD RESTRICTION ---
+inline void moveRanchMan(int dx, int dy) {
+	int newX = ranchmanX + dx;
+	if (isValidRoad(newX)) {
+		ranchmanX = newX;
 	}
 }
 
 // --- FEED ANIMALS IN CURRENT PEN ---
-inline void feedAnimalsByFarmMan() {
+inline void feedAnimalsByRanchMan() {
 	if (countFeed <= 0) return;
 
 	if (isNearHenPen()) {
@@ -90,7 +89,7 @@ inline void feedAnimalsByFarmMan() {
 }
 
 // --- COLLECT PRODUCE FROM CURRENT PEN ---
-inline void collectProduceByFarmMan() {
+inline void collectProduceByRanchMan() {
 	if (isNearHenPen()) {
 		for (int i = 0; i < henCount; i++) {
 			if (hens[i].isAlive && hens[i].hasProduce) {
@@ -136,8 +135,8 @@ inline void initLevel2() {
 	cowBuyPrice = 100;
 	sheepBuyPrice = 70;
 
-	farmmanX = 400;
-	farmmanY = 50; // Lowered starting position
+	ranchmanX = 400;
+	ranchmanY = 90;
 
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
 		hens[i].isAlive = 0;
@@ -156,7 +155,6 @@ inline void initLevel2() {
 	sheep[0].x = 610; sheep[0].y = 230; sheep[0].type = ANIMAL_SHEEP; sheep[0].fedState = 0; sheep[0].produceTimer = 0; sheep[0].hasProduce = 0; sheep[0].isAlive = 1;
 }
 
-// --- RENDER ANIMAL ---
 // --- RENDER ANIMAL ---
 inline void renderAnimal(struct Animal *a, const char* bmpPath) {
 	if (!a->isAlive) return;
@@ -246,8 +244,8 @@ inline void drawLevel2() {
 	for (int i = 0; i < cowCount; i++) renderAnimal(&cows[i], "assets/cow.bmp");
 	for (int i = 0; i < sheepCount; i++) renderAnimal(&sheep[i], "assets/sheep.bmp");
 
-	// Draw Farm Man
-	iShowBMP2(farmmanX, farmmanY, (char*)"assets/farmman1.bmp", 0);
+	// Draw Ranch Man
+	iShowBMP2(ranchmanX, ranchmanY, (char*)"assets/farmman1.bmp", 0);
 
 	// --- UPPER RIGHT TOOLBAR (BELOW HUD) ---
 	iSetColor(50, 28, 14);
