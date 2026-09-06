@@ -29,6 +29,12 @@ extern int isRanchMarketOpen;
 extern int ranchmanX;
 extern int ranchmanY;
 
+extern int ranchCollectionTimer;
+extern bool ranchCollectionTimerRunning;
+extern bool ranchFailed;
+extern int ranchFailedMessageTimer;
+extern bool ranchLevelCompleted;
+extern int ranchCompleteMessageTimer;
 
 // ============================================================
 // PEN PROXIMITY CHECKERS
@@ -79,6 +85,67 @@ inline void moveRanchMan(int dx, int dy)
 
 	// Vertical movement is intentionally restricted.
 	// ranchmanY remains fixed.
+}
+
+
+// ============================================================
+// COLLECTION TIMER HELPERS
+// ============================================================
+
+inline int hasAnyRanchProduce()
+{
+	for (int i = 0; i < henCount; i++)
+	{
+		if (hens[i].isAlive && hens[i].hasProduce)
+			return 1;
+	}
+
+	for (int i = 0; i < cowCount; i++)
+	{
+		if (cows[i].isAlive && cows[i].hasProduce)
+			return 1;
+	}
+
+	for (int i = 0; i < sheepCount; i++)
+	{
+		if (sheep[i].isAlive && sheep[i].hasProduce)
+			return 1;
+	}
+
+	return 0;
+}
+
+inline void resetAnimalsAfterFailedCollection()
+{
+	for (int i = 0; i < henCount; i++)
+	{
+		if (hens[i].isAlive)
+		{
+			hens[i].fedState = 0;
+			hens[i].hasProduce = 0;
+			hens[i].produceTimer = 0;
+		}
+	}
+
+	for (int i = 0; i < cowCount; i++)
+	{
+		if (cows[i].isAlive)
+		{
+			cows[i].fedState = 0;
+			cows[i].hasProduce = 0;
+			cows[i].produceTimer = 0;
+		}
+	}
+
+	for (int i = 0; i < sheepCount; i++)
+	{
+		if (sheep[i].isAlive)
+		{
+			sheep[i].fedState = 0;
+			sheep[i].hasProduce = 0;
+			sheep[i].produceTimer = 0;
+		}
+	}
 }
 
 
@@ -203,6 +270,12 @@ inline void collectProduceByRanchMan()
 			}
 		}
 	}
+
+	// Stop the collection timer once every available product is collected (if level incomplete)
+	if (!hasAnyRanchProduce() && !ranchLevelCompleted)
+	{
+		ranchCollectionTimerRunning = false;
+	}
 }
 
 
@@ -212,6 +285,18 @@ inline void collectProduceByRanchMan()
 
 inline void initLevel2()
 {
+	ranchmanX = 400;
+	ranchmanY = 30;
+
+	ranchCollectionTimer = 30;
+	ranchCollectionTimerRunning = false;
+
+	ranchFailed = false;
+	ranchFailedMessageTimer = 0;
+
+	ranchLevelCompleted = false;
+	ranchCompleteMessageTimer = 0;
+
 	// Inventory
 	countFeed = 5;
 
@@ -839,6 +924,121 @@ inline void drawLevel2()
 		GLUT_BITMAP_HELVETICA_12
 		);
 
+
+	// ========================================================
+	// COLLECTION TIMER
+	// ========================================================
+
+	if (ranchCollectionTimerRunning || hasAnyRanchProduce() || ranchLevelCompleted)
+	{
+		char timerText[64];
+
+		sprintf_s(
+			timerText,
+			sizeof(timerText),
+			"Collect Time: %02d",
+			ranchCollectionTimer
+			);
+
+		if (ranchLevelCompleted)
+			iSetColor(45, 160, 55);
+		else
+			iSetColor(220, 45, 45);
+
+		iFilledRectangle(20, 495, 170, 30);
+
+		iSetColor(255, 255, 255);
+		iText(
+			35,
+			505,
+			timerText,
+			GLUT_BITMAP_HELVETICA_12
+			);
+	}
+
+	// ========================================================
+	// LEVEL 2 GOAL
+	// ========================================================
+
+	if (!ranchLevelCompleted)
+	{
+		char goalText[64];
+
+		sprintf_s(
+			goalText,
+			sizeof(goalText),
+			"Goal: $200   Current: $%d",
+			playerGold
+			);
+
+		iSetColor(255, 255, 255);
+		iText(
+			250,
+			525,
+			goalText,
+			GLUT_BITMAP_HELVETICA_12
+			);
+	}
+
+	// ========================================================
+	// FAILED MESSAGE
+	// ========================================================
+
+	if (ranchFailed)
+	{
+		iSetColor(55, 30, 20);
+		iFilledRectangle(220, 230, 360, 130);
+
+		iSetColor(255, 255, 255);
+		iRectangle(220, 230, 360, 130);
+
+		iSetColor(255, 220, 120);
+		iText(
+			320,
+			315,
+			(char*)"Failed to collect!",
+			GLUT_BITMAP_HELVETICA_18
+			);
+
+		iSetColor(255, 255, 255);
+		iText(
+			275,
+			280,
+			(char*)"The animals are hungry again.",
+			GLUT_BITMAP_HELVETICA_12
+			);
+	}
+
+
+
+	// ========================================================
+	// LEVEL COMPLETE MESSAGE (Temporary Pop-up)
+	// ========================================================
+
+	if (ranchCompleteMessageTimer > 0)
+	{
+		iSetColor(35, 90, 40);
+		iFilledRectangle(200, 220, 400, 150);
+
+		iSetColor(255, 255, 255);
+		iRectangle(200, 220, 400, 150);
+
+		iSetColor(255, 215, 0);
+		iText(
+			315,
+			310,
+			(char*)"LEVEL 2 COMPLETE!",
+			GLUT_BITMAP_HELVETICA_18
+			);
+
+		iSetColor(255, 255, 255);
+		iText(
+			280,
+			275,
+			(char*)"You reached 200 gold!",
+			GLUT_BITMAP_HELVETICA_12
+			);
+	}
 
 	// ========================================================
 	// MARKET OVERLAY
