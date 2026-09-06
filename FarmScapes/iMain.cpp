@@ -33,7 +33,7 @@ int musicOn = 1;
 int eKeyPressedLastFrame = 0;
 
 // --- TOWN & SEASON VARIABLES ---
-int playerX = 400, playerY = 300, playerSpeed = 8;
+int playerX = 360, playerY = 270, playerSpeed = 8;
 int currentSeason = 0, seasonTimer = 40; // 0=Summer, 1=Rainy, 2=Winter
 int showDialogue = 0;
 char dialogueText[200] = "";
@@ -498,16 +498,16 @@ void fixedUpdate() {
 				else if (strcmp(npcName, "Anika") == 0 && level3Unlocked) {
 					// gameState = STATE_LEVEL_3;
 				}
-				// If level is locked, showDialogue set to 0 closes dialogue box and stays in STATE_TOWN
 			}
 			else {
-				// Open dialogue prompt based on proximity
-				if (playerX >= 480 && playerX <= 700 && playerY >= 320 && playerY <= 460) {
+				// Nadira Entrance Check
+				if (playerX >= 480 && playerX <= 570 && playerY >= 370 && playerY <= 460) {
 					strcpy(npcName, "Nadira");
 					strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
 					showDialogue = 1;
 				}
-				else if (playerX >= 450 && playerX <= 680 && playerY >= 210 && playerY <= 310) {
+				// Ragib Entrance Check
+				else if (playerX >= 450 && playerX <= 550 && playerY >= 240 && playerY <= 330) {
 					strcpy(npcName, "Ragib");
 					if (playerGold >= 100) {
 						level2Unlocked = 1;
@@ -518,7 +518,8 @@ void fixedUpdate() {
 					}
 					showDialogue = 1;
 				}
-				else if (playerX >= 450 && playerX <= 680 && playerY >= 100 && playerY <= 200) {
+				// Anika Entrance Check
+				else if (playerX >= 530 && playerX <= 670 && playerY >= 80 && playerY <= 180) {
 					strcpy(npcName, "Anika");
 					strcpy(dialogueText, level3Unlocked ? "Entering Fishery..." : "Welcome to the Fishery! Clear Level 2 first.");
 					showDialogue = 1;
