@@ -7,7 +7,7 @@ extern int playerGold;
 extern int selectedTool;
 extern int batchTimer;
 extern int batchActive;
-extern Tile farmGrid[3][3];
+extern Tile farmGrid[GRID_ROWS][GRID_COLS];
 
 extern int seedRice, seedTomato, seedBerry;
 extern int cropRiceCount, cropTomatoCount, cropBerryCount;
@@ -24,21 +24,16 @@ inline void drawMarketplaceUI() {
 	iSetColor(50, 28, 14);
 	iFilledRectangle(100, 70, 600, 440);
 
-
 	iSetColor(140, 95, 45);
 	iRectangle(100, 70, 600, 440);
 
-
 	iShowBMPAlternative2(280, 465, "assets/market.bmp", 0xFFFFFF);
-
 
 	iShowBMPAlternative2(130, 435, "assets/gold.bmp", 0xFFFFFF);
 	char buf[64];
 	sprintf_s(buf, sizeof(buf), "$%d", playerGold);
 	iSetColor(240, 200, 80);
 	iText(270, 442, buf, GLUT_BITMAP_HELVETICA_18);
-
-
 
 	iShowBMPAlternative2(130, 400, "assets/scrops.bmp", 0xFFFFFF);
 
@@ -96,11 +91,12 @@ inline void drawMarketplaceUI() {
 	iSetColor(255, 255, 255);
 	iText(618, 90, "CLOSE", GLUT_BITMAP_HELVETICA_12);
 }
+
 inline void drawLevel1() {
 	iSetColor(255, 255, 255);
 	iShowBMPAlternative(0, 0, "assets/mainland_bg.bmp");
 
-	// --- FARM TILES ---
+	// --- CENTERED FARM TILES ---
 	for (int r = 0; r < GRID_ROWS; r++) {
 		for (int c = 0; c < GRID_COLS; c++) {
 			Tile t = farmGrid[r][c];
@@ -185,7 +181,7 @@ inline void drawLevel1() {
 		iText(95, 34, "PLOW", GLUT_BITMAP_HELVETICA_10);
 	}
 
-	// --- TOP HUD BAR (Drawn near last) ---
+	// --- TOP HUD BAR ---
 	iSetColor(40, 40, 40);
 	iFilledRectangle(0, 540, 800, 60);
 
@@ -195,7 +191,7 @@ inline void drawLevel1() {
 	sprintf_s(hudStr, sizeof(hudStr), "Total: $%d", playerGold);
 	iText(10, 572, hudStr, GLUT_BITMAP_HELVETICA_12);
 
-	// ALWAYS VISIBLE TIMER (X: 10, Y: 548 - Below Gold)
+	// ALWAYS VISIBLE TIMER
 	iSetColor(255, 255, 0);
 	if (batchActive) {
 		sprintf_s(hudStr, sizeof(hudStr), "Timer: %ds", batchTimer);
@@ -205,13 +201,13 @@ inline void drawLevel1() {
 	}
 	iText(10, 548, hudStr, GLUT_BITMAP_HELVETICA_12);
 
-	// Compact Inventory Info (X: 110 to 410)
+	// Compact Inventory Info
 	iSetColor(255, 255, 255);
 	sprintf_s(hudStr, sizeof(hudStr), "Seeds: R:%d T:%d B:%d | Crops: R:%d T:%d B:%d",
 		seedRice, seedTomato, seedBerry, cropRiceCount, cropTomatoCount, cropBerryCount);
 	iText(110, 562, hudStr, GLUT_BITMAP_HELVETICA_10);
 
-	// Buttons (X: 420 to 780)
+	// Buttons
 	iSetColor(45, 130, 180);
 	iFilledRectangle(420, 552, 100, 34);
 	iSetColor(255, 255, 255);

@@ -227,12 +227,12 @@ void iMouse(int button, int state, int mx, int my) {
 				return;
 			}
 
-			// Toolbar Selection
+			// Toolbar Selection (Hitboxes matched precisely with drawlevel1.h)
 			if (my >= 20 && my <= 80) {
-				if (mx >= 160 && mx <= 270) selectedTool = 1;
-				if (mx >= 280 && mx <= 390) selectedTool = 2;
-				if (mx >= 400 && mx <= 510) selectedTool = 3;
-				if (mx >= 520 && mx <= 640) selectedTool = 4;
+				if (mx >= 170 && mx <= 260) selectedTool = 1; // PLOW
+				if (mx >= 290 && mx <= 380) selectedTool = 2; // PLANT
+				if (mx >= 410 && mx <= 500) selectedTool = 3; // WATER
+				if (mx >= 530 && mx <= 630) selectedTool = 4; // HARVEST
 			}
 
 			// Tile Interactions
@@ -473,7 +473,7 @@ void fixedUpdate() {
 		}
 	}
 
-	// 2. Level 2 Farm Man Movement (Sideways Only via Left/Right Arrow Keys)
+	// 2. Level 2 Farm Man Movement (Sideways Only via A/D Keys)
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen) {
 		int step = 8;
 		if (isKeyPressed('a') || isKeyPressed('A')) moveFarmMan(-step, 0);
@@ -498,7 +498,6 @@ void fixedUpdate() {
 				else if (strcmp(npcName, "Anika") == 0 && level3Unlocked) {
 					// gameState = STATE_LEVEL_3;
 				}
-				// If level is locked, showDialogue set to 0 closes dialogue box and stays in STATE_TOWN
 			}
 			else {
 				// Open dialogue prompt based on proximity
@@ -547,9 +546,9 @@ void iKeyboard(unsigned char key) {
 	}
 }
 
-// --- 3. ANIMATION TIMER CALLBACK ---
+// --- ANIMATION TIMER CALLBACK ---
 void iAnim() {
-	fixedUpdate(); // Ensures continuous frame movement executes
+	fixedUpdate();
 }
 
 void updateSeasonTimer() {
@@ -568,29 +567,38 @@ void updateLoading() {
 			loadingTimer = 0;
 		}
 	}
-
-
-	// --- ADD THIS BLOCK FOR LEVEL 2 LOADING ---
-		else if (gameState == STATE_LOADING_LEVEL2) {
-			loadingTimer += 2;
-			if (loadingTimer >= 100) {
-				gameState = STATE_LEVEL_2;
-				loadingTimer = 0;
-			}
+	else if (gameState == STATE_LOADING_LEVEL2) {
+		loadingTimer += 2;
+		if (loadingTimer >= 100) {
+			gameState = STATE_LEVEL_2;
+			loadingTimer = 0;
 		}
+	}
 }
-
-
 
 int main() {
 	initFarmGrid();
+
+	// Explicitly center the 3x3 Level 1 farm grid on 800x600 screen
+	int tileSize = 80;
+	int gap = 15;
+	int startX = (SCREEN_WIDTH - (GRID_COLS * tileSize + (GRID_COLS - 1) * gap)) / 2; // 265 px
+	int startY = 175; // Centered vertically between Y=80 and Y=540
+
+	for (int r = 0; r < GRID_ROWS; r++) {
+		for (int c = 0; c < GRID_COLS; c++) {
+			farmGrid[r][c].x = startX + c * (tileSize + gap);
+			farmGrid[r][c].y = startY + r * (tileSize + gap);
+		}
+	}
+
 	initLevel2();
 	initAudio();
 
 	iSetTimer(1000, updateCropGrowth);
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);
-	iSetTimer(1000, updateRanchTimer); // 20s countdown ticker per second
+	iSetTimer(1000, updateRanchTimer);
 	iSetTimer(50, updateLoading);
 	iSetTimer(20, iAnim);
 
