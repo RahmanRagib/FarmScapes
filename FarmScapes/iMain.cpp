@@ -25,6 +25,7 @@
 #define STATE_LOADING 4
 #define STATE_TOWN 5
 #define STATE_LEVEL_2 6
+#define STATE_LOADING_LEVEL2 7
 
 int gameState = STATE_MENU;
 int loadingTimer = 0;
@@ -47,6 +48,7 @@ int level2Unlocked = 0, level3Unlocked = 0;
 #include "updatecropgrowth.h"
 #include "drawlevel1.h"
 #include "animalgrowth.h"  // Included first so MAX_ANIMALS_PER_TYPE is defined
+#include "loading2.h"
 #include "drawlevel2.h"
 #include "drawTown.h"
 
@@ -110,6 +112,7 @@ void iDraw() {
 
 	if (gameState == STATE_MENU) drawMenu();
 	else if (gameState == STATE_LOADING) drawLoading();
+	else if (gameState == STATE_LOADING_LEVEL2) drawLevel2Loading();
 	else if (gameState == STATE_TOWN) drawTown();
 	else if (gameState == STATE_LEVEL_1) drawLevel1();
 	else if (gameState == STATE_LEVEL_2) drawLevel2();
@@ -490,7 +493,7 @@ void fixedUpdate() {
 					gameState = STATE_LEVEL_1;
 				}
 				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked) {
-					gameState = STATE_LEVEL_2;
+					gameState = STATE_LOADING_LEVEL2;
 				}
 				else if (strcmp(npcName, "Anika") == 0 && level3Unlocked) {
 					// gameState = STATE_LEVEL_3;
@@ -565,6 +568,16 @@ void updateLoading() {
 			loadingTimer = 0;
 		}
 	}
+
+
+	// --- ADD THIS BLOCK FOR LEVEL 2 LOADING ---
+		else if (gameState == STATE_LOADING_LEVEL2) {
+			loadingTimer += 2;
+			if (loadingTimer >= 100) {
+				gameState = STATE_LEVEL_2;
+				loadingTimer = 0;
+			}
+		}
 }
 
 
