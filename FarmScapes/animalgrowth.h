@@ -29,7 +29,10 @@ extern struct Animal cows[MAX_ANIMALS_PER_TYPE];
 extern struct Animal sheep[MAX_ANIMALS_PER_TYPE];
 extern int henCount, cowCount, sheepCount;
 
-extern int farmmanX, farmmanY;
+extern int ranchmanX, ranchmanY;
+
+extern int ranchCollectionTimer;
+extern bool ranchCollectionTimerRunning;
 
 // --- ANIMAL GROWTH UPDATE (Called every 1 sec via iSetTimer) ---
 inline void updateAnimalGrowth() {
@@ -43,6 +46,10 @@ inline void updateAnimalGrowth() {
 				hens[i].hasProduce = 1;
 				hens[i].fedState = 0;
 				hens[i].produceTimer = 0;
+
+				// Trigger 30-second collection timer
+				ranchCollectionTimer = 30;
+				ranchCollectionTimerRunning = true;
 			}
 		}
 	}
@@ -55,6 +62,10 @@ inline void updateAnimalGrowth() {
 				cows[i].hasProduce = 1;
 				cows[i].fedState = 0;
 				cows[i].produceTimer = 0;
+
+				// Trigger 30-second collection timer
+				ranchCollectionTimer = 30;
+				ranchCollectionTimerRunning = true;
 			}
 		}
 	}
@@ -67,6 +78,10 @@ inline void updateAnimalGrowth() {
 				sheep[i].hasProduce = 1;
 				sheep[i].fedState = 0;
 				sheep[i].produceTimer = 0;
+
+				// Trigger 30-second collection timer
+				ranchCollectionTimer = 30;
+				ranchCollectionTimerRunning = true;
 			}
 		}
 	}
