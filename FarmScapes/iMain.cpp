@@ -76,7 +76,14 @@ int level3Unlocked = 0;
 
 int ranchmanX = 400;
 int ranchmanY = 30;
+int ranchCollectionTimer = 30;
+bool ranchCollectionTimerRunning = false;
 
+bool ranchFailed = false;
+int ranchFailedMessageTimer = 0;
+
+bool ranchLevelCompleted = false;
+int ranchCompleteMessageTimer = 0;
 
 // ============================================================
 // INCLUDE GAME HEADERS
@@ -781,6 +788,12 @@ void iMouse(int button, int state, int mx, int my)
 				{
 					countEgg--;
 					playerGold += eggSellPrice;
+
+					if (playerGold >= 200 && !ranchLevelCompleted)
+					{
+						ranchLevelCompleted = true;
+						ranchCompleteMessageTimer = 3;
+					}
 				}
 
 				// Milk
@@ -789,6 +802,12 @@ void iMouse(int button, int state, int mx, int my)
 				{
 					countMilk--;
 					playerGold += milkSellPrice;
+
+					if (playerGold >= 200 && !ranchLevelCompleted)
+					{
+						ranchLevelCompleted = true;
+						ranchCompleteMessageTimer = 3;
+					}
 				}
 
 				// Wool
@@ -797,6 +816,12 @@ void iMouse(int button, int state, int mx, int my)
 				{
 					countWool--;
 					playerGold += woolSellPrice;
+
+					if (playerGold >= 200 && !ranchLevelCompleted)
+					{
+						ranchLevelCompleted = true;
+						ranchCompleteMessageTimer = 3;
+					}
 				}
 			}
 
@@ -971,6 +996,9 @@ void iMouse(int button, int state, int mx, int my)
 						hens[i].produceTimer = 0;
 
 						countEgg++;
+
+						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
+							ranchCollectionTimerRunning = false;
 					}
 				}
 			}
@@ -1005,6 +1033,9 @@ void iMouse(int button, int state, int mx, int my)
 						cows[i].produceTimer = 0;
 
 						countMilk++;
+
+						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
+							ranchCollectionTimerRunning = false;
 					}
 				}
 			}
@@ -1039,6 +1070,9 @@ void iMouse(int button, int state, int mx, int my)
 						sheep[i].produceTimer = 0;
 
 						countWool++;
+
+						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
+							ranchCollectionTimerRunning = false;
 					}
 				}
 			}
@@ -1064,18 +1098,64 @@ void iPassiveMouseMove(int mx, int my)
 // RANCH TIMER
 // ============================================================
 
+
 void updateRanchTimer()
 {
-	if (isRanchTimerActive &&
-		ranchTimer > 0)
-	{
-		ranchTimer--;
+	if (gameState != STATE_LEVEL_2)
+		return;
 
-		if (ranchTimer == 0)
-			isRanchTimerActive = 0;
+	// Don't count collection time while market is open
+	if (isRanchMarketOpen)
+		return;
+
+	// --------------------------------------------------------
+	// COLLECTION TIMER
+	// --------------------------------------------------------
+	if (ranchCollectionTimerRunning)
+	{
+		if (ranchCollectionTimer > 0)
+			ranchCollectionTimer--;
+
+		if (ranchCollectionTimer <= 0)
+		{
+			ranchCollectionTimer = 0;
+			ranchCollectionTimerRunning = false;
+
+			ranchFailed = true;
+			ranchFailedMessageTimer = 3;
+
+			// Make all animals hungry again
+			resetAnimalsAfterFailedCollection();
+		}
+	}
+
+	// --------------------------------------------------------
+	// FAILURE MESSAGE TIMER
+	// --------------------------------------------------------
+	if (ranchFailedMessageTimer > 0)
+	{
+		ranchFailedMessageTimer--;
+
+		if (ranchFailedMessageTimer <= 0)
+		{
+			ranchFailedMessageTimer = 0;
+			ranchFailed = false;
+		}
+	}
+
+	// --------------------------------------------------------
+	// COMPLETE MESSAGE TIMER (Counts down from 3 to 0)
+	// --------------------------------------------------------
+	if (ranchCompleteMessageTimer > 0)
+	{
+		ranchCompleteMessageTimer--;
+
+		if (ranchCompleteMessageTimer <= 0)
+		{
+			ranchCompleteMessageTimer = 0;
+		}
 	}
 }
-
 
 // ============================================================
 // CONTINUOUS GAME LOOP
