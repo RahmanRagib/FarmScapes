@@ -22,8 +22,8 @@ extern int henBuyPrice, cowBuyPrice, sheepBuyPrice;
 extern int selectedRanchTool; // 1 = Feed, 2 = Collect
 extern int isRanchMarketOpen;
 
-extern int ranchmanX;
-extern int ranchmanY; // Default Y is 90
+extern int ranchmanX ;
+extern int ranchmanY ; 
 
 // --- PEN PROXIMITY CHECKERS ---
 inline int isNearHenPen() {
@@ -38,13 +38,16 @@ inline int isNearSheepPen() {
 	return (ranchmanX >= 550 && ranchmanX <= 720);
 }
 
-// --- ROAD CONSTRAINT CHECKER (SIDEWAYS ONLY) ---
+
+
+// --- ROAD CONSTRAINT CHECKER ---
 inline int isValidRoad(int x) {
-	if (x >= 80 && x <= 720) return 1;
+	// Allow walking across the entire bottom horizontal screen width
+	if (x >= 20 && x <= 740) return 1;
 	return 0;
 }
 
-// --- MOVE RANCH MAN WITH ROAD RESTRICTION ---
+// --- MOVE RANCH MAN ---
 inline void moveRanchMan(int dx, int dy) {
 	int newX = ranchmanX + dx;
 	if (isValidRoad(newX)) {
@@ -119,6 +122,8 @@ inline void collectProduceByRanchMan() {
 	}
 }
 
+
+
 // --- INITIALIZE RANCH DATA ---
 inline void initLevel2() {
 	countFeed = 5;
@@ -135,8 +140,9 @@ inline void initLevel2() {
 	cowBuyPrice = 100;
 	sheepBuyPrice = 70;
 
+	// Reset character to bottom center
 	ranchmanX = 400;
-	ranchmanY = 90;
+	ranchmanY = 30;
 
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++) {
 		hens[i].isAlive = 0;
