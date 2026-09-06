@@ -38,7 +38,7 @@ int currentSeason = 0, seasonTimer = 40; // 0=Summer, 1=Rainy, 2=Winter
 int showDialogue = 0;
 char dialogueText[200] = "";
 char npcName[50] = "";
-int level2Unlocked = 0, level3Unlocked = 0;
+int level2Unlocked = 1, level3Unlocked = 0;
 
 #include "toggleMusic.h"
 #include "menu.h"

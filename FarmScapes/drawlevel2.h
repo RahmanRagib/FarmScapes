@@ -157,20 +157,25 @@ inline void initLevel2() {
 }
 
 // --- RENDER ANIMAL ---
+// --- RENDER ANIMAL ---
 inline void renderAnimal(struct Animal *a, const char* bmpPath) {
 	if (!a->isAlive) return;
 
+	// 1. Render base animal sprite
 	iShowBMP2(a->x, a->y, (char*)bmpPath, 0);
 
+	// 2. Anchor position above animal's head
+	int badgeX = a->x + 14;
+	int badgeY = a->y + 52;
+
+	// 3. Status Badges
 	if (a->hasProduce) {
-		iSetColor(255, 220, 0);
-		iFilledCircle(a->x + 20, a->y + 45, 8);
-		iSetColor(0, 0, 0);
-		iText(a->x + 17, a->y + 41, (char*)"!", GLUT_BITMAP_HELVETICA_12);
+		// Green tick icon
+		iShowBMP2(badgeX, badgeY, (char*)"assets/green.bmp", 0);
 	}
 	else if (a->fedState == 0) {
-		iSetColor(220, 50, 50);
-		iText(a->x, a->y - 12, (char*)"Hungry", GLUT_BITMAP_HELVETICA_10);
+		// Red exclamation mark icon
+		iShowBMP2(badgeX, badgeY, (char*)"assets/red.bmp", 0);
 	}
 }
 
