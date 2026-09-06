@@ -39,6 +39,8 @@ int showDialogue = 0;
 char dialogueText[200] = "";
 char npcName[50] = "";
 int level2Unlocked = 1, level3Unlocked = 0;
+int ranchmanX = 400;
+int ranchmanY = 60;
 
 #include "toggleMusic.h"
 #include "menu.h"
@@ -476,8 +478,8 @@ void fixedUpdate() {
 	// 2. Level 2 Farm Man Movement (Sideways Only via A/D Keys)
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen) {
 		int step = 8;
-		if (isKeyPressed('a') || isKeyPressed('A')) moveFarmMan(-step, 0);
-		if (isKeyPressed('d') || isKeyPressed('D')) moveFarmMan(step, 0);
+		if (isKeyPressed('a') || isKeyPressed('A')) moveRanchMan(-step, 0);
+		if (isKeyPressed('d') || isKeyPressed('D')) moveRanchMan(step, 0);
 	}
 
 	// 3. DIALOGUE TOGGLE & LEVEL TRANSITION
@@ -531,23 +533,55 @@ void fixedUpdate() {
 }
 
 void iKeyboard(unsigned char key) {
+	// --- LEVEL 2 CONTROLS ---
 	if (gameState == STATE_LEVEL_2) {
+		// Close market overlay with ESC
 		if (isRanchMarketOpen) {
-			if (key == 27) isRanchMarketOpen = 0; // ESC to close market
+			if (key == 27) isRanchMarketOpen = 0;
+			return;
 		}
-		else {
-			if (key == ' ' || key == '\r') {
-				if (selectedRanchTool == 1) {
-					feedAnimalsByFarmMan();
-				}
-				else if (selectedRanchTool == 2) {
-					collectProduceByFarmMan();
-				}
+
+		// Movement with 'A' and 'D'
+		if (key == 'a' || key == 'A') moveRanchMan(-15, 0);
+		if (key == 'd' || key == 'D') moveRanchMan(15, 0);
+
+		// Switch tools with number keys (1 = Feed, 2 = Collect)
+		if (key == '1') selectedRanchTool = 1;
+		if (key == '2') selectedRanchTool = 2;
+
+		// Perform action on nearby pen animals with Spacebar or Enter
+		if (key == ' ' || key == '\r') {
+			if (selectedRanchTool == 1) {
+				feedAnimalsByRanchMan();
+			}
+			else if (selectedRanchTool == 2) {
+				collectProduceByRanchMan();
 			}
 		}
 	}
+	// --- TOWN CONTROLS ---
+	else if (gameState == STATE_TOWN) {
+		// Add your town-specific keyboard input handlers here (e.g., A/D or WASD)
+	}
+	// --- MENU / OTHER STATES ---
+	else if (gameState == STATE_MENU) {
+		// Menu keyboard handlers
+	}
 }
 
+void iSpecialKeyboard(unsigned char key) {
+	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen) {
+		if (key == GLUT_KEY_LEFT) {
+			moveRanchMan(-15, 0);
+		}
+		if (key == GLUT_KEY_RIGHT) {
+			moveRanchMan(15, 0);
+		}
+	}
+	else if (gameState == STATE_TOWN) {
+		// Arrow keys for Town movement
+	}
+}
 // --- ANIMATION TIMER CALLBACK ---
 void iAnim() {
 	fixedUpdate();
