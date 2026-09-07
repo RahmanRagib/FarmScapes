@@ -1109,6 +1109,15 @@ void updateRanchTimer()
 		return;
 
 	// --------------------------------------------------------
+	// START COLLECTION TIMER WHEN PRODUCE APPEARS
+	// --------------------------------------------------------
+	if (hasAnyRanchProduce() && !ranchCollectionTimerRunning)
+	{
+		ranchCollectionTimer = 30;
+		ranchCollectionTimerRunning = true;
+	}
+
+	// --------------------------------------------------------
 	// COLLECTION TIMER
 	// --------------------------------------------------------
 	if (ranchCollectionTimerRunning)
@@ -1144,7 +1153,7 @@ void updateRanchTimer()
 	}
 
 	// --------------------------------------------------------
-	// COMPLETE MESSAGE TIMER (Counts down from 3 to 0)
+	// COMPLETE MESSAGE TIMER
 	// --------------------------------------------------------
 	if (ranchCompleteMessageTimer > 0)
 	{
