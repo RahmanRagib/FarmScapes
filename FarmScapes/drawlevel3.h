@@ -9,16 +9,20 @@
 #define L3_SCREEN_HEIGHT 600
 
 // Water Boundaries (Playable movement area for the boat)
-#define WATER_MIN_X 20
-#define WATER_MAX_X 720
-#define WATER_MIN_Y 20
-#define WATER_MAX_Y 440
+#define WATER_MIN_X 10
+#define WATER_MAX_X 710
+#define WATER_MIN_Y 10
+#define WATER_MAX_Y 450
 
-// Wooden Pier Bounds
-#define PIER_X 60
-#define PIER_Y 400
-#define PIER_WIDTH 140
-#define PIER_HEIGHT 100
+// Wooden Pier Bounds (Extended down to 340 to cover support stilts)
+#define PIER_X 50
+#define PIER_Y 350
+#define PIER_WIDTH 160
+#define PIER_HEIGHT 170
+
+// Boat Collision Box (Expanded height to include fisherman character & hat)
+#define BOAT_WIDTH 75
+#define BOAT_HEIGHT 45
 
 // Transparent Key for BMP (0xFFFFFF = Pure White background transparency)
 #define SPRITE_TRANSPARENT_KEY 0xFFFFFF
@@ -27,7 +31,6 @@
 struct BoatPlayer {
     double x, y;
     double speed;
-    bool isAtPier;
     bool facingRight; // Tracks orientation (true = Right, false = Left)
 };
 
@@ -35,30 +38,38 @@ static BoatPlayer boat;
 
 // Initialize Level 3 state
 inline void initLevel3() {
-    boat.x = PIER_X + PIER_WIDTH + 10;
-    boat.y = PIER_Y - 20;
+    boat.x = PIER_X + PIER_WIDTH + 20; // Start safely to the right of the pier
+    boat.y = 280;                       // Start safely below the pier stilts
     boat.speed = 5.0;
-    boat.isAtPier = true;
     boat.facingRight = true;
 }
 
-// Checks if the boat is close enough to dock at the pier
-inline void updatePierProximity() {
-    if (boat.x <= (PIER_X + PIER_WIDTH + 25) &&
-        boat.y >= (PIER_Y - 40) &&
-        boat.y <= (PIER_Y + PIER_HEIGHT + 20)) {
-        boat.isAtPier = true;
-    } else {
-        boat.isAtPier = false;
+// Collision Check: Determines if moving to (x, y) overlaps with the pier
+inline bool isCollidingWithPier(double x, double y) {
+    double boatLeft = x;
+    double boatRight = x + BOAT_WIDTH;
+    double boatBottom = y;
+    double boatTop = y + BOAT_HEIGHT;
+
+    double pierLeft = PIER_X;
+    double pierRight = PIER_X + PIER_WIDTH;
+    double pierBottom = PIER_Y;
+    double pierTop = PIER_Y + PIER_HEIGHT;
+
+    // Overlap check on both axes
+    if (boatRight > pierLeft && boatLeft < pierRight &&
+        boatTop > pierBottom && boatBottom < pierTop) {
+        return true; // Collision detected
     }
+    return false;
 }
 
-// WASD Movement, Direction Flipping & Pier Interaction
-inline bool handleLevel3Keyboard(unsigned char key) {
+// WASD Movement with Independent Axis Pier Collision Checking
+inline void handleLevel3Keyboard(unsigned char key) {
     double nextX = boat.x;
     double nextY = boat.y;
 
-    // Movement & Orientation
+    // Determine target coordinates based on key pressed
     if (key == 'w' || key == 'W') nextY += boat.speed;
     if (key == 's' || key == 'S') nextY -= boat.speed;
 
@@ -71,59 +82,40 @@ inline bool handleLevel3Keyboard(unsigned char key) {
         boat.facingRight = true;  // Turn right
     }
 
-    // Apply movement within strict water boundaries
-    if (nextX >= WATER_MIN_X && nextX <= WATER_MAX_X) {
+    // Apply X movement if within water boundary and NOT colliding with pier
+    if (nextX >= WATER_MIN_X && nextX <= WATER_MAX_X && !isCollidingWithPier(nextX, boat.y)) {
         boat.x = nextX;
     }
-    if (nextY >= WATER_MIN_Y && nextY <= WATER_MAX_Y) {
+
+    // Apply Y movement if within water boundary and NOT colliding with pier
+    if (nextY >= WATER_MIN_Y && nextY <= WATER_MAX_Y && !isCollidingWithPier(boat.x, nextY)) {
         boat.y = nextY;
     }
-
-    // Update pier proximity after position change
-    updatePierProximity();
-
-    // Return true when docking at pier and pressing 'E'
-    if ((key == 'e' || key == 'E') && boat.isAtPier) {
-        return true;
-    }
-
-    return false;
 }
 
-// Render Level 3 environment and player boat
+// Render Level 3 environment, UI, and player boat
 inline void drawLevel3() {
-    // 1. Water Background (Cyan/Blue)
-    iSetColor(30, 144, 255);
-    iFilledRectangle(0, 0, L3_SCREEN_WIDTH, L3_SCREEN_HEIGHT);
+    // 1. Render Pre-baked BMP Background
+    iShowBMP(0, 0, "assets/lvl3_bg.bmp");
 
-    // 2. Shore / Grass Top Edge
-    iSetColor(34, 139, 34);
-    iFilledRectangle(0, WATER_MAX_Y + 50, L3_SCREEN_WIDTH, L3_SCREEN_HEIGHT - (WATER_MAX_Y + 50));
-
-    // 3. Wooden Pier
-    iSetColor(139, 69, 19);
-    iFilledRectangle(PIER_X, PIER_Y, PIER_WIDTH, PIER_HEIGHT);
-
-    // Pier Posts
-    iSetColor(90, 40, 10);
-    for (int px = PIER_X + 10; px < PIER_X + PIER_WIDTH; px += 30) {
-        iFilledRectangle(px, PIER_Y - 12, 10, 12);
-    }
-
-    // 4. Render Directional Boat Sprite
-    // Flips asset based on direction and strips pure white (0xFFFFFF) background
+    // 2. Render Directional Boat Sprite
     const char* boatSprite = boat.facingRight ? "assets/boat_right.bmp" : "assets/boat_left.bmp";
     iShowBMPAlternative2((int)boat.x, (int)boat.y, (char*)boatSprite, SPRITE_TRANSPARENT_KEY);
 
-    // 5. Interaction UI Prompt
-    if (boat.isAtPier) {
-        iSetColor(255, 255, 255);
-        iText(PIER_X, PIER_Y + PIER_HEIGHT + 15, "Docked at Pier: Press [E] to Return to Town", GLUT_BITMAP_HELVETICA_12);
-    }
+    // 3. Top Navigation Buttons (Town & Menu)
+    iSetColor(50, 50, 50);
+    iFilledRectangle(545, 552, 110, 34);
+    iFilledRectangle(670, 552, 110, 34);
 
-    // Navigation Hint
+    iSetColor(255, 255, 255);
+    iRectangle(545, 552, 110, 34);
+    iRectangle(670, 552, 110, 34);
+    iText(578, 563, "TOWN", GLUT_BITMAP_HELVETICA_12);
+    iText(703, 563, "MENU", GLUT_BITMAP_HELVETICA_12);
+
+    // 4. Navigation Hint
     iSetColor(240, 240, 240);
-    iText(15, 15, "Use WASD to move the boat | Press E at pier to exit", GLUT_BITMAP_HELVETICA_12);
+    iText(15, 15, "Use WASD to move the boat | Click TOWN or MENU at top right to exit", GLUT_BITMAP_HELVETICA_12);
 }
 
 #endif // DRAWLEVEL3_H
