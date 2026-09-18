@@ -296,6 +296,10 @@ void iDraw()
 
 void iMouse(int button, int state, int mx, int my)
 {
+	if (gameState == STATE_LEVEL_3 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+		handleFisheryAction();
+		return; // Prevents clicks from triggering other things underneath
+	}
 	if (button != GLUT_LEFT_BUTTON ||
 		state != GLUT_DOWN)
 		return;
