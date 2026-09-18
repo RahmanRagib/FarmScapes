@@ -34,8 +34,8 @@
 #define STATE_TOWN 5
 #define STATE_LEVEL_2 6
 #define STATE_LOADING_LEVEL2 7
-#define STATE_LEVEL_3 8       
-#define STATE_LOADING_LEVEL3 9 
+#define STATE_LEVEL_3 8
+#define STATE_LOADING_LEVEL3 9
 
 // ============================================================
 // GLOBAL GAME VARIABLES
@@ -68,7 +68,7 @@ char dialogueText[200] = "";
 char npcName[50] = "";
 
 int level2Unlocked = 1;
-int level3Unlocked = 0;
+int level3Unlocked = 1;
 
 
 // ============================================================
@@ -296,12 +296,7 @@ void iDraw()
 
 void iMouse(int button, int state, int mx, int my)
 {
-	if (gameState == STATE_LEVEL_3 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-		handleFisheryAction();
-		return; // Prevents clicks from triggering other things underneath
-	}
-	if (button != GLUT_LEFT_BUTTON ||
-		state != GLUT_DOWN)
+	if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN)
 		return;
 
 
@@ -333,13 +328,7 @@ void iMouse(int button, int state, int mx, int my)
 		else if (mx >= 290 && mx <= 510 &&
 			my >= 140 && my <= 210)
 		{
-			mciSendString(
-				"close bgmusic",
-				NULL,
-				0,
-				NULL
-				);
-
+			mciSendString("close bgmusic", NULL, 0, NULL);
 			exit(0);
 		}
 	}
@@ -857,22 +846,14 @@ void iMouse(int button, int state, int mx, int my)
 				else if (my >= 345 && my <= 367 &&
 					playerGold >= henBuyPrice)
 				{
-					for (int i = 0;
-						i < MAX_ANIMALS_PER_TYPE;
-						i++)
+					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 					{
 						if (!hens[i].isAlive)
 						{
 							playerGold -= henBuyPrice;
-
 							hens[i].isAlive = 1;
-
-							hens[i].x =
-								70 + (i % 2) * 55;
-
-							hens[i].y =
-								150 + (i / 2) * 55;
-
+							hens[i].x = 70 + (i % 2) * 55;
+							hens[i].y = 150 + (i / 2) * 55;
 							hens[i].fedState = 0;
 							hens[i].produceTimer = 0;
 							hens[i].hasProduce = 0;
@@ -889,22 +870,14 @@ void iMouse(int button, int state, int mx, int my)
 				else if (my >= 295 && my <= 317 &&
 					playerGold >= cowBuyPrice)
 				{
-					for (int i = 0;
-						i < MAX_ANIMALS_PER_TYPE;
-						i++)
+					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 					{
 						if (!cows[i].isAlive)
 						{
 							playerGold -= cowBuyPrice;
-
 							cows[i].isAlive = 1;
-
-							cows[i].x =
-								380 + (i % 2) * 60;
-
-							cows[i].y =
-								220 + (i / 2) * 60;
-
+							cows[i].x = 380 + (i % 2) * 60;
+							cows[i].y = 220 + (i / 2) * 60;
 							cows[i].fedState = 0;
 							cows[i].produceTimer = 0;
 							cows[i].hasProduce = 0;
@@ -921,22 +894,14 @@ void iMouse(int button, int state, int mx, int my)
 				else if (my >= 245 && my <= 267 &&
 					playerGold >= sheepBuyPrice)
 				{
-					for (int i = 0;
-						i < MAX_ANIMALS_PER_TYPE;
-						i++)
+					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 					{
 						if (!sheep[i].isAlive)
 						{
 							playerGold -= sheepBuyPrice;
-
 							sheep[i].isAlive = 1;
-
-							sheep[i].x =
-								580 + (i % 2) * 60;
-
-							sheep[i].y =
-								180 + (i / 2) * 60;
-
+							sheep[i].x = 580 + (i % 2) * 60;
+							sheep[i].y = 180 + (i / 2) * 60;
 							sheep[i].fedState = 0;
 							sheep[i].produceTimer = 0;
 							sheep[i].hasProduce = 0;
@@ -995,9 +960,7 @@ void iMouse(int button, int state, int mx, int my)
 						hens[i].fedState == 0)
 					{
 						countFeed--;
-
 						hens[i].fedState = 1;
-
 						ranchTimer = 20;
 						isRanchTimerActive = 1;
 					}
@@ -1007,7 +970,6 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						hens[i].hasProduce = 0;
 						hens[i].produceTimer = 0;
-
 						countEgg++;
 
 						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
@@ -1032,9 +994,7 @@ void iMouse(int button, int state, int mx, int my)
 						cows[i].fedState == 0)
 					{
 						countFeed--;
-
 						cows[i].fedState = 1;
-
 						ranchTimer = 20;
 						isRanchTimerActive = 1;
 					}
@@ -1044,7 +1004,6 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						cows[i].hasProduce = 0;
 						cows[i].produceTimer = 0;
-
 						countMilk++;
 
 						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
@@ -1069,9 +1028,7 @@ void iMouse(int button, int state, int mx, int my)
 						sheep[i].fedState == 0)
 					{
 						countFeed--;
-
 						sheep[i].fedState = 1;
-
 						ranchTimer = 20;
 						isRanchTimerActive = 1;
 					}
@@ -1081,7 +1038,6 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						sheep[i].hasProduce = 0;
 						sheep[i].produceTimer = 0;
-
 						countWool++;
 
 						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
@@ -1091,19 +1047,27 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 	}
+
+
+	// ========================================================
+	// LEVEL 3
+	// ========================================================
+
 	else if (gameState == STATE_LEVEL_3)
 	{
-		// Town button bounds (Clicking this returns you to Town)
-		if (mx >= 545 && mx <= 655 && my >= 552 && my <= 586)
+		// Top navigation buttons for returning to Town or Menu
+		if (my >= 552 && my <= 586)
 		{
-			gameState = STATE_TOWN;
-			return;
-		}
-		// Main Menu button bounds (Clicking this returns to the main menu)
-		if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586)
-		{
-			gameState = STATE_MENU;
-			return;
+			if (mx >= 545 && mx <= 655)
+			{
+				gameState = STATE_TOWN;
+				return;
+			}
+			if (mx >= 670 && mx <= 780)
+			{
+				gameState = STATE_MENU;
+				return;
+			}
 		}
 	}
 }
@@ -1126,28 +1090,20 @@ void iPassiveMouseMove(int mx, int my)
 // RANCH TIMER
 // ============================================================
 
-
 void updateRanchTimer()
 {
 	if (gameState != STATE_LEVEL_2)
 		return;
 
-	// Don't count collection time while market is open
 	if (isRanchMarketOpen)
 		return;
 
-	// --------------------------------------------------------
-	// START COLLECTION TIMER WHEN PRODUCE APPEARS
-	// --------------------------------------------------------
 	if (hasAnyRanchProduce() && !ranchCollectionTimerRunning)
 	{
 		ranchCollectionTimer = 30;
 		ranchCollectionTimerRunning = true;
 	}
 
-	// --------------------------------------------------------
-	// COLLECTION TIMER
-	// --------------------------------------------------------
 	if (ranchCollectionTimerRunning)
 	{
 		if (ranchCollectionTimer > 0)
@@ -1157,18 +1113,12 @@ void updateRanchTimer()
 		{
 			ranchCollectionTimer = 0;
 			ranchCollectionTimerRunning = false;
-
 			ranchFailed = true;
 			ranchFailedMessageTimer = 3;
-
-			// Make all animals hungry again
 			resetAnimalsAfterFailedCollection();
 		}
 	}
 
-	// --------------------------------------------------------
-	// FAILURE MESSAGE TIMER
-	// --------------------------------------------------------
 	if (ranchFailedMessageTimer > 0)
 	{
 		ranchFailedMessageTimer--;
@@ -1180,9 +1130,6 @@ void updateRanchTimer()
 		}
 	}
 
-	// --------------------------------------------------------
-	// COMPLETE MESSAGE TIMER
-	// --------------------------------------------------------
 	if (ranchCompleteMessageTimer > 0)
 	{
 		ranchCompleteMessageTimer--;
@@ -1194,6 +1141,7 @@ void updateRanchTimer()
 	}
 }
 
+
 // ============================================================
 // CONTINUOUS GAME LOOP
 // ============================================================
@@ -1201,29 +1149,21 @@ void updateRanchTimer()
 void fixedUpdate()
 {
 	// ========================================================
-	// TOWN + LEVEL 1 + LEVEL 3 MOVEMENT
+	// TOWN + LEVEL 1 MOVEMENT
 	// ========================================================
 
-	if ((gameState == STATE_TOWN && !showDialogue) ||
-		gameState == STATE_LEVEL_1 ||
-		gameState == STATE_LEVEL_3) // <--- Ensure STATE_LEVEL_3 is added here
+	if ((gameState == STATE_TOWN && !showDialogue) || gameState == STATE_LEVEL_1)
 	{
 		// UP
 		if (isKeyPressed('w') ||
 			isKeyPressed('W') ||
 			isSpecialKeyPressed(GLUT_KEY_UP))
 		{
-			int nextY = (gameState == STATE_LEVEL_3) ? (farmman3Y + farmman3Speed) : (playerY + playerSpeed);
-			int nextX = (gameState == STATE_LEVEL_3) ? farmman3X : playerX;
+			int nextY = playerY + playerSpeed;
+			int nextX = playerX;
 
-			if (gameState == STATE_LEVEL_3) {
-				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
-					farmman3Y = nextY;
-			}
-			else {
-				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-					playerY = nextY;
-			}
+			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+				playerY = nextY;
 		}
 
 		// DOWN
@@ -1231,17 +1171,11 @@ void fixedUpdate()
 			isKeyPressed('S') ||
 			isSpecialKeyPressed(GLUT_KEY_DOWN))
 		{
-			int nextY = (gameState == STATE_LEVEL_3) ? (farmman3Y - farmman3Speed) : (playerY - playerSpeed);
-			int nextX = (gameState == STATE_LEVEL_3) ? farmman3X : playerX;
+			int nextY = playerY - playerSpeed;
+			int nextX = playerX;
 
-			if (gameState == STATE_LEVEL_3) {
-				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
-					farmman3Y = nextY;
-			}
-			else {
-				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-					playerY = nextY;
-			}
+			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+				playerY = nextY;
 		}
 
 		// LEFT
@@ -1249,17 +1183,11 @@ void fixedUpdate()
 			isKeyPressed('A') ||
 			isSpecialKeyPressed(GLUT_KEY_LEFT))
 		{
-			int nextX = (gameState == STATE_LEVEL_3) ? (farmman3X - farmman3Speed) : (playerX - playerSpeed);
-			int nextY = (gameState == STATE_LEVEL_3) ? farmman3Y : playerY;
+			int nextX = playerX - playerSpeed;
+			int nextY = playerY;
 
-			if (gameState == STATE_LEVEL_3) {
-				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
-					farmman3X = nextX;
-			}
-			else {
-				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-					playerX = nextX;
-			}
+			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+				playerX = nextX;
 		}
 
 		// RIGHT
@@ -1267,17 +1195,11 @@ void fixedUpdate()
 			isKeyPressed('D') ||
 			isSpecialKeyPressed(GLUT_KEY_RIGHT))
 		{
-			int nextX = (gameState == STATE_LEVEL_3) ? (farmman3X + farmman3Speed) : (playerX + playerSpeed);
-			int nextY = (gameState == STATE_LEVEL_3) ? farmman3Y : playerY;
+			int nextX = playerX + playerSpeed;
+			int nextY = playerY;
 
-			if (gameState == STATE_LEVEL_3) {
-				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
-					farmman3X = nextX;
-			}
-			else {
-				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-					playerX = nextX;
-			}
+			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+				playerX = nextX;
 		}
 	}
 
@@ -1286,23 +1208,18 @@ void fixedUpdate()
 	// LEVEL 2 MOVEMENT
 	// ========================================================
 
-	if (gameState == STATE_LEVEL_2 &&
-		!isRanchMarketOpen)
+	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		int step = 8;
 
-
 		// LEFT
-		if (isKeyPressed('a') ||
-			isKeyPressed('A'))
+		if (isKeyPressed('a') || isKeyPressed('A'))
 		{
 			moveRanchMan(-step, 0);
 		}
 
-
 		// RIGHT
-		if (isKeyPressed('d') ||
-			isKeyPressed('D'))
+		if (isKeyPressed('d') || isKeyPressed('D'))
 		{
 			moveRanchMan(step, 0);
 		}
@@ -1315,22 +1232,14 @@ void fixedUpdate()
 
 	if (gameState == STATE_TOWN)
 	{
-		int eIsDown =
-			isKeyPressed('e') ||
-			isKeyPressed('E');
+		int eIsDown = isKeyPressed('e') || isKeyPressed('E');
 
-
-		if (eIsDown &&
-			!eKeyPressedLastFrame)
+		if (eIsDown && !eKeyPressedLastFrame)
 		{
-			// ------------------------------------------------
 			// CLOSE DIALOGUE
-			// ------------------------------------------------
-
 			if (showDialogue)
 			{
 				showDialogue = 0;
-
 
 				// LEVEL 1
 				if (strcmp(npcName, "Nadira") == 0)
@@ -1338,116 +1247,70 @@ void fixedUpdate()
 					gameState = STATE_LEVEL_1;
 				}
 
-
 				// LEVEL 2
-				else if (strcmp(npcName, "Ragib") == 0 &&
-					level2Unlocked)
+				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked)
 				{
 					gameState = STATE_LOADING_LEVEL2;
 				}
 
-
 				// LEVEL 3
-				else if (strcmp(npcName, "Anika") == 0 &&
-					level3Unlocked)
+				else if (strcmp(npcName, "Anika") == 0 && level3Unlocked)
 				{
-					 gameState = STATE_LEVEL_3;
+					initLevel3(); // Initialize boat position near pier
+					gameState = STATE_LEVEL_3;
 				}
 			}
 
-
-			// ------------------------------------------------
 			// OPEN DIALOGUE
-			// ------------------------------------------------
-
 			else
 			{
 				// Nadira
-				if (playerX >= 480 &&
-					playerX <= 570 &&
-					playerY >= 370 &&
-					playerY <= 460)
+				if (playerX >= 480 && playerX <= 570 &&
+					playerY >= 370 && playerY <= 460)
 				{
-					strcpy(
-						npcName,
-						"Nadira"
-						);
-
-					strcpy(
-						dialogueText,
-						"Welcome to the Farm! Press E again to enter Level 1."
-						);
-
+					strcpy(npcName, "Nadira");
+					strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
 					showDialogue = 1;
 				}
 
-
 				// Ragib
-				else if (playerX >= 450 &&
-					playerX <= 550 &&
-					playerY >= 240 &&
-					playerY <= 330)
+				else if (playerX >= 450 && playerX <= 550 &&
+					playerY >= 240 && playerY <= 330)
 				{
-					strcpy(
-						npcName,
-						"Ragib"
-						);
-
+					strcpy(npcName, "Ragib");
 
 					if (playerGold >= 100)
 					{
 						level2Unlocked = 1;
-
-						strcpy(
-							dialogueText,
-							"You have 100 gold! Press E again to enter Level 2."
-							);
+						strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 2.");
 					}
-
 					else
 					{
-						strcpy(
-							dialogueText,
-							"Welcome to the Ranch! Earn 100 gold in Level 1 first."
-							);
+						strcpy(dialogueText, "Welcome to the Ranch! Earn 100 gold in Level 1 first.");
 					}
 
 					showDialogue = 1;
 				}
 
-
 				// Anika
-				else if (playerX >= 530 &&
-					playerX <= 670 &&
-					playerY >= 80 &&
-					playerY <= 180)
+				else if (playerX >= 530 && playerX <= 670 &&
+					playerY >= 80 && playerY <= 180)
 				{
-					strcpy(
-						npcName,
-						"Anika"
-						);
-
+					strcpy(npcName, "Anika");
 
 					if (level3Unlocked)
 					{
-						strcpy(
-							dialogueText,
-							"Entering Fishery..."
-							);
+						strcpy(dialogueText, "Entering Fishery... Press E again to start.");
 					}
 					else
 					{
-						strcpy(
-							dialogueText,
-							"Welcome to the Fishery! Clear Level 2 first."
-							);
+						strcpy(dialogueText, "Welcome to the Fishery! Clear Level 2 first.");
 					}
 
 					showDialogue = 1;
 				}
 			}
 		}
-
 
 		eKeyPressedLastFrame = eIsDown;
 	}
@@ -1460,18 +1323,33 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
-	handleLevel3Keyboard(key); 
+	// ========================================================
+	// LEVEL 3
+	// ========================================================
 
-	if (key == '3') {          
+	if (gameState == STATE_LEVEL_3)
+	{
+		bool returnToTown = handleLevel3Keyboard(key);
+		if (returnToTown)
+		{
+			gameState = STATE_TOWN;
+		}
+		return;
+	}
+
+	if (key == '3')
+	{
+		initLevel3();
 		gameState = STATE_LEVEL_3;
 	}
+
+
 	// ========================================================
 	// LEVEL 2
 	// ========================================================
 
 	if (gameState == STATE_LEVEL_2)
 	{
-		// Market blocks other controls
 		if (isRanchMarketOpen)
 		{
 			if (key == 27)
@@ -1479,11 +1357,6 @@ void iKeyboard(unsigned char key)
 
 			return;
 		}
-
-
-		// ----------------------------------------------------
-		// TOOL SELECTION
-		// ----------------------------------------------------
 
 		if (key == '1')
 		{
@@ -1495,44 +1368,17 @@ void iKeyboard(unsigned char key)
 			selectedRanchTool = 2;
 		}
 
-
-		// ----------------------------------------------------
-		// ACTION
-		// ----------------------------------------------------
-
-		if (key == ' ' ||
-			key == '\r')
+		if (key == ' ' || key == '\r')
 		{
 			if (selectedRanchTool == 1)
 			{
 				feedAnimalsByRanchMan();
 			}
-
 			else if (selectedRanchTool == 2)
 			{
 				collectProduceByRanchMan();
 			}
 		}
-	}
-
-
-	// ========================================================
-	// TOWN
-	// ========================================================
-
-	else if (gameState == STATE_TOWN)
-	{
-		// Town keyboard handled by fixedUpdate()
-	}
-
-
-	// ========================================================
-	// MENU
-	// ========================================================
-
-	else if (gameState == STATE_MENU)
-	{
-		// Menu keyboard handlers
 	}
 }
 
@@ -1543,12 +1389,7 @@ void iKeyboard(unsigned char key)
 
 void iSpecialKeyboard(unsigned char key)
 {
-	// ========================================================
-	// LEVEL 2 ARROW MOVEMENT
-	// ========================================================
-
-	if (gameState == STATE_LEVEL_2 &&
-		!isRanchMarketOpen)
+	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		if (key == GLUT_KEY_LEFT)
 		{
@@ -1559,16 +1400,6 @@ void iSpecialKeyboard(unsigned char key)
 		{
 			moveRanchMan(15, 0);
 		}
-	}
-
-
-	// ========================================================
-	// TOWN
-	// ========================================================
-
-	else if (gameState == STATE_TOWN)
-	{
-		// Town movement handled by fixedUpdate()
 	}
 }
 
@@ -1595,9 +1426,7 @@ void updateSeasonTimer()
 	}
 	else
 	{
-		currentSeason =
-			(currentSeason + 1) % 3;
-
+		currentSeason = (currentSeason + 1) % 3;
 		seasonTimer = 40;
 	}
 }
@@ -1639,114 +1468,47 @@ void updateLoading()
 
 int main()
 {
-	// ========================================================
-	// INITIALIZE FARM
-	// ========================================================
-
+	// Initialize Level 1 Farm Grid
 	initFarmGrid();
-
-
-	// ========================================================
-	// CENTER LEVEL 1 GRID
-	// ========================================================
 
 	int tileSize = 80;
 	int gap = 15;
 
-	int startX =
-		(SCREEN_WIDTH -
-		(GRID_COLS * tileSize +
-		(GRID_COLS - 1) * gap)) / 2;
-
+	int startX = (SCREEN_WIDTH - (GRID_COLS * tileSize + (GRID_COLS - 1) * gap)) / 2;
 	int startY = 175;
-
 
 	for (int r = 0; r < GRID_ROWS; r++)
 	{
 		for (int c = 0; c < GRID_COLS; c++)
 		{
-			farmGrid[r][c].x =
-				startX +
-				c * (tileSize + gap);
-
-			farmGrid[r][c].y =
-				startY +
-				r * (tileSize + gap);
+			farmGrid[r][c].x = startX + c * (tileSize + gap);
+			farmGrid[r][c].y = startY + r * (tileSize + gap);
 		}
 	}
 
-
-	// ========================================================
-	// INITIALIZE LEVEL 2
-	// ========================================================
-
+	// Initialize Level 2
 	initLevel2();
 
+	// Initialize Level 3
+	initLevel3();
 
-	// ========================================================
-	// AUDIO
-	// ========================================================
-	initLevel3();                  
-	iSetTimer(1000, updateFisheryTimer);
-
+	// Audio
 	initAudio();
 
+	// Timers
+	iSetTimer(1000, updateCropGrowth);
+	iSetTimer(1000, updateAnimalGrowth);
+	iSetTimer(1000, updateSeasonTimer);
+	iSetTimer(1000, updateRanchTimer);
+	iSetTimer(50, updateLoading);
+	iSetTimer(20, iAnim);
 
-	// ========================================================
-	// TIMERS
-	// ========================================================
-
-	// Crop growth
-	iSetTimer(
-		1000,
-		updateCropGrowth
-		);
-
-
-	// Animal growth
-	iSetTimer(
-		1000,
-		updateAnimalGrowth
-		);
-
-
-	// Season
-	iSetTimer(
-		1000,
-		updateSeasonTimer
-		);
-
-
-	// Ranch timer
-	iSetTimer(
-		1000,
-		updateRanchTimer
-		);
-
-
-	// Loading
-	iSetTimer(
-		50,
-		updateLoading
-		);
-
-
-	// Main game update
-	iSetTimer(
-		20,
-		iAnim
-		);
-
-
-	// ========================================================
-	// START GRAPHICS
-	// ========================================================
-
+	// Start Graphics Engine
 	iInitialize(
 		SCREEN_WIDTH,
 		SCREEN_HEIGHT,
 		"FarmScapes - 2D Farming Simulator"
-		);
+	);
 
 	iStart();
 
