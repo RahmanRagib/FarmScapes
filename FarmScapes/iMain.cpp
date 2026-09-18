@@ -34,7 +34,8 @@
 #define STATE_TOWN 5
 #define STATE_LEVEL_2 6
 #define STATE_LOADING_LEVEL2 7
-
+#define STATE_LEVEL_3 8       
+#define STATE_LOADING_LEVEL3 9 
 
 // ============================================================
 // GLOBAL GAME VARIABLES
@@ -103,6 +104,8 @@ int ranchCompleteMessageTimer = 0;
 #include "loading2.h"
 #include "drawlevel2.h"
 #include "drawTown.h"
+
+#include "drawlevel3.h"
 
 
 // ============================================================
@@ -275,6 +278,9 @@ void iDraw()
 
 	else if (gameState == STATE_LEVEL_2)
 		drawLevel2();
+
+	else if (gameState == STATE_LEVEL_3)
+		drawLevel3();
 
 	else if (gameState == STATE_SETTINGS)
 		drawSettings();
@@ -793,6 +799,7 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						ranchLevelCompleted = true;
 						ranchCompleteMessageTimer = 3;
+						level3Unlocked = 1;
 					}
 				}
 
@@ -807,6 +814,7 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						ranchLevelCompleted = true;
 						ranchCompleteMessageTimer = 3;
+						level3Unlocked = 1;
 					}
 				}
 
@@ -821,6 +829,7 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						ranchLevelCompleted = true;
 						ranchCompleteMessageTimer = 3;
+						level3Unlocked = 1;
 					}
 				}
 			}
@@ -1078,6 +1087,21 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 	}
+	else if (gameState == STATE_LEVEL_3)
+	{
+		// Town button bounds (Clicking this returns you to Town)
+		if (mx >= 545 && mx <= 655 && my >= 552 && my <= 586)
+		{
+			gameState = STATE_TOWN;
+			return;
+		}
+		// Main Menu button bounds (Clicking this returns to the main menu)
+		if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586)
+		{
+			gameState = STATE_MENU;
+			return;
+		}
+	}
 }
 
 
@@ -1173,76 +1197,82 @@ void updateRanchTimer()
 void fixedUpdate()
 {
 	// ========================================================
-	// TOWN + LEVEL 1 MOVEMENT
+	// TOWN + LEVEL 1 + LEVEL 3 MOVEMENT
 	// ========================================================
 
 	if ((gameState == STATE_TOWN && !showDialogue) ||
-		gameState == STATE_LEVEL_1)
+		gameState == STATE_LEVEL_1 ||
+		gameState == STATE_LEVEL_3) // <--- Ensure STATE_LEVEL_3 is added here
 	{
 		// UP
 		if (isKeyPressed('w') ||
 			isKeyPressed('W') ||
 			isSpecialKeyPressed(GLUT_KEY_UP))
 		{
-			if (canWalk(
-				playerX,
-				playerY + playerSpeed) &&
-				isWithinBounds(
-				playerX,
-				playerY + playerSpeed))
-			{
-				playerY += playerSpeed;
+			int nextY = (gameState == STATE_LEVEL_3) ? (farmman3Y + farmman3Speed) : (playerY + playerSpeed);
+			int nextX = (gameState == STATE_LEVEL_3) ? farmman3X : playerX;
+
+			if (gameState == STATE_LEVEL_3) {
+				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
+					farmman3Y = nextY;
+			}
+			else {
+				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+					playerY = nextY;
 			}
 		}
-
 
 		// DOWN
 		if (isKeyPressed('s') ||
 			isKeyPressed('S') ||
 			isSpecialKeyPressed(GLUT_KEY_DOWN))
 		{
-			if (canWalk(
-				playerX,
-				playerY - playerSpeed) &&
-				isWithinBounds(
-				playerX,
-				playerY - playerSpeed))
-			{
-				playerY -= playerSpeed;
+			int nextY = (gameState == STATE_LEVEL_3) ? (farmman3Y - farmman3Speed) : (playerY - playerSpeed);
+			int nextX = (gameState == STATE_LEVEL_3) ? farmman3X : playerX;
+
+			if (gameState == STATE_LEVEL_3) {
+				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
+					farmman3Y = nextY;
+			}
+			else {
+				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+					playerY = nextY;
 			}
 		}
-
 
 		// LEFT
 		if (isKeyPressed('a') ||
 			isKeyPressed('A') ||
 			isSpecialKeyPressed(GLUT_KEY_LEFT))
 		{
-			if (canWalk(
-				playerX - playerSpeed,
-				playerY) &&
-				isWithinBounds(
-				playerX - playerSpeed,
-				playerY))
-			{
-				playerX -= playerSpeed;
+			int nextX = (gameState == STATE_LEVEL_3) ? (farmman3X - farmman3Speed) : (playerX - playerSpeed);
+			int nextY = (gameState == STATE_LEVEL_3) ? farmman3Y : playerY;
+
+			if (gameState == STATE_LEVEL_3) {
+				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
+					farmman3X = nextX;
+			}
+			else {
+				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+					playerX = nextX;
 			}
 		}
-
 
 		// RIGHT
 		if (isKeyPressed('d') ||
 			isKeyPressed('D') ||
 			isSpecialKeyPressed(GLUT_KEY_RIGHT))
 		{
-			if (canWalk(
-				playerX + playerSpeed,
-				playerY) &&
-				isWithinBounds(
-				playerX + playerSpeed,
-				playerY))
-			{
-				playerX += playerSpeed;
+			int nextX = (gameState == STATE_LEVEL_3) ? (farmman3X + farmman3Speed) : (playerX + playerSpeed);
+			int nextY = (gameState == STATE_LEVEL_3) ? farmman3Y : playerY;
+
+			if (gameState == STATE_LEVEL_3) {
+				if (canWalkLevel3(nextX, nextY) && isWithinBounds(nextX, nextY))
+					farmman3X = nextX;
+			}
+			else {
+				if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
+					playerX = nextX;
 			}
 		}
 	}
@@ -1317,7 +1347,7 @@ void fixedUpdate()
 				else if (strcmp(npcName, "Anika") == 0 &&
 					level3Unlocked)
 				{
-					// gameState = STATE_LEVEL_3;
+					 gameState = STATE_LEVEL_3;
 				}
 			}
 
@@ -1426,6 +1456,11 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
+	handleLevel3Keyboard(key); 
+
+	if (key == '3') {          
+		gameState = STATE_LEVEL_3;
+	}
 	// ========================================================
 	// LEVEL 2
 	// ========================================================
@@ -1647,6 +1682,8 @@ int main()
 	// ========================================================
 	// AUDIO
 	// ========================================================
+	initLevel3();                  
+	iSetTimer(1000, updateFisheryTimer);
 
 	initAudio();
 
