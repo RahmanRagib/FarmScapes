@@ -159,9 +159,6 @@ int sheepBuyPrice = 70;
 // ============================================================
 
 int selectedRanchTool = 1;
-// 1 = Feed
-// 2 = Collect
-
 int isRanchMarketOpen = 0;
 
 
@@ -170,7 +167,6 @@ int isRanchMarketOpen = 0;
 // ============================================================
 
 int ranchTimer = 0;
-
 int isRanchTimerActive = 0;
 
 
@@ -211,17 +207,11 @@ int cropBerryCount = 0;
 // ============================================================
 
 int isMarketOpen = 0;
-
 int massPlowUnlocked = 0;
-
 int showCapWarning = 0;
-
 int selectedTool = 0;
-
 int batchTimer = 0;
-
 int batchActive = 0;
-
 int hasRottenCrop = 0;
 
 
@@ -246,7 +236,6 @@ int isWithinBounds(int x, int y)
 
 	return 1;
 }
-
 
 void updatePlayer()
 {
@@ -299,211 +288,114 @@ void iMouse(int button, int state, int mx, int my)
 	if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN)
 		return;
 
-
-	// ========================================================
-	// MENU
-	// ========================================================
-
 	if (gameState == STATE_MENU)
 	{
-		if (mx >= 290 && mx <= 510 &&
-			my >= 410 && my <= 480)
+		if (mx >= 290 && mx <= 510 && my >= 410 && my <= 480)
 		{
 			gameState = STATE_LOADING;
 			loadingTimer = 0;
 		}
-
-		else if (mx >= 290 && mx <= 510 &&
-			my >= 320 && my <= 390)
+		else if (mx >= 290 && mx <= 510 && my >= 320 && my <= 390)
 		{
 			gameState = STATE_SETTINGS;
 		}
-
-		else if (mx >= 290 && mx <= 510 &&
-			my >= 230 && my <= 300)
+		else if (mx >= 290 && mx <= 510 && my >= 230 && my <= 300)
 		{
 			gameState = STATE_CREDITS;
 		}
-
-		else if (mx >= 290 && mx <= 510 &&
-			my >= 140 && my <= 210)
+		else if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
 		{
 			mciSendString("close bgmusic", NULL, 0, NULL);
 			exit(0);
 		}
 	}
-
-
-	// ========================================================
-	// SETTINGS
-	// ========================================================
-
 	else if (gameState == STATE_SETTINGS)
 	{
-		if (mx >= 290 && mx <= 510 &&
-			my >= 340 && my <= 410)
+		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
 		{
 			toggleMusic();
 		}
-
-		else if (mx >= 290 && mx <= 510 &&
-			my >= 220 && my <= 290)
+		else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
 		{
 			gameState = STATE_MENU;
 		}
 	}
-
-
-	// ========================================================
-	// CREDITS
-	// ========================================================
-
 	else if (gameState == STATE_CREDITS)
 	{
-		if (mx >= 290 && mx <= 510 &&
-			my >= 140 && my <= 210)
+		if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
 		{
 			gameState = STATE_MENU;
 		}
 	}
-
-
-	// ========================================================
-	// TOWN
-	// ========================================================
-
 	else if (gameState == STATE_TOWN)
 	{
-		if (mx >= 670 && mx <= 780 &&
-			my >= 20 && my <= 60)
+		if (mx >= 670 && mx <= 780 && my >= 20 && my <= 60)
 		{
 			gameState = STATE_MENU;
 			return;
 		}
 	}
-
-
-	// ========================================================
-	// LEVEL 1
-	// ========================================================
-
 	else if (gameState == STATE_LEVEL_1)
 	{
 		if (showCapWarning)
 			showCapWarning = 0;
 
-
-		// ----------------------------------------------------
-		// MARKET BUTTON
-		// ----------------------------------------------------
-
-		if (mx >= 420 && mx <= 520 &&
-			my >= 552 && my <= 586)
+		if (mx >= 420 && mx <= 520 && my >= 552 && my <= 586)
 		{
 			isMarketOpen = !isMarketOpen;
 			return;
 		}
-
-
-		// ----------------------------------------------------
-		// EXPLORE TOWN
-		// ----------------------------------------------------
-
-		if (mx >= 535 && mx <= 655 &&
-			my >= 552 && my <= 586)
+		if (mx >= 535 && mx <= 655 && my >= 552 && my <= 586)
 		{
 			gameState = STATE_TOWN;
 			return;
 		}
-
-
-		// ----------------------------------------------------
-		// MENU
-		// ----------------------------------------------------
-
-		if (mx >= 670 && mx <= 780 &&
-			my >= 552 && my <= 586)
+		if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586)
 		{
 			gameState = STATE_MENU;
 			return;
 		}
 
-
-		// ----------------------------------------------------
-		// MARKET OVERLAY
-		// ----------------------------------------------------
-
 		if (isMarketOpen)
 		{
-			// Close
-			if (mx >= 600 && mx <= 680 &&
-				my >= 80 && my <= 110)
+			if (mx >= 600 && mx <= 680 && my >= 80 && my <= 110)
 			{
 				isMarketOpen = 0;
 				return;
 			}
-
-
-			// Sell rice
-			if (mx >= 330 && mx <= 395 &&
-				my >= 370 && my <= 392 &&
-				cropRiceCount > 0)
+			if (mx >= 330 && mx <= 395 && my >= 370 && my <= 392 && cropRiceCount > 0)
 			{
 				cropRiceCount--;
 				playerGold += riceSellPrice;
 			}
-
-			// Sell tomato
-			else if (mx >= 330 && mx <= 395 &&
-				my >= 330 && my <= 352 &&
-				cropTomatoCount > 0)
+			else if (mx >= 330 && mx <= 395 && my >= 330 && my <= 352 && cropTomatoCount > 0)
 			{
 				cropTomatoCount--;
 				playerGold += tomatoSellPrice;
 			}
-
-			// Sell berry
-			else if (mx >= 330 && mx <= 395 &&
-				my >= 290 && my <= 312 &&
-				cropBerryCount > 0)
+			else if (mx >= 330 && mx <= 395 && my >= 290 && my <= 312 && cropBerryCount > 0)
 			{
 				cropBerryCount--;
 				playerGold += berrySellPrice;
 			}
 
-
-			// Buy rice
-			if (mx >= 600 && mx <= 665 &&
-				my >= 370 && my <= 392 &&
-				playerGold >= riceBuyPrice)
+			if (mx >= 600 && mx <= 665 && my >= 370 && my <= 392 && playerGold >= riceBuyPrice)
 			{
 				playerGold -= riceBuyPrice;
 				seedRice++;
 			}
-
-			// Buy tomato
-			else if (mx >= 600 && mx <= 665 &&
-				my >= 330 && my <= 352 &&
-				playerGold >= tomatoBuyPrice)
+			else if (mx >= 600 && mx <= 665 && my >= 330 && my <= 352 && playerGold >= tomatoBuyPrice)
 			{
 				playerGold -= tomatoBuyPrice;
 				seedTomato++;
 			}
-
-			// Buy berry
-			else if (mx >= 600 && mx <= 665 &&
-				my >= 290 && my <= 312 &&
-				playerGold >= berryBuyPrice)
+			else if (mx >= 600 && mx <= 665 && my >= 290 && my <= 312 && playerGold >= berryBuyPrice)
 			{
 				playerGold -= berryBuyPrice;
 				seedBerry++;
 			}
 
-
-			// Mass plow
-			if (!massPlowUnlocked &&
-				mx >= 380 && mx <= 510 &&
-				my >= 188 && my <= 214)
+			if (!massPlowUnlocked && mx >= 380 && mx <= 510 && my >= 188 && my <= 214)
 			{
 				if (playerGold >= 1500)
 				{
@@ -511,59 +403,32 @@ void iMouse(int button, int state, int mx, int my)
 					massPlowUnlocked = 1;
 				}
 			}
-
 			return;
 		}
 
-
-		// ----------------------------------------------------
-		// MASS PLOW
-		// ----------------------------------------------------
-
-		if (massPlowUnlocked &&
-			mx >= 90 && mx <= 160 &&
-			my >= 28 && my <= 72)
+		if (massPlowUnlocked && mx >= 90 && mx <= 160 && my >= 28 && my <= 72)
 		{
 			for (int r = 0; r < GRID_ROWS; r++)
 			{
 				for (int c = 0; c < GRID_COLS; c++)
 				{
-					if (farmGrid[r][c].state == CROP_EMPTY ||
-						farmGrid[r][c].state == CROP_ROTTEN)
+					if (farmGrid[r][c].state == CROP_EMPTY || farmGrid[r][c].state == CROP_ROTTEN)
 					{
 						farmGrid[r][c].state = CROP_PLOWED;
 						farmGrid[r][c].growTimer = 0;
 					}
 				}
 			}
-
 			return;
 		}
 
-
-		// ----------------------------------------------------
-		// TOOLBAR
-		// ----------------------------------------------------
-
 		if (my >= 20 && my <= 80)
 		{
-			if (mx >= 170 && mx <= 260)
-				selectedTool = 1;
-
-			if (mx >= 290 && mx <= 380)
-				selectedTool = 2;
-
-			if (mx >= 410 && mx <= 500)
-				selectedTool = 3;
-
-			if (mx >= 530 && mx <= 630)
-				selectedTool = 4;
+			if (mx >= 170 && mx <= 260) selectedTool = 1;
+			if (mx >= 290 && mx <= 380) selectedTool = 2;
+			if (mx >= 410 && mx <= 500) selectedTool = 3;
+			if (mx >= 530 && mx <= 630) selectedTool = 4;
 		}
-
-
-		// ----------------------------------------------------
-		// TILE INTERACTION
-		// ----------------------------------------------------
 
 		for (int r = 0; r < GRID_ROWS; r++)
 		{
@@ -571,280 +436,129 @@ void iMouse(int button, int state, int mx, int my)
 			{
 				Tile *t = &farmGrid[r][c];
 
-				if (mx >= t->x &&
-					mx <= t->x + 80 &&
-					my >= t->y &&
-					my <= t->y + 80)
+				if (mx >= t->x && mx <= t->x + 80 && my >= t->y && my <= t->y + 80)
 				{
-					// PLOW
 					if (selectedTool == 1)
 					{
-						if (t->state == CROP_EMPTY ||
-							t->state == CROP_ROTTEN)
+						if (t->state == CROP_EMPTY || t->state == CROP_ROTTEN)
 						{
 							t->state = CROP_PLOWED;
 							t->growTimer = 0;
 						}
 					}
-
-					// PLANT
-					else if (selectedTool == 2 &&
-						t->state == CROP_PLOWED)
+					else if (selectedTool == 2 && t->state == CROP_PLOWED)
 					{
 						if (seedBerry > 0)
 						{
 							seedBerry--;
-
 							t->cropType = 2;
 							t->state = BERRY_TREE;
 							t->growTimer = 0;
-
-							if (!batchActive)
-							{
-								batchActive = 1;
-								batchTimer = 20;
-							}
+							if (!batchActive) { batchActive = 1; batchTimer = 20; }
 						}
-
 						else if (seedTomato > 0)
 						{
 							seedTomato--;
-
 							t->cropType = 1;
 							t->state = CROP_SEEDED;
 							t->growTimer = 0;
-
-							if (!batchActive)
-							{
-								batchActive = 1;
-								batchTimer = 20;
-							}
+							if (!batchActive) { batchActive = 1; batchTimer = 20; }
 						}
-
 						else if (seedRice > 0)
 						{
 							seedRice--;
-
 							t->cropType = 0;
 							t->state = CROP_SEEDED;
 							t->growTimer = 0;
-
-							if (!batchActive)
-							{
-								batchActive = 1;
-								batchTimer = 20;
-							}
+							if (!batchActive) { batchActive = 1; batchTimer = 20; }
 						}
 					}
-
-					// WATER
 					else if (selectedTool == 3)
 					{
-						if (t->state == CROP_SEEDED ||
-							t->state == BERRY_TREE)
+						if (t->state == CROP_SEEDED || t->state == BERRY_TREE)
 						{
 							t->state = CROP_WATERED;
 							t->growTimer = 0;
 						}
 					}
-
-					// HARVEST
 					else if (selectedTool == 4)
 					{
 						if (t->state == CROP_READY)
 						{
-							if (cropRiceCount < MAX_INVENTORY_CAP)
-							{
-								t->state = CROP_EMPTY;
-								cropRiceCount++;
-							}
-							else
-							{
-								showCapWarning = 1;
-							}
+							if (cropRiceCount < MAX_INVENTORY_CAP) { t->state = CROP_EMPTY; cropRiceCount++; }
+							else { showCapWarning = 1; }
 						}
-
 						else if (t->state == TOMATO_READY)
 						{
-							if (cropTomatoCount < MAX_INVENTORY_CAP)
-							{
-								t->state = CROP_EMPTY;
-								cropTomatoCount++;
-							}
-							else
-							{
-								showCapWarning = 1;
-							}
+							if (cropTomatoCount < MAX_INVENTORY_CAP) { t->state = CROP_EMPTY; cropTomatoCount++; }
+							else { showCapWarning = 1; }
 						}
-
 						else if (t->state == BERRY_READY)
 						{
-							if (cropBerryCount < MAX_INVENTORY_CAP)
-							{
-								t->state = CROP_EMPTY;
-								cropBerryCount++;
-							}
-							else
-							{
-								showCapWarning = 1;
-							}
+							if (cropBerryCount < MAX_INVENTORY_CAP) { t->state = CROP_EMPTY; cropBerryCount++; }
+							else { showCapWarning = 1; }
 						}
 
-
 						int activeCrops = 0;
-
 						for (int r2 = 0; r2 < GRID_ROWS; r2++)
 						{
 							for (int c2 = 0; c2 < GRID_COLS; c2++)
 							{
 								int s = farmGrid[r2][c2].state;
-
-								if (s == CROP_SEEDED ||
-									s == CROP_WATERED ||
-									s == CROP_READY ||
-									s == TOMATO_READY ||
-									s == BERRY_TREE ||
-									s == BERRY_READY)
+								if (s == CROP_SEEDED || s == CROP_WATERED || s == CROP_READY || s == TOMATO_READY || s == BERRY_TREE || s == BERRY_READY)
 								{
 									activeCrops++;
 								}
 							}
 						}
-
-
 						if (activeCrops == 0)
 						{
-							batchActive = 0;
-							batchTimer = 0;
-							hasRottenCrop = 0;
+							batchActive = 0; batchTimer = 0; hasRottenCrop = 0;
 						}
 					}
 				}
 			}
 		}
 	}
-
-
-	// ========================================================
-	// LEVEL 2
-	// ========================================================
-
 	else if (gameState == STATE_LEVEL_2)
 	{
-		// ----------------------------------------------------
-		// TOP HUD BUTTONS
-		// ----------------------------------------------------
-
 		if (my >= 552 && my <= 586)
 		{
-			// Market
-			if (mx >= 430 && mx <= 530)
-			{
-				isRanchMarketOpen = !isRanchMarketOpen;
-				return;
-			}
-
-			// Town
-			if (mx >= 545 && mx <= 655)
-			{
-				gameState = STATE_TOWN;
-				return;
-			}
-
-			// Menu
-			if (mx >= 670 && mx <= 780)
-			{
-				gameState = STATE_MENU;
-				return;
-			}
+			if (mx >= 430 && mx <= 530) { isRanchMarketOpen = !isRanchMarketOpen; return; }
+			if (mx >= 545 && mx <= 655) { gameState = STATE_TOWN; return; }
+			if (mx >= 670 && mx <= 780) { gameState = STATE_MENU; return; }
 		}
-
-
-		// ----------------------------------------------------
-		// MARKET
-		// ----------------------------------------------------
 
 		if (isRanchMarketOpen)
 		{
-			// Close market
-			if (mx >= 600 && mx <= 680 &&
-				my >= 90 && my <= 120)
+			if (mx >= 600 && mx <= 680 && my >= 90 && my <= 120)
 			{
 				isRanchMarketOpen = 0;
 				return;
 			}
 
-
-			// ------------------------------------------------
-			// SELL
-			// ------------------------------------------------
-
 			if (mx >= 320 && mx <= 385)
 			{
-				// Eggs
-				if (my >= 395 && my <= 417 &&
-					countEgg > 0)
+				if (my >= 395 && my <= 417 && countEgg > 0) { countEgg--; playerGold += eggSellPrice; }
+				if (my >= 345 && my <= 367 && countMilk > 0) { countMilk--; playerGold += milkSellPrice; }
+				if (my >= 295 && my <= 317 && countWool > 0) { countWool--; playerGold += woolSellPrice; }
+
+				if (playerGold >= 200 && !ranchLevelCompleted)
 				{
-					countEgg--;
-					playerGold += eggSellPrice;
-
-					if (playerGold >= 200 && !ranchLevelCompleted)
-					{
-						ranchLevelCompleted = true;
-						ranchCompleteMessageTimer = 3;
-						level3Unlocked = 1;
-					}
-				}
-
-				// Milk
-				if (my >= 345 && my <= 367 &&
-					countMilk > 0)
-				{
-					countMilk--;
-					playerGold += milkSellPrice;
-
-					if (playerGold >= 200 && !ranchLevelCompleted)
-					{
-						ranchLevelCompleted = true;
-						ranchCompleteMessageTimer = 3;
-						level3Unlocked = 1;
-					}
-				}
-
-				// Wool
-				if (my >= 295 && my <= 317 &&
-					countWool > 0)
-				{
-					countWool--;
-					playerGold += woolSellPrice;
-
-					if (playerGold >= 200 && !ranchLevelCompleted)
-					{
-						ranchLevelCompleted = true;
-						ranchCompleteMessageTimer = 3;
-						level3Unlocked = 1;
-					}
+					ranchLevelCompleted = true;
+					ranchCompleteMessageTimer = 3;
+					level3Unlocked = 1;
 				}
 			}
 
-
-			// ------------------------------------------------
-			// BUY
-			// ------------------------------------------------
-
 			if (mx >= 610 && mx <= 675)
 			{
-				// Feed
-				if (my >= 395 && my <= 417 &&
-					playerGold >= feedBuyPrice)
+				if (my >= 395 && my <= 417 && playerGold >= feedBuyPrice)
 				{
 					playerGold -= feedBuyPrice;
 					countFeed++;
 				}
-
-				// Hen
-				else if (my >= 345 && my <= 367 &&
-					playerGold >= henBuyPrice)
+				else if (my >= 345 && my <= 367 && playerGold >= henBuyPrice)
 				{
 					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 					{
@@ -854,21 +568,13 @@ void iMouse(int button, int state, int mx, int my)
 							hens[i].isAlive = 1;
 							hens[i].x = 70 + (i % 2) * 55;
 							hens[i].y = 150 + (i / 2) * 55;
-							hens[i].fedState = 0;
-							hens[i].produceTimer = 0;
-							hens[i].hasProduce = 0;
-
-							if (i + 1 > henCount)
-								henCount = i + 1;
-
+							hens[i].fedState = 0; hens[i].produceTimer = 0; hens[i].hasProduce = 0;
+							if (i + 1 > henCount) henCount = i + 1;
 							break;
 						}
 					}
 				}
-
-				// Cow
-				else if (my >= 295 && my <= 317 &&
-					playerGold >= cowBuyPrice)
+				else if (my >= 295 && my <= 317 && playerGold >= cowBuyPrice)
 				{
 					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 					{
@@ -878,21 +584,13 @@ void iMouse(int button, int state, int mx, int my)
 							cows[i].isAlive = 1;
 							cows[i].x = 380 + (i % 2) * 60;
 							cows[i].y = 220 + (i / 2) * 60;
-							cows[i].fedState = 0;
-							cows[i].produceTimer = 0;
-							cows[i].hasProduce = 0;
-
-							if (i + 1 > cowCount)
-								cowCount = i + 1;
-
+							cows[i].fedState = 0; cows[i].produceTimer = 0; cows[i].hasProduce = 0;
+							if (i + 1 > cowCount) cowCount = i + 1;
 							break;
 						}
 					}
 				}
-
-				// Sheep
-				else if (my >= 245 && my <= 267 &&
-					playerGold >= sheepBuyPrice)
+				else if (my >= 245 && my <= 267 && playerGold >= sheepBuyPrice)
 				{
 					for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 					{
@@ -902,188 +600,89 @@ void iMouse(int button, int state, int mx, int my)
 							sheep[i].isAlive = 1;
 							sheep[i].x = 580 + (i % 2) * 60;
 							sheep[i].y = 180 + (i / 2) * 60;
-							sheep[i].fedState = 0;
-							sheep[i].produceTimer = 0;
-							sheep[i].hasProduce = 0;
-
-							if (i + 1 > sheepCount)
-								sheepCount = i + 1;
-
+							sheep[i].fedState = 0; sheep[i].produceTimer = 0; sheep[i].hasProduce = 0;
+							if (i + 1 > sheepCount) sheepCount = i + 1;
 							break;
 						}
 					}
 				}
 			}
-
 			return;
 		}
 
-
-		// ----------------------------------------------------
-		// RANCH TOOLBAR
-		// ----------------------------------------------------
-
 		if (my >= 485 && my <= 521)
 		{
-			// Feed
-			if (mx >= 543 && mx <= 655)
-			{
-				selectedRanchTool = 1;
-				return;
-			}
-
-			// Collect
-			if (mx >= 667 && mx <= 779)
-			{
-				selectedRanchTool = 2;
-				return;
-			}
+			if (mx >= 543 && mx <= 655) { selectedRanchTool = 1; return; }
+			if (mx >= 667 && mx <= 779) { selectedRanchTool = 2; return; }
 		}
-
-
-		// ----------------------------------------------------
-		// ANIMAL INTERACTION
-		// ----------------------------------------------------
 
 		if (isNearHenPen())
 		{
 			for (int i = 0; i < henCount; i++)
 			{
-				if (hens[i].isAlive &&
-					mx >= hens[i].x &&
-					mx <= hens[i].x + 48 &&
-					my >= hens[i].y &&
-					my <= hens[i].y + 48)
+				if (hens[i].isAlive && mx >= hens[i].x && mx <= hens[i].x + 48 && my >= hens[i].y && my <= hens[i].y + 48)
 				{
-					if (selectedRanchTool == 1 &&
-						countFeed > 0 &&
-						hens[i].fedState == 0)
+					if (selectedRanchTool == 1 && countFeed > 0 && hens[i].fedState == 0)
 					{
-						countFeed--;
-						hens[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
+						countFeed--; hens[i].fedState = 1; ranchTimer = 20; isRanchTimerActive = 1;
 					}
-
-					else if (selectedRanchTool == 2 &&
-						hens[i].hasProduce)
+					else if (selectedRanchTool == 2 && hens[i].hasProduce)
 					{
-						hens[i].hasProduce = 0;
-						hens[i].produceTimer = 0;
-						countEgg++;
-
-						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
-							ranchCollectionTimerRunning = false;
+						hens[i].hasProduce = 0; hens[i].produceTimer = 0; countEgg++;
+						if (!hasAnyRanchProduce() && !ranchLevelCompleted) ranchCollectionTimerRunning = false;
 					}
 				}
 			}
 		}
-
 		else if (isNearCowPen())
 		{
 			for (int i = 0; i < cowCount; i++)
 			{
-				if (cows[i].isAlive &&
-					mx >= cows[i].x &&
-					mx <= cows[i].x + 48 &&
-					my >= cows[i].y &&
-					my <= cows[i].y + 48)
+				if (cows[i].isAlive && mx >= cows[i].x && mx <= cows[i].x + 48 && my >= cows[i].y && my <= cows[i].y + 48)
 				{
-					if (selectedRanchTool == 1 &&
-						countFeed > 0 &&
-						cows[i].fedState == 0)
+					if (selectedRanchTool == 1 && countFeed > 0 && cows[i].fedState == 0)
 					{
-						countFeed--;
-						cows[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
+						countFeed--; cows[i].fedState = 1; ranchTimer = 20; isRanchTimerActive = 1;
 					}
-
-					else if (selectedRanchTool == 2 &&
-						cows[i].hasProduce)
+					else if (selectedRanchTool == 2 && cows[i].hasProduce)
 					{
-						cows[i].hasProduce = 0;
-						cows[i].produceTimer = 0;
-						countMilk++;
-
-						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
-							ranchCollectionTimerRunning = false;
+						cows[i].hasProduce = 0; cows[i].produceTimer = 0; countMilk++;
+						if (!hasAnyRanchProduce() && !ranchLevelCompleted) ranchCollectionTimerRunning = false;
 					}
 				}
 			}
 		}
-
 		else if (isNearSheepPen())
 		{
 			for (int i = 0; i < sheepCount; i++)
 			{
-				if (sheep[i].isAlive &&
-					mx >= sheep[i].x &&
-					mx <= sheep[i].x + 48 &&
-					my >= sheep[i].y &&
-					my <= sheep[i].y + 48)
+				if (sheep[i].isAlive && mx >= sheep[i].x && mx <= sheep[i].x + 48 && my >= sheep[i].y && my <= sheep[i].y + 48)
 				{
-					if (selectedRanchTool == 1 &&
-						countFeed > 0 &&
-						sheep[i].fedState == 0)
+					if (selectedRanchTool == 1 && countFeed > 0 && sheep[i].fedState == 0)
 					{
-						countFeed--;
-						sheep[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
+						countFeed--; sheep[i].fedState = 1; ranchTimer = 20; isRanchTimerActive = 1;
 					}
-
-					else if (selectedRanchTool == 2 &&
-						sheep[i].hasProduce)
+					else if (selectedRanchTool == 2 && sheep[i].hasProduce)
 					{
-						sheep[i].hasProduce = 0;
-						sheep[i].produceTimer = 0;
-						countWool++;
-
-						if (!hasAnyRanchProduce() && !ranchLevelCompleted)
-							ranchCollectionTimerRunning = false;
+						sheep[i].hasProduce = 0; sheep[i].produceTimer = 0; countWool++;
+						if (!hasAnyRanchProduce() && !ranchLevelCompleted) ranchCollectionTimerRunning = false;
 					}
 				}
 			}
 		}
 	}
-
-
-	// ========================================================
-	// LEVEL 3
-	// ========================================================
-
 	else if (gameState == STATE_LEVEL_3)
 	{
-		// Top navigation buttons for returning to Town or Menu
 		if (my >= 552 && my <= 586)
 		{
-			if (mx >= 545 && mx <= 655)
-			{
-				gameState = STATE_TOWN;
-				return;
-			}
-			if (mx >= 670 && mx <= 780)
-			{
-				gameState = STATE_MENU;
-				return;
-			}
+			if (mx >= 545 && mx <= 655) { gameState = STATE_TOWN; return; }
+			if (mx >= 670 && mx <= 780) { gameState = STATE_MENU; return; }
 		}
 	}
 }
 
-
-// ============================================================
-// MOUSE MOVE
-// ============================================================
-
-void iMouseMove(int mx, int my)
-{
-}
-
-void iPassiveMouseMove(int mx, int my)
-{
-}
+void iMouseMove(int mx, int my) {}
+void iPassiveMouseMove(int mx, int my) {}
 
 
 // ============================================================
@@ -1092,10 +691,7 @@ void iPassiveMouseMove(int mx, int my)
 
 void updateRanchTimer()
 {
-	if (gameState != STATE_LEVEL_2)
-		return;
-
-	if (isRanchMarketOpen)
+	if (gameState != STATE_LEVEL_2 || isRanchMarketOpen)
 		return;
 
 	if (hasAnyRanchProduce() && !ranchCollectionTimerRunning)
@@ -1106,9 +702,7 @@ void updateRanchTimer()
 
 	if (ranchCollectionTimerRunning)
 	{
-		if (ranchCollectionTimer > 0)
-			ranchCollectionTimer--;
-
+		if (ranchCollectionTimer > 0) ranchCollectionTimer--;
 		if (ranchCollectionTimer <= 0)
 		{
 			ranchCollectionTimer = 0;
@@ -1122,22 +716,13 @@ void updateRanchTimer()
 	if (ranchFailedMessageTimer > 0)
 	{
 		ranchFailedMessageTimer--;
-
-		if (ranchFailedMessageTimer <= 0)
-		{
-			ranchFailedMessageTimer = 0;
-			ranchFailed = false;
-		}
+		if (ranchFailedMessageTimer <= 0) { ranchFailedMessageTimer = 0; ranchFailed = false; }
 	}
 
 	if (ranchCompleteMessageTimer > 0)
 	{
 		ranchCompleteMessageTimer--;
-
-		if (ranchCompleteMessageTimer <= 0)
-		{
-			ranchCompleteMessageTimer = 0;
-		}
+		if (ranchCompleteMessageTimer <= 0) { ranchCompleteMessageTimer = 0; }
 	}
 }
 
@@ -1148,170 +733,94 @@ void updateRanchTimer()
 
 void fixedUpdate()
 {
-	// ========================================================
 	// TOWN + LEVEL 1 MOVEMENT
-	// ========================================================
-
 	if ((gameState == STATE_TOWN && !showDialogue) || gameState == STATE_LEVEL_1)
 	{
-		// UP
-		if (isKeyPressed('w') ||
-			isKeyPressed('W') ||
-			isSpecialKeyPressed(GLUT_KEY_UP))
+		if (isKeyPressed('w') || isKeyPressed('W') || isSpecialKeyPressed(GLUT_KEY_UP))
 		{
 			int nextY = playerY + playerSpeed;
-			int nextX = playerX;
-
-			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-				playerY = nextY;
+			if (canWalk(playerX, nextY) && isWithinBounds(playerX, nextY)) playerY = nextY;
 		}
-
-		// DOWN
-		if (isKeyPressed('s') ||
-			isKeyPressed('S') ||
-			isSpecialKeyPressed(GLUT_KEY_DOWN))
+		if (isKeyPressed('s') || isKeyPressed('S') || isSpecialKeyPressed(GLUT_KEY_DOWN))
 		{
 			int nextY = playerY - playerSpeed;
-			int nextX = playerX;
-
-			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-				playerY = nextY;
+			if (canWalk(playerX, nextY) && isWithinBounds(playerX, nextY)) playerY = nextY;
 		}
-
-		// LEFT
-		if (isKeyPressed('a') ||
-			isKeyPressed('A') ||
-			isSpecialKeyPressed(GLUT_KEY_LEFT))
+		if (isKeyPressed('a') || isKeyPressed('A') || isSpecialKeyPressed(GLUT_KEY_LEFT))
 		{
 			int nextX = playerX - playerSpeed;
-			int nextY = playerY;
-
-			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-				playerX = nextX;
+			if (canWalk(nextX, playerY) && isWithinBounds(nextX, playerY)) playerX = nextX;
 		}
-
-		// RIGHT
-		if (isKeyPressed('d') ||
-			isKeyPressed('D') ||
-			isSpecialKeyPressed(GLUT_KEY_RIGHT))
+		if (isKeyPressed('d') || isKeyPressed('D') || isSpecialKeyPressed(GLUT_KEY_RIGHT))
 		{
 			int nextX = playerX + playerSpeed;
-			int nextY = playerY;
-
-			if (canWalk(nextX, nextY) && isWithinBounds(nextX, nextY))
-				playerX = nextX;
+			if (canWalk(nextX, playerY) && isWithinBounds(nextX, playerY)) playerX = nextX;
 		}
 	}
 
-
-	// ========================================================
 	// LEVEL 2 MOVEMENT
-	// ========================================================
-
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		int step = 8;
-
-		// LEFT
-		if (isKeyPressed('a') || isKeyPressed('A'))
-		{
-			moveRanchMan(-step, 0);
-		}
-
-		// RIGHT
-		if (isKeyPressed('d') || isKeyPressed('D'))
-		{
-			moveRanchMan(step, 0);
-		}
+		if (isKeyPressed('a') || isKeyPressed('A')) moveRanchMan(-step, 0);
+		if (isKeyPressed('d') || isKeyPressed('D')) moveRanchMan(step, 0);
 	}
 
+	// LEVEL 3 BOAT MOVEMENT (WASD Smooth Polling)
+	if (gameState == STATE_LEVEL_3)
+	{
+		if (isKeyPressed('w') || isKeyPressed('W')) handleLevel3Keyboard('w');
+		if (isKeyPressed('s') || isKeyPressed('S')) handleLevel3Keyboard('s');
+		if (isKeyPressed('a') || isKeyPressed('A')) handleLevel3Keyboard('a');
+		if (isKeyPressed('d') || isKeyPressed('D')) handleLevel3Keyboard('d');
+	}
 
-	// ========================================================
-	// TOWN DIALOGUE / LEVEL TRANSITION
-	// ========================================================
-
+	// TOWN DIALOGUE / TRANSITION
 	if (gameState == STATE_TOWN)
 	{
 		int eIsDown = isKeyPressed('e') || isKeyPressed('E');
 
 		if (eIsDown && !eKeyPressedLastFrame)
 		{
-			// CLOSE DIALOGUE
 			if (showDialogue)
 			{
 				showDialogue = 0;
-
-				// LEVEL 1
-				if (strcmp(npcName, "Nadira") == 0)
-				{
-					gameState = STATE_LEVEL_1;
-				}
-
-				// LEVEL 2
-				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked)
-				{
-					gameState = STATE_LOADING_LEVEL2;
-				}
-
-				// LEVEL 3
+				if (strcmp(npcName, "Nadira") == 0) gameState = STATE_LEVEL_1;
+				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked) gameState = STATE_LOADING_LEVEL2;
 				else if (strcmp(npcName, "Anika") == 0 && level3Unlocked)
 				{
-					initLevel3(); // Initialize boat position near pier
+					initLevel3();
 					gameState = STATE_LEVEL_3;
 				}
 			}
-
-			// OPEN DIALOGUE
 			else
 			{
-				// Nadira
-				if (playerX >= 480 && playerX <= 570 &&
-					playerY >= 370 && playerY <= 460)
+				if (playerX >= 480 && playerX <= 570 && playerY >= 370 && playerY <= 460)
 				{
 					strcpy(npcName, "Nadira");
 					strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
 					showDialogue = 1;
 				}
-
-				// Ragib
-				else if (playerX >= 450 && playerX <= 550 &&
-					playerY >= 240 && playerY <= 330)
+				else if (playerX >= 450 && playerX <= 550 && playerY >= 240 && playerY <= 330)
 				{
 					strcpy(npcName, "Ragib");
-
 					if (playerGold >= 100)
 					{
 						level2Unlocked = 1;
 						strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 2.");
 					}
-					else
-					{
-						strcpy(dialogueText, "Welcome to the Ranch! Earn 100 gold in Level 1 first.");
-					}
-
+					else strcpy(dialogueText, "Welcome to the Ranch! Earn 100 gold in Level 1 first.");
 					showDialogue = 1;
 				}
-
-				// Anika
-				else if (playerX >= 530 && playerX <= 670 &&
-					playerY >= 80 && playerY <= 180)
+				else if (playerX >= 530 && playerX <= 670 && playerY >= 80 && playerY <= 180)
 				{
 					strcpy(npcName, "Anika");
-
-					if (level3Unlocked)
-					{
-						strcpy(dialogueText, "Entering Fishery... Press E again to start.");
-					}
-					else
-					{
-						strcpy(dialogueText, "Welcome to the Fishery! Clear Level 2 first.");
-					}
-
+					if (level3Unlocked) strcpy(dialogueText, "Entering Fishery... Press E again to start.");
+					else strcpy(dialogueText, "Welcome to the Fishery! Clear Level 2 first.");
 					showDialogue = 1;
 				}
 			}
 		}
-
 		eKeyPressedLastFrame = eIsDown;
 	}
 }
@@ -1323,17 +832,10 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
-	// ========================================================
-	// LEVEL 3
-	// ========================================================
-
 	if (gameState == STATE_LEVEL_3)
 	{
 		bool returnToTown = handleLevel3Keyboard(key);
-		if (returnToTown)
-		{
-			gameState = STATE_TOWN;
-		}
+		if (returnToTown) gameState = STATE_TOWN;
 		return;
 	}
 
@@ -1343,87 +845,42 @@ void iKeyboard(unsigned char key)
 		gameState = STATE_LEVEL_3;
 	}
 
-
-	// ========================================================
-	// LEVEL 2
-	// ========================================================
-
 	if (gameState == STATE_LEVEL_2)
 	{
 		if (isRanchMarketOpen)
 		{
-			if (key == 27)
-				isRanchMarketOpen = 0;
-
+			if (key == 27) isRanchMarketOpen = 0;
 			return;
 		}
 
-		if (key == '1')
-		{
-			selectedRanchTool = 1;
-		}
-
-		if (key == '2')
-		{
-			selectedRanchTool = 2;
-		}
+		if (key == '1') selectedRanchTool = 1;
+		if (key == '2') selectedRanchTool = 2;
 
 		if (key == ' ' || key == '\r')
 		{
-			if (selectedRanchTool == 1)
-			{
-				feedAnimalsByRanchMan();
-			}
-			else if (selectedRanchTool == 2)
-			{
-				collectProduceByRanchMan();
-			}
+			if (selectedRanchTool == 1) feedAnimalsByRanchMan();
+			else if (selectedRanchTool == 2) collectProduceByRanchMan();
 		}
 	}
 }
-
-
-// ============================================================
-// SPECIAL KEYBOARD
-// ============================================================
 
 void iSpecialKeyboard(unsigned char key)
 {
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
-		if (key == GLUT_KEY_LEFT)
-		{
-			moveRanchMan(-15, 0);
-		}
-
-		if (key == GLUT_KEY_RIGHT)
-		{
-			moveRanchMan(15, 0);
-		}
+		if (key == GLUT_KEY_LEFT) moveRanchMan(-15, 0);
+		if (key == GLUT_KEY_RIGHT) moveRanchMan(15, 0);
 	}
 }
-
-
-// ============================================================
-// ANIMATION
-// ============================================================
 
 void iAnim()
 {
 	fixedUpdate();
 }
 
-
-// ============================================================
-// SEASON TIMER
-// ============================================================
-
 void updateSeasonTimer()
 {
-	if (seasonTimer > 0)
-	{
-		seasonTimer--;
-	}
+	if (seasonTimer > 0) seasonTimer--;
 	else
 	{
 		currentSeason = (currentSeason + 1) % 3;
@@ -1431,33 +888,17 @@ void updateSeasonTimer()
 	}
 }
 
-
-// ============================================================
-// LOADING
-// ============================================================
-
 void updateLoading()
 {
 	if (gameState == STATE_LOADING)
 	{
 		loadingTimer += 2;
-
-		if (loadingTimer >= 100)
-		{
-			gameState = STATE_LEVEL_1;
-			loadingTimer = 0;
-		}
+		if (loadingTimer >= 100) { gameState = STATE_LEVEL_1; loadingTimer = 0; }
 	}
-
 	else if (gameState == STATE_LOADING_LEVEL2)
 	{
 		loadingTimer += 2;
-
-		if (loadingTimer >= 100)
-		{
-			gameState = STATE_LEVEL_2;
-			loadingTimer = 0;
-		}
+		if (loadingTimer >= 100) { gameState = STATE_LEVEL_2; loadingTimer = 0; }
 	}
 }
 
@@ -1468,12 +909,10 @@ void updateLoading()
 
 int main()
 {
-	// Initialize Level 1 Farm Grid
 	initFarmGrid();
 
 	int tileSize = 80;
 	int gap = 15;
-
 	int startX = (SCREEN_WIDTH - (GRID_COLS * tileSize + (GRID_COLS - 1) * gap)) / 2;
 	int startY = 175;
 
@@ -1486,16 +925,10 @@ int main()
 		}
 	}
 
-	// Initialize Level 2
 	initLevel2();
-
-	// Initialize Level 3
 	initLevel3();
-
-	// Audio
 	initAudio();
 
-	// Timers
 	iSetTimer(1000, updateCropGrowth);
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);
@@ -1503,13 +936,7 @@ int main()
 	iSetTimer(50, updateLoading);
 	iSetTimer(20, iAnim);
 
-	// Start Graphics Engine
-	iInitialize(
-		SCREEN_WIDTH,
-		SCREEN_HEIGHT,
-		"FarmScapes - 2D Farming Simulator"
-	);
-
+	iInitialize(SCREEN_WIDTH, SCREEN_HEIGHT, "FarmScapes - 2D Farming Simulator");
 	iStart();
 
 	return 0;
