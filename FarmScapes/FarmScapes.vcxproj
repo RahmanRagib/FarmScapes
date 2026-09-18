@@ -71,6 +71,7 @@
     <ClInclude Include="bitmap_loader.h" />
     <ClInclude Include="drawlevel1.h" />
     <ClInclude Include="drawlevel2.h" />
+    <ClInclude Include="drawlevel3.h" />
     <ClInclude Include="drawTown.h" />
     <ClInclude Include="iGraphics.h" />
     <ClInclude Include="loading.h" />
