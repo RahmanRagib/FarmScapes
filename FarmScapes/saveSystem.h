@@ -28,3 +28,26 @@ void saveGameProgress(int slot) {
 		fclose(file);
 	}
 }
+// Load Game Function
+void loadGameProgress(int slot) {
+	char filename[30];
+	sprintf(filename, "save_slot%d.txt", slot);
+
+	FILE *file = fopen(filename, "r");
+	if (file != NULL) {
+		fscanf(file, "COINS: %d", &playerGold);
+		fscanf(file, "LEVEL2: %d", &level2Unlocked);
+		fscanf(file, "LEVEL3: %d", &level3Unlocked);
+		fscanf(file, "SEED_RICE: %d", &seedRice);
+		fscanf(file, "SEED_TOMATO: %d", &seedTomato);
+		fscanf(file, "SEED_BERRY: %d", &seedBerry);
+		fscanf(file, "CROP_RICE: %d", &cropRiceCount);
+		fscanf(file, "CROP_TOMATO: %d", &cropTomatoCount);
+		fscanf(file, "CROP_BERRY: %d", &cropBerryCount);
+		fscanf(file, "FEED: %d", &countFeed);
+		fscanf(file, "EGG: %d", &countEgg);
+		fscanf(file, "MILK: %d", &countMilk);
+		fscanf(file, "WOOL: %d", &countWool);
+		fclose(file);
+	}
+}
