@@ -327,7 +327,7 @@ void iMouse(int button, int state, int mx, int my)
 	{
 		if (mx >= 290 && mx <= 510 && my >= 410 && my <= 480)
 		{
-			gameState = STATE_LOADING;
+			gameState = STATE_SAVE_MENU;
 			loadingTimer = 0;
 		}
 		else if (mx >= 290 && mx <= 510 && my >= 320 && my <= 390)
@@ -342,6 +342,70 @@ void iMouse(int button, int state, int mx, int my)
 		{
 			mciSendString("close bgmusic", NULL, 0, NULL);
 			exit(0);
+		}
+	}
+	else if (gameState == STATE_PLAY_CHOICE)
+	{
+		// 1. New Game Button Click
+		if (mx >= 250 && mx <= 550 && my >= 350 && my <= 400)
+		{
+			slotActionMode = 1; // New Game mode
+			gameState = STATE_SLOT_MENU;
+		}
+		// 2. Load Game Button Click
+		else if (mx >= 250 && mx <= 550 && my >= 280 && my <= 330)
+		{
+			slotActionMode = 2; // Load Game mode
+			gameState = STATE_SLOT_MENU;
+		}
+		// 3. Delete Game Button Click
+		else if (mx >= 250 && mx <= 550 && my >= 210 && my <= 260)
+		{
+			slotActionMode = 3; // Delete Game mode
+			gameState = STATE_SLOT_MENU;
+		}
+		// Back Button Click
+		else if (mx >= 325 && mx <= 475 && my >= 140 && my <= 190)
+		{
+			gameState = STATE_MENU;
+		}
+	}
+	else if (gameState == STATE_SLOT_MENU)
+	{
+		// Slot 1 Click
+		if (mx >= 250 && mx <= 550 && my >= 400 && my <= 460)
+		{
+			currentSaveSlot = 1;
+			handleSlotAction(1);
+		}
+		// Slot 2 Click
+		else if (mx >= 250 && mx <= 550 && my >= 310 && my <= 370)
+		{
+			currentSaveSlot = 2;
+			handleSlotAction(2);
+		}
+		// Slot 3 Click
+		else if (mx >= 250 && mx <= 550 && my >= 220 && my <= 280)
+		{
+			currentSaveSlot = 3;
+			handleSlotAction(3);
+		}
+		// Back Button Click
+		else if (mx >= 325 && mx <= 475 && my >= 130 && my <= 170)
+		{
+			gameState = STATE_PLAY_CHOICE;
+		}
+	}
+	// ==========================================
+	else if (gameState == STATE_SETTINGS)
+	{
+		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
+		{
+			toggleMusic();
+		}
+		else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
+		{
+			gameState = STATE_MENU;
 		}
 	}
 	else if (gameState == STATE_SETTINGS)
