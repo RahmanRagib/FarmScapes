@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Save Game Function
+// Save Game Function (Creates or overwrites a save slot file)
 void saveGameProgress(int slot) {
 	char filename[30];
 	sprintf(filename, "save_slot%d.txt", slot);
@@ -28,7 +28,8 @@ void saveGameProgress(int slot) {
 		fclose(file);
 	}
 }
-// Load Game Function
+
+// Load Game Function (Reads progress from a save slot file)
 void loadGameProgress(int slot) {
 	char filename[30];
 	sprintf(filename, "save_slot%d.txt", slot);
@@ -51,13 +52,15 @@ void loadGameProgress(int slot) {
 		fclose(file);
 	}
 }
+
+// Delete Game Progress Function (Removes the save slot file)
 void deleteGameProgress(int slot) {
 	char filename[30];
 	sprintf(filename, "save_slot%d.txt", slot);
 	remove(filename);
 }
 
-// Check if Save Slot Exists
+// Check if Save Slot Exists (Returns 1 if file exists, 0 otherwise)
 int checkIfSlotExists(int slot) {
 	char filename[30];
 	sprintf(filename, "save_slot%d.txt", slot);
@@ -67,6 +70,36 @@ int checkIfSlotExists(int slot) {
 		return 1;
 	}
 	return 0;
+}
+
+// Handle Slot Action Logic (New Game, Load Game, or Delete Game)
+void handleSlotAction(int slot) {
+	if (slotActionMode == 1) // NEW GAME
+	{
+		saveGameProgress(slot);
+		gameState = STATE_LOADING;
+		loadingTimer = 0;
+	}
+	else if (slotActionMode == 2) // LOAD GAME
+	{
+		if (checkIfSlotExists(slot))
+		{
+			loadGameProgress(slot);
+			gameState = STATE_LOADING;
+			loadingTimer = 0;
+		}
+		else
+		{
+			// Fallback: if slot is empty when loading, create a new game
+			saveGameProgress(slot);
+			gameState = STATE_LOADING;
+			loadingTimer = 0;
+		}
+	}
+	else if (slotActionMode == 3) // DELETE GAME
+	{
+		deleteGameProgress(slot);
+	}
 }
 
 #endif
