@@ -257,7 +257,37 @@ void iDraw()
 
 	if (gameState == STATE_MENU)
 		drawMenu();
+	else if (gameState == STATE_SAVE_MENU) // <--- ADD THIS BLOCK HERE
+	{
+		iSetColor(30, 30, 30);
+		iFilledRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+		iSetColor(255, 255, 255);
+		iText(310, 500, "SELECT SAVE SLOT", GLUT_BITMAP_HELVETICA_18);
+
+		// Slot 1 Button & Text
+		// (If you have button images, you can use iShowImage here instead of background rectangles)
+		if (checkIfSlotExists(1))
+			iText(340, 418, "SLOT 1: [LOAD / PLAY]", GLUT_BITMAP_HELVETICA_12);
+		else
+			iText(350, 418, "SLOT 1: [EMPTY - NEW]", GLUT_BITMAP_HELVETICA_12);
+
+		// Slot 2 Button & Text
+		if (checkIfSlotExists(2))
+			iText(340, 328, "SLOT 2: [LOAD / PLAY]", GLUT_BITMAP_HELVETICA_12);
+		else
+			iText(350, 328, "SLOT 2: [EMPTY - NEW]", GLUT_BITMAP_HELVETICA_12);
+
+		// Slot 3 Button & Text
+		if (checkIfSlotExists(3))
+			iText(340, 238, "SLOT 3: [LOAD / PLAY]", GLUT_BITMAP_HELVETICA_12);
+		else
+			iText(350, 238, "SLOT 3: [EMPTY - NEW]", GLUT_BITMAP_HELVETICA_12);
+
+		// Back Button Text
+		iText(365, 143, "MAIN MENU", GLUT_BITMAP_HELVETICA_12);
+		iText(200, 75, "Tip: Click a slot to Load/New. Press 'D' + Slot Number to Delete.", GLUT_BITMAP_HELVETICA_10);
+	}
 	else if (gameState == STATE_LOADING)
 		drawLoading();
 
