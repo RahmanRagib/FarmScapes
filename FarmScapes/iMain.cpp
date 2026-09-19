@@ -834,8 +834,11 @@ void iKeyboard(unsigned char key)
 {
 	if (gameState == STATE_LEVEL_3)
 	{
-		bool returnToTown = handleLevel3Keyboard(key);
-		if (returnToTown) gameState = STATE_TOWN;
+		handleLevel3Keyboard(key);
+		 if (key == 27)
+		 {
+			 gameState = STATE_TOWN;
+		 }
 		return;
 	}
 
