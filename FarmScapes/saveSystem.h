@@ -51,3 +51,22 @@ void loadGameProgress(int slot) {
 		fclose(file);
 	}
 }
+void deleteGameProgress(int slot) {
+	char filename[30];
+	sprintf(filename, "save_slot%d.txt", slot);
+	remove(filename);
+}
+
+// Check if Save Slot Exists
+int checkIfSlotExists(int slot) {
+	char filename[30];
+	sprintf(filename, "save_slot%d.txt", slot);
+	FILE *file = fopen(filename, "r");
+	if (file != NULL) {
+		fclose(file);
+		return 1;
+	}
+	return 0;
+}
+
+#endif
