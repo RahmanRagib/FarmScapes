@@ -36,6 +36,7 @@
 #define STATE_LOADING_LEVEL2 7
 #define STATE_LEVEL_3 8
 #define STATE_LOADING_LEVEL3 9
+#define STATE_SAVE_MENU 10
 
 // ============================================================
 // GLOBAL GAME VARIABLES
@@ -48,6 +49,8 @@ int loadingTimer = 0;
 int musicOn = 1;
 
 int eKeyPressedLastFrame = 0;
+
+int currentSaveSlot = 1;
 
 
 // ============================================================
@@ -106,6 +109,8 @@ int ranchCompleteMessageTimer = 0;
 #include "drawTown.h"
 
 #include "drawlevel3.h"
+
+#include "saveSystem.h"
 
 
 // ============================================================

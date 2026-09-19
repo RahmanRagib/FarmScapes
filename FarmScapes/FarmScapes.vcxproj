@@ -73,6 +73,7 @@
     <ClInclude Include="drawlevel2.h" />
     <ClInclude Include="drawlevel3.h" />
     <ClInclude Include="drawTown.h" />
+    <ClInclude Include="saveSystem.h" />
     <ClInclude Include="iGraphics.h" />
     <ClInclude Include="loading.h" />
   </ItemGroup>
