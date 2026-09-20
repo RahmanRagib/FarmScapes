@@ -110,6 +110,7 @@ int ranchCompleteMessageTimer = 0;
 #include "animalgrowth.h"
 
 #include "loading2.h"
+#include "loading3.h" // Added header file inclusion
 #include "drawlevel2.h"
 #include "drawTown.h"
 
@@ -325,6 +326,9 @@ void iDraw()
 	else if (gameState == STATE_LOADING_LEVEL2)
 		drawLevel2Loading();
 
+	else if (gameState == STATE_LOADING_LEVEL3) // Added Level 3 loading rendering
+		drawLevel3Loading();
+
 	else if (gameState == STATE_TOWN)
 		drawTown();
 
@@ -353,6 +357,14 @@ void iMouse(int button, int state, int mx, int my)
 {
 	if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN)
 		return;
+
+	if (gameState == STATE_LOADING_LEVEL3) // Added click to skip/start level 3 logic
+	{
+		initLevel3();
+		gameState = STATE_LEVEL_3;
+		loadingTimer = 0;
+		return;
+	}
 
 	if (gameState == STATE_MENU)
 	{
@@ -945,8 +957,8 @@ void fixedUpdate()
 				else if (strcmp(npcName, "Ragib") == 0 && level2Unlocked) gameState = STATE_LOADING_LEVEL2;
 				else if (strcmp(npcName, "Anika") == 0 && level3Unlocked)
 				{
-					initLevel3();
-					gameState = STATE_LEVEL_3;
+					loadingTimer = 0;
+					gameState = STATE_LOADING_LEVEL3; // Transition to Level 3 Loading Screen
 				}
 			}
 			else
@@ -992,6 +1004,14 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
+	if (gameState == STATE_LOADING_LEVEL3)
+	{
+		initLevel3();
+		gameState = STATE_LEVEL_3;
+		loadingTimer = 0;
+		return;
+	}
+
 	if (gameState == STATE_LEVEL_3)
 	{
 		handleLevel3Keyboard(key);
@@ -1004,8 +1024,8 @@ void iKeyboard(unsigned char key)
 
 	if (key == '3')
 	{
-		initLevel3();
-		gameState = STATE_LEVEL_3;
+		loadingTimer = 0;
+		gameState = STATE_LOADING_LEVEL3;
 	}
 
 	if (gameState == STATE_LEVEL_2)
@@ -1063,6 +1083,11 @@ void updateLoading()
 		loadingTimer += 2;
 		if (loadingTimer >= 100) { gameState = STATE_LEVEL_2; loadingTimer = 0; }
 	}
+	else if (gameState == STATE_LOADING_LEVEL3) // Added Level 3 loading timer handler
+	{
+		loadingTimer += 2;
+		if (loadingTimer >= 100) { initLevel3(); gameState = STATE_LEVEL_3; loadingTimer = 0; }
+	}
 }
 
 
@@ -1097,7 +1122,7 @@ int main()
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);
 	iSetTimer(1000, updateRanchTimer);
-	iSetTimer(100, updateLevel3Logic); // <-- ADDED: Timer tick required for Level 3 fishing logic
+	iSetTimer(100, updateLevel3Logic);
 	iSetTimer(50, updateLoading);
 	iSetTimer(20, iAnim);
 
