@@ -36,7 +36,7 @@
 #define STATE_LOADING_LEVEL2 7
 #define STATE_LEVEL_3 8
 #define STATE_LOADING_LEVEL3 9
-#define STATE_PLAY_CHOICE 10   
+#define STATE_PLAY_CHOICE 10
 #define STATE_SLOT_MENU 11
 
 // ============================================================
@@ -951,7 +951,7 @@ void fixedUpdate()
 				else if (playerX >= 450 && playerX <= 550 && playerY >= 240 && playerY <= 330)
 				{
 					strcpy(npcName, "Ragib");
-					if (playerGold >= 100)
+					if (playerGold >= 0)
 					{
 						level2Unlocked = 1;
 						strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 2.");
@@ -962,8 +962,12 @@ void fixedUpdate()
 				else if (playerX >= 530 && playerX <= 670 && playerY >= 80 && playerY <= 180)
 				{
 					strcpy(npcName, "Anika");
-					if (level3Unlocked) strcpy(dialogueText, "Entering Fishery... Press E again to start.");
-					else strcpy(dialogueText, "Welcome to the Fishery! Clear Level 2 first.");
+					if (playerGold >= 0)
+					{
+						level3Unlocked = 1;
+						strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 3.");
+					}
+					else strcpy(dialogueText, "Welcome to the Fishery ! Earn 100 gold in Level 2 first.");
 					showDialogue = 1;
 				}
 			}
@@ -1078,7 +1082,7 @@ int main()
 	initLevel2();
 	initLevel3();
 	initAudio();
-	
+
 
 	iSetTimer(1000, updateCropGrowth);
 	iSetTimer(1000, updateAnimalGrowth);
