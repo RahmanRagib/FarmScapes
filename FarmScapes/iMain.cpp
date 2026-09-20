@@ -426,7 +426,7 @@ void iMouse(int button, int state, int mx, int my)
 		}
 		else if (mx >= 290 && mx <= 510 && my >= 320 && my <= 390)
 		{
-			gameState = STATE_SETTINGS;
+			gameState = STATE_SETTING;
 		}
 		else if (mx >= 290 && mx <= 510 && my >= 230 && my <= 300)
 		{
@@ -488,7 +488,7 @@ void iMouse(int button, int state, int mx, int my)
 		}
 	}
 	// ==========================================
-	else if (gameState == STATE_SETTINGS)
+	else if (gameState == STATE_SETTING)
 	{
 		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
 		{
