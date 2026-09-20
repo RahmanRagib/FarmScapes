@@ -58,6 +58,7 @@ int slotActionMode = 0;
 
 int slotMenuBgImage;
 
+int storyState = 1;
 
 // ============================================================
 // TOWN VARIABLES
@@ -270,7 +271,6 @@ void iDraw()
 		drawMenu();
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
-		// Force white so the background image colors show correctly
 		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
@@ -285,6 +285,7 @@ void iDraw()
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
+		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
 		iSetColor(255, 255, 255);
@@ -340,6 +341,35 @@ void iDraw()
 
 
 // ============================================================
+// HELPER FOR SLOT SELECTION
+// ============================================================
+
+void handleSlotClick(int slotNumber)
+{
+	currentSaveSlot = slotNumber;
+
+	if (slotActionMode == 1) // New Game
+	{
+		saveGameProgress(slotNumber); // Initialize/Overwrite slot
+		startStoryline();            // Reset storyline timer and text
+		gameState = STATE_STORYLINE; // Play storyline ONCE
+	}
+	else if (slotActionMode == 2) // Load Game
+	{
+		if (checkIfSlotExists(slotNumber))
+		{
+			loadGameProgress(slotNumber);
+			gameState = STATE_LOADING; // Go directly to loading screen
+		}
+	}
+	else if (slotActionMode == 3) // Delete Game
+	{
+		deleteSaveSlot(slotNumber);
+	}
+}
+
+
+// ============================================================
 // MOUSE
 // ============================================================
 
@@ -371,21 +401,19 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
-		// 1. New Game Click -> Starts cutscene storyline first
+		// 1. New Game -> Opens Slot Menu in mode 1
 		if (mx >= 250 && mx <= 550 && my >= 350 && my <= 400)
 		{
-			currentSaveSlot = 1;
-			saveGameProgress(1);          // Creates a new save file
-			startStoryline();            // Reset cutscene variables
-			gameState = STATE_STORYLINE; // Switch state to play cutscene
+			slotActionMode = 1;
+			gameState = STATE_SLOT_MENU;
 		}
-		// 2. Load Game Click -> Opens 3 slots menu
+		// 2. Load Game -> Opens Slot Menu in mode 2
 		else if (mx >= 250 && mx <= 550 && my >= 280 && my <= 330)
 		{
 			slotActionMode = 2;
 			gameState = STATE_SLOT_MENU;
 		}
-		// 3. Delete Game Click -> Opens 3 slots menu for deletion
+		// 3. Delete Game -> Opens Slot Menu in mode 3
 		else if (mx >= 250 && mx <= 550 && my >= 210 && my <= 260)
 		{
 			slotActionMode = 3;
@@ -399,38 +427,26 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
-		// 1. Force white color so the image renders with its original colors
-		iSetColor(255, 255, 255);
-
-		// 2. Now show the image
-		iShowImage(0, 0, 800, 600, slotMenuBgImage);
-
-		// Text color for buttons/titles
-		iSetColor(255, 255, 255);
-		if (slotActionMode == 1) iText(310, 500, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 2) iText(310, 500, "SELECT SLOT TO LOAD", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 3) iText(310, 500, "SELECT SLOT TO DELETE", GLUT_BITMAP_HELVETICA_18);
-
-		// Slot 1
-		if (checkIfSlotExists(1))
-			iText(340, 418, "SLOT 1: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
-			iText(340, 418, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-
-		// Slot 2
-		if (checkIfSlotExists(2))
-			iText(340, 348, "SLOT 2: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
-			iText(340, 348, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-
-		// Slot 3
-		if (checkIfSlotExists(3))
-			iText(340, 278, "SLOT 3: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
-			iText(340, 278, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-
-		// Back Button
-		iText(375, 180, "BACK", GLUT_BITMAP_HELVETICA_12);
+		// Slot 1 Click
+		if (mx >= 320 && mx <= 480 && my >= 410 && my <= 435)
+		{
+			handleSlotClick(1);
+		}
+		// Slot 2 Click
+		else if (mx >= 320 && mx <= 480 && my >= 340 && my <= 365)
+		{
+			handleSlotClick(2);
+		}
+		// Slot 3 Click
+		else if (mx >= 320 && mx <= 480 && my >= 270 && my <= 295)
+		{
+			handleSlotClick(3);
+		}
+		// Back Button Click
+		else if (mx >= 350 && mx <= 450 && my >= 170 && my <= 200)
+		{
+			gameState = STATE_PLAY_CHOICE;
+		}
 	}
 	else if (gameState == STATE_SETTINGS)
 	{
@@ -1064,9 +1080,8 @@ int main()
 	initLevel2();
 	initLevel3();
 	initAudio();
-	initStorylineAssets(); // Loads bitmap assets for cutscenes
 
-
+	// Set Timers
 	iSetTimer(1000, updateCropGrowth);
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);
@@ -1075,11 +1090,15 @@ int main()
 	iSetTimer(33, gameTimerTick); // ~30 FPS timer driving cutscene sequence
 	iSetTimer(20, iAnim);
 
+	// MUST BE CALLED BEFORE LOADING ANY IMAGES
 	iInitialize(SCREEN_WIDTH, SCREEN_HEIGHT, "FarmScapes - 2D Farming Simulator");
-	slotMenuBgImage = iLoadImage("assets/loadscreen.bmp");
 
+	// Load images ONLY AFTER iInitialize creates the OpenGL window
+	slotMenuBgImage = iLoadImage("assets/loadscreen.bmp");
+	initStorylineAssets(); // Loads cutscene bitmap textures
 
 	printf("DEBUG: Loaded slotMenuBgImage ID = %d\n", slotMenuBgImage);
+
 	iStart();
 
 	return 0;
