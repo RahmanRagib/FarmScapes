@@ -26,7 +26,7 @@
 
 #define STATE_MENU 0
 #define STATE_LEVEL_1 1
-#define STATE_SETTINGS 2
+#define STATE_SETTING 2
 #define STATE_CREDITS 3
 #define STATE_LOADING 4
 #define STATE_TOWN 5
@@ -355,7 +355,7 @@ void iDraw()
 	else if (gameState == STATE_LEVEL_3)
 		drawLevel3();
 
-	else if (gameState == STATE_SETTINGS)
+	else if (gameState == STATE_SETTING)
 		drawSettings();
 
 	else if (gameState == STATE_CREDITS)
@@ -371,7 +371,7 @@ void iMouse(int button, int state, int mx, int my)
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 		{
 		// SETTINGS MENU INPUTS
-		if (gameState == STATE_SETTINGS)
+		if (gameState == STATE_SETTING)
 		{
 			// Music Toggle Button (Y: 250 to 300)
 			if (mx >= 300 && mx <= 500 && my >= 350 && my <= 400) //my >= 250 && my <= 300)
@@ -405,7 +405,7 @@ void iMouse(int button, int state, int mx, int my)
 			}
 			else if (mx >= 290 && mx <= 510 && my >= 320 && my <= 390)
 			{
-				gameState = STATE_SETTINGS;
+				gameState = STATE_SETTING;
 			}
 			else if (mx >= 290 && mx <= 510 && my >= 230 && my <= 300)
 			{
@@ -1015,7 +1015,7 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
-	if (gameState == STATE_SETTINGS)
+	if (gameState == STATE_SETTING)
 	{
 		if (key == 27 || key == 8 || key == 'b' || key == 'B') // ESC, Backspace, or 'b'
 		{
