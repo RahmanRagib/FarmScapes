@@ -4,11 +4,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
-void deleteSaveSlot(int slotNumber);
+// ============================================================
+// EXTERNAL GLOBAL VARIABLES
+// ============================================================
 
-// Declare external global variables defined in your main file so the header can access them
 extern int gameState;
+extern int slotActionMode;
+extern int loadingTimer;
+
 extern int playerGold;
 extern int level2Unlocked;
 extern int level3Unlocked;
@@ -32,11 +37,30 @@ extern int henCount;
 extern int cowCount;
 extern int sheepCount;
 
+// States needed from iMain
+#ifndef STATE_LEVEL_1
+#define STATE_LEVEL_1 1
+#endif
+
+#ifndef STATE_LOADING
+#define STATE_LOADING 4
+#endif
+
+#ifndef STATE_STORYLINE
+#define STATE_STORYLINE 12
+#endif
+
+// Forward declarations
+void startStoryline();
+
+// ============================================================
+// SAVE / LOAD SYSTEM
+// ============================================================
+
 // Save Game Function (Stores everything into the text file)
-void saveGameProgress(int slot);
 void saveGameProgress(int slot) {
-	char filename[30];
-	sprintf(filename, "save_slot%d.txt", slot);
+	char filename[50];
+	sprintf(filename, "save_slot_%d.txt", slot);
 
 	FILE *file = fopen(filename, "w");
 	if (file != NULL) {
@@ -69,26 +93,14 @@ void saveGameProgress(int slot) {
 	}
 }
 
-void deleteSaveSlot(int slotNumber)
-{
-	char filename[50];
-	sprintf(filename, "save_slot_%d.txt", slotNumber);
-
-	// Delete the save file from disk
-	remove(filename);
-}
-
 // Load Game Function (Reads everything back from the text file)
 void loadGameProgress(int slot) {
-	char filename[30];
-	sprintf(filename, "save_slot%d.txt", slot);
-void loadGameProgress(int slot) {
-	char filename[30];
-	sprintf(filename, "save_slot%d.txt", slot);
+	char filename[50];
+	sprintf(filename, "save_slot_%d.txt", slot);
 
 	FILE *file = fopen(filename, "r");
 	if (file != NULL) {
-		// Read values in the exact same matching format
+		// Read values in exact matching format
 		fscanf(file, "GAME_STATE: %d\n", &gameState);
 		fscanf(file, "COINS: %d\n", &playerGold);
 		fscanf(file, "LEVEL2: %d\n", &level2Unlocked);
@@ -114,43 +126,48 @@ void loadGameProgress(int slot) {
 	}
 }
 
-// Delete Game Progress Function
-void deleteGameProgress(int slot) {
-	char filename[30];
-	sprintf(filename, "save_slot%d.txt", slot);
+// Check if a save slot file exists
+bool checkIfSlotExists(int slotNumber)
+{
+	char filename[50];
+	sprintf(filename, "save_slot_%d.txt", slotNumber);
+	FILE *fp = fopen(filename, "r");
+	if (fp)
+	{
+		fclose(fp);
+		return true;
+	}
+	return false;
+}
+
+// Get player score/gold saved in a slot
+int getSlotScore(int slotNumber)
+{
+	char filename[50];
+	sprintf(filename, "save_slot_%d.txt", slotNumber);
+	FILE *fp = fopen(filename, "r");
+	int state = 0, gold = 0;
+	if (fp)
+	{
+		fscanf(fp, "GAME_STATE: %d\n", &state);
+		fscanf(fp, "COINS: %d\n", &gold);
+		fclose(fp);
+	}
+	return gold;
+}
+
+// Delete a save slot
+void deleteSaveSlot(int slotNumber)
+{
+	char filename[50];
+	sprintf(filename, "save_slot_%d.txt", slotNumber);
 	remove(filename);
 }
 
-// Check if Save Slot Exists
-int checkIfSlotExists(int slot) {
-	char filename[30];
-	sprintf(filename, "save_slot%d.txt", slot);
-	FILE *file = fopen(filename, "r");
-	if (file != NULL) {
-		fclose(file);
-		return 1;
-	}
-	return 0;
-}
-
-// Helper function to read the gold score for the menu display text
-int getSlotScore(int slot) {
-	char filename[30];
-	sprintf(filename, "save_slot%d.txt", slot);
-
-	FILE *file = fopen(filename, "r");
-	if (file == NULL) return 0;
-
-	char line[50];
-	int score = 0;
-	while (fgets(line, sizeof(line), file)) {
-		if (sscanf(line, "COINS: %d", &score) == 1) {
-			fclose(file);
-			return score;
-		}
-	}
-	fclose(file);
-	return 0;
+// Alias to maintain compatibility
+void deleteGameProgress(int slotNumber)
+{
+	deleteSaveSlot(slotNumber);
 }
 
 // Handle Slot Action Logic (New Game, Load Game, or Delete Game)
@@ -173,11 +190,10 @@ void handleSlotAction(int slot) {
 		sheepCount = 0;
 		level2Unlocked = 0; // Lock levels for a true fresh game
 		level3Unlocked = 0;
-		gameState = STATE_LEVEL_1; // Start fresh at Level 1
 
 		saveGameProgress(slot); // Save the fresh default values
-		gameState = STATE_LOADING;
-		loadingTimer = 0;
+		startStoryline();       // Trigger storyline cutscene
+		gameState = STATE_STORYLINE;
 	}
 	else if (slotActionMode == 2) // LOAD GAME
 	{
@@ -206,16 +222,16 @@ void handleSlotAction(int slot) {
 			sheepCount = 0;
 			level2Unlocked = 0;
 			level3Unlocked = 0;
-			gameState = STATE_LEVEL_1;
 
 			saveGameProgress(slot);
-			gameState = STATE_LOADING;
-			loadingTimer = 0;
+			startStoryline();
+			gameState = STATE_STORYLINE;
 		}
 	}
 	else if (slotActionMode == 3) // DELETE GAME
 	{
-		deleteGameProgress(slot);
+		deleteSaveSlot(slot);
 	}
 }
-#endif
+
+#endif // SAVESYSTEM_H
