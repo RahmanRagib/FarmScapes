@@ -76,6 +76,7 @@
     <ClInclude Include="saveSystem.h" />
     <ClInclude Include="iGraphics.h" />
     <ClInclude Include="loading.h" />
+    <ClInclude Include="storyline.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
