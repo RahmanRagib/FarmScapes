@@ -294,45 +294,75 @@ void iDraw()
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
+		// Draw Background Image
 		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
-		iSetColor(255, 255, 255);
-		if (slotActionMode == 1) iText(310, 500, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 2) iText(310, 500, "SELECT SLOT TO LOAD", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 3) iText(310, 500, "SELECT SLOT TO DELETE", GLUT_BITMAP_HELVETICA_18);
+		// TOP TITLE (Times Roman 24 for a clean large header in the sky area)
+		iSetColor(40, 20, 10); // Shadow
+		if (slotActionMode == 2) iText(251, 491, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 3) iText(231, 491, "SELECT SLOT TO DELETE", GLUT_BITMAP_TIMES_ROMAN_24);
+
+		iSetColor(210, 145, 80); // Mixed brown / golden shade
+		if (slotActionMode == 2) iText(250, 490, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 3) iText(230, 490, "SELECT SLOT TO DELETE", GLUT_BITMAP_TIMES_ROMAN_24);
 
 		char slotText[50];
 
-		// Slot 1
-		if (checkIfSlotExists(1)) {
-			sprintf(slotText, "RESUME SLOT 1 (Gold: %d)", getSlotScore(1));
-			iText(310, 418, slotText, GLUT_BITMAP_HELVETICA_12);
-		}
-		else {
-			iText(340, 418, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-		}
+		// -------------------------------------------------------------
+		// SLOT 1 BUTTON
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(290, 400, 220, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(290, 400, 220, 45);
 
-		// Slot 2
-		if (checkIfSlotExists(2)) {
-			sprintf(slotText, "RESUME SLOT 2 (Gold: %d)", getSlotScore(2));
-			iText(310, 348, slotText, GLUT_BITMAP_HELVETICA_12);
-		}
-		else {
-			iText(340, 348, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-		}
+		sprintf(slotText, "RESUME SLOT 1 (Gold: %d)", getSlotScore(1));
+		iSetColor(40, 20, 10);
+		iText(331, 416, slotText, GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(330, 415, slotText, GLUT_BITMAP_HELVETICA_12);
 
-		// Slot 3
-		if (checkIfSlotExists(3)) {
-			sprintf(slotText, "RESUME SLOT 3 (Gold: %d)", getSlotScore(3));
-			iText(310, 278, slotText, GLUT_BITMAP_HELVETICA_12);
-		}
-		else {
-			iText(340, 278, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-		}
+		// -------------------------------------------------------------
+		// SLOT 2 BUTTON
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(290, 330, 220, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(290, 330, 220, 45);
 
-		// Back Button
-		iText(375, 180, "BACK", GLUT_BITMAP_HELVETICA_12);
+		sprintf(slotText, "RESUME SLOT 2 (Gold: %d)", getSlotScore(2));
+		iSetColor(40, 20, 10);
+		iText(331, 346, slotText, GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(330, 345, slotText, GLUT_BITMAP_HELVETICA_12);
+
+		// -------------------------------------------------------------
+		// SLOT 3 BUTTON (Now matches Slot 1 and 2 permanently)
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(290, 260, 220, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(290, 260, 220, 45);
+
+		sprintf(slotText, "RESUME SLOT 3 (Gold: %d)", getSlotScore(3));
+		iSetColor(40, 20, 10);
+		iText(331, 276, slotText, GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(330, 275, slotText, GLUT_BITMAP_HELVETICA_12);
+
+		// -------------------------------------------------------------
+		// BACK BUTTON
+		// -------------------------------------------------------------
+		iSetColor(140, 75, 30);
+		iFilledRectangle(340, 170, 120, 40);
+		iSetColor(200, 140, 75);
+		iRectangle(340, 170, 120, 40);
+
+		iSetColor(40, 20, 10);
+		iText(386, 186, "BACK", GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(385, 185, "BACK", GLUT_BITMAP_HELVETICA_12);
 	}
 	else if (gameState == STATE_LOADING)
 		drawLoading();
@@ -393,6 +423,106 @@ void iMouse(int button, int state, int mx, int my)
 			initLevel3();
 			gameState = STATE_LEVEL_3;
 			loadingTimer = 0;
+		}
+		else if (mx >= 290 && mx <= 510 && my >= 320 && my <= 390)
+		{
+			gameState = STATE_SETTINGS;
+		}
+		else if (mx >= 290 && mx <= 510 && my >= 230 && my <= 300)
+		{
+			gameState = STATE_CREDITS;
+		}
+		else if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
+		{
+			mciSendString("close bgmusic", NULL, 0, NULL);
+			exit(0);
+		}
+	}
+	else if (gameState == STATE_PLAY_CHOICE)
+	{
+		// 1. NEW GAME BUTTON (X: 290 to 510, Y: 360 to 405)
+		if (mx >= 290 && mx <= 510 && my >= 360 && my <= 405)
+		{
+			// Directly launch your game state (e.g., STATE_LEVEL1 or your gameplay loop)
+			gameState = STATE_LEVEL_1; // Replace with your active gameplay state variable if needed
+		}
+		// 2. LOAD GAME BUTTON (X: 290 to 510, Y: 300 to 345)
+		else if (mx >= 290 && mx <= 510 && my >= 300 && my <= 345)
+		{
+			slotActionMode = 2; // Load Game mode
+			gameState = STATE_SLOT_MENU;
+		}
+		// 3. DELETE GAME BUTTON (X: 290 to 510, Y: 240 to 285)
+		else if (mx >= 290 && mx <= 510 && my >= 240 && my <= 285)
+		{
+			slotActionMode = 3; // Delete Game mode
+			gameState = STATE_SLOT_MENU;
+		}
+		// 4. MAIN MENU BUTTON (X: 340 to 460, Y: 170 to 210)
+		else if (mx >= 340 && mx <= 460 && my >= 170 && my <= 210)
+		{
+			gameState = STATE_MENU; // Your main menu state
+		}
+	}
+	else if (gameState == STATE_SLOT_MENU)
+	{
+		// SLOT 1 (X: 290 to 510, Y: 400 to 445)
+		if (mx >= 290 && mx <= 510 && my >= 400 && my <= 445)
+		{
+			handleSlotAction(1); // Calls your backend logic for slot 1 based on slotActionMode
+		}
+		// SLOT 2 (X: 290 to 510, Y: 330 to 375)
+		else if (mx >= 290 && mx <= 510 && my >= 330 && my <= 375)
+		{
+			handleSlotAction(2);
+		}
+		// SLOT 3 (X: 290 to 510, Y: 260 to 305)
+		else if (mx >= 290 && mx <= 510 && my >= 260 && my <= 305)
+		{
+			handleSlotAction(3);
+		}
+		// BACK BUTTON (X: 340 to 460, Y: 170 to 210)
+		else if (mx >= 340 && mx <= 460 && my >= 170 && my <= 210)
+		{
+			gameState = STATE_PLAY_CHOICE;
+		}
+	}
+	// ==========================================
+	else if (gameState == STATE_SETTINGS)
+	{
+		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
+		{
+			toggleMusic();
+		}
+		else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
+		{
+			gameState = STATE_MENU;
+		}
+	}
+	else if (gameState == STATE_CREDITS)
+	{
+		if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
+		{
+			gameState = STATE_MENU;
+		}
+	}
+	else if (gameState == STATE_TOWN)
+	{
+		if (mx >= 670 && mx <= 780 && my >= 20 && my <= 60)
+		{
+			gameState = STATE_MENU;
+			return;
+		}
+	}
+	else if (gameState == STATE_LEVEL_1)
+	{
+		if (showCapWarning)
+			showCapWarning = 0;
+		// --- SAVE BUTTON CLICK ---
+		if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
+		{
+			saveGameProgress(currentSaveSlot);
+
 			return;
 		}
 
@@ -1165,7 +1295,7 @@ int main()
 	slotMenuBgImage = iLoadImage("assets/loadscreen.bmp");
 	initStorylineAssets();
 
-	printf("DEBUG: Loaded slotMenuBgImage ID = %d\n", slotMenuBgImage);
+printf("DEBUG: Loaded slotMenuBgImage ID = %d\n", slotMenuBgImage);
 
 	iStart();
 

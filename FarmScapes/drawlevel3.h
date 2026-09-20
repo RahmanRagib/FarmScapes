@@ -62,7 +62,7 @@ char bgPullingImage[100] = "assets/fisherman_pulling.bmp";
 char redMarkImage[100] = "assets/red2.bmp";
 
 int fishCount[NUM_FISH_TYPES] = { 0, 0, 0, 0, 0, 0 };
-int fishPrices[NUM_FISH_TYPES] = { 10, 20, 30, 40, 50, 60 };
+int fishPrices[NUM_FISH_TYPES] = { 70, 40, 30, 10, 30, 50 };
 
 char fishNames[NUM_FISH_TYPES][20] = {
     "Goonch",
@@ -233,7 +233,7 @@ void drawLevel3()
         iShowBMP(FISHERMAN_HEAD_X, FISHERMAN_HEAD_Y, redMarkImage);
     }
 
-    // 4. "LINE HAS BEEN CAST" Popup (Lowered to Y=70 and visible for ~1 second)
+    // 4. "LINE HAS BEEN CAST" Popup
     if (fishingState == FISH_STATE_WAITING && castPopupTimer > 0)
     {
         iSetColor(15, 25, 35);
@@ -247,7 +247,7 @@ void drawLevel3()
         iText(250, 90, "Waiting for a fish to bite...", GLUT_BITMAP_HELVETICA_12);
     }
 
-    // 5. "NOTHING BIT" Popup (Lowered to Y=70)
+    // 5. "NOTHING BIT" Popup
     if (fishingState == FISH_STATE_NOTHING)
     {
         iSetColor(15, 25, 35);
@@ -275,12 +275,21 @@ void drawLevel3()
         iSetColor(40, 120, 200);
         iRectangle(180, 80, 440, 420);
 
-        iSetColor(255, 255, 255);
-        iText(330, 465, "FISH MARKET", GLUT_BITMAP_HELVETICA_18);
+        // Header BMP Banner Placeholder
+        iShowBMPAlternative2(280, 455, "assets/market.bmp", 0xFFFFFF);
 
+        // Gold Icon & Current Gold Balance
+        // Icon drawn at X = 200; Text shifted further right to X = 370 for wide BMP images
+        iShowBMPAlternative2(200, 410, "assets/gold.bmp", 0xFFFFFF);
+        char goldBuf[64];
+        sprintf(goldBuf, "$%d", playerGold);
+        iSetColor(240, 200, 80);
+        iText(370, 417, goldBuf, GLUT_BITMAP_HELVETICA_18);
+
+        // Fish List Items
         for (int i = 0; i < NUM_FISH_TYPES; i++)
         {
-            int itemY = 410 - (i * 45);
+            int itemY = 365 - (i * 40);
             char lineStr[100];
             sprintf(lineStr, "%s: %d owned (%d Gold)", fishNames[i], fishCount[i], fishPrices[i]);
 
@@ -333,7 +342,7 @@ void handleLevel3MouseClick(int mx, int my)
 
         for (int i = 0; i < NUM_FISH_TYPES; i++)
         {
-            int itemY = 410 - (i * 45);
+            int itemY = 365 - (i * 40);
             if (mx >= 520 && mx <= 590 && my >= itemY && my <= itemY + 26)
             {
                 if (fishCount[i] > 0)
