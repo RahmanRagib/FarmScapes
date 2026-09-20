@@ -555,22 +555,13 @@ void iMouse(int button, int state, int mx, int my)
 		}
 
 		// ==========================================
-		// LEVEL 1
+		// LEVEL 1 (Combined and Fixed)
 		// ==========================================
 		else if (gameState == STATE_LEVEL_1)
 		{
 			if (showCapWarning)
 				showCapWarning = 0;
 
-			// Save Button
-			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
-			{
-				saveGameProgress(currentSaveSlot);
-				return;
-			}
-		}
-		else if (gameState == STATE_LEVEL_1)
-		{
 			// 1. If Marketplace is open, handle its UI clicks first
 			if (isMarketOpen)
 			{
@@ -584,25 +575,28 @@ void iMouse(int button, int state, int mx, int my)
 			// 2. Top HUD Bar Buttons
 			// SAVE BUTTON (X: 340 to 410, Y: 552 to 586)
 			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586) {
-				// Call your save function here
+				saveGameProgress(currentSaveSlot);
+				return;
 			}
 			// MARKET BUTTON (X: 420 to 520, Y: 552 to 586)
 			else if (mx >= 420 && mx <= 520 && my >= 552 && my <= 586) {
 				isMarketOpen = 1;
+				return;
 			}
 			// EXPLORE TOWN BUTTON (X: 535 to 655, Y: 552 to 586)
 			else if (mx >= 535 && mx <= 655 && my >= 552 && my <= 586) {
 				gameState = STATE_TOWN;
+				return;
 			}
 			// MENU BUTTON (X: 670 to 780, Y: 552 to 586)
 			else if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586) {
 				gameState = STATE_PLAY_CHOICE;
+				return;
 			}
 
 			// 3. Bottom Toolbar Tool Selection Buttons (Y: 28 to 72)
 			// MASS PLOW BUTTON (X: 90 to 160) - Only if unlocked
 			else if (massPlowUnlocked && mx >= 90 && mx <= 160 && my >= 28 && my <= 72) {
-				// Optional: Trigger mass plow action for all tiles
 				for (int r = 0; r < GRID_ROWS; r++) {
 					for (int c = 0; c < GRID_COLS; c++) {
 						if (farmGrid[r][c].state == CROP_EMPTY) {
@@ -610,22 +604,27 @@ void iMouse(int button, int state, int mx, int my)
 						}
 					}
 				}
+				return;
 			}
 			// PLOW TOOL (X: 170 to 260)
 			else if (mx >= 170 && mx <= 260 && my >= 28 && my <= 72) {
 				selectedTool = 1;
+				return;
 			}
 			// PLANT TOOL (X: 290 to 380)
 			else if (mx >= 290 && mx <= 380 && my >= 28 && my <= 72) {
 				selectedTool = 2;
+				return;
 			}
 			// WATER TOOL (X: 410 to 500)
 			else if (mx >= 410 && mx <= 500 && my >= 28 && my <= 72) {
 				selectedTool = 3;
+				return;
 			}
 			// HARVEST TOOL (X: 530 to 630)
 			else if (mx >= 530 && mx <= 630 && my >= 28 && my <= 72) {
 				selectedTool = 4;
+				return;
 			}
 
 			// 4. Farm Tile Grid Click Detection & Tool Actions
