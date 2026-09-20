@@ -51,6 +51,7 @@ int fishingState = FISH_STATE_IDLE;
 int fishingWaitTimer = 0;
 int hookTimer = 0;
 int resultDisplayTimer = 0;
+int castPopupTimer = 0; // Timer to display "Line Has Been Cast" for ~1 second
 
 int lastCaughtFishType = -1;
 char caughtFishName[50] = "";
@@ -93,6 +94,7 @@ void initLevel3()
     fishingWaitTimer = 0;
     hookTimer = 0;
     resultDisplayTimer = 0;
+    castPopupTimer = 0;
     isFishMarketOpen = 0;
     srand((unsigned int)time(NULL));
 }
@@ -105,6 +107,12 @@ void updateLevel3Logic()
 {
     if (gameState != STATE_LEVEL_3)
         return;
+
+    // Countdown for the 1-second "Line Has Been Cast" pop-up
+    if (castPopupTimer > 0)
+    {
+        castPopupTimer--;
+    }
 
     // 1. Waiting for fish to bite
     if (fishingState == FISH_STATE_WAITING)
@@ -225,27 +233,41 @@ void drawLevel3()
         iShowBMP(FISHERMAN_HEAD_X, FISHERMAN_HEAD_Y, redMarkImage);
     }
 
-    // 4. "NOTHING BIT" Popup
+    // 4. "LINE HAS BEEN CAST" Popup (Lowered to Y=70 and visible for ~1 second)
+    if (fishingState == FISH_STATE_WAITING && castPopupTimer > 0)
+    {
+        iSetColor(15, 25, 35);
+        iFilledRectangle(220, 70, 360, 80);
+        iSetColor(40, 180, 200);
+        iRectangle(220, 70, 360, 80);
+
+        iSetColor(100, 220, 255);
+        iText(250, 115, "LINE HAS BEEN CAST!", GLUT_BITMAP_HELVETICA_18);
+        iSetColor(200, 200, 200);
+        iText(250, 90, "Waiting for a fish to bite...", GLUT_BITMAP_HELVETICA_12);
+    }
+
+    // 5. "NOTHING BIT" Popup (Lowered to Y=70)
     if (fishingState == FISH_STATE_NOTHING)
     {
         iSetColor(15, 25, 35);
-        iFilledRectangle(220, 260, 360, 80);
+        iFilledRectangle(220, 70, 360, 80);
         iSetColor(200, 180, 60);
-        iRectangle(220, 260, 360, 80);
+        iRectangle(220, 70, 360, 80);
 
         iSetColor(255, 220, 100);
-        iText(250, 305, "NOTHING BIT!", GLUT_BITMAP_HELVETICA_18);
+        iText(250, 115, "NOTHING BIT!", GLUT_BITMAP_HELVETICA_18);
         iSetColor(200, 200, 200);
-        iText(250, 280, "The fish got away. Left click to cast again!", GLUT_BITMAP_HELVETICA_12);
+        iText(250, 90, "The fish got away. Left click to cast again!", GLUT_BITMAP_HELVETICA_12);
     }
 
-    // 5. "FISH CAUGHT" Popup
+    // 6. "FISH CAUGHT" Popup
     if (fishingState == FISH_STATE_CAUGHT && lastCaughtFishType >= 0)
     {
         iShowBMP(FISH_POPUP_X, FISH_POPUP_Y, fishImages[lastCaughtFishType]);
     }
 
-    // 6. MARKET OVERLAY
+    // 7. MARKET OVERLAY
     if (isFishMarketOpen)
     {
         iSetColor(15, 25, 35);
@@ -336,6 +358,7 @@ void handleLevel3MouseClick(int mx, int my)
     {
         fishingState = FISH_STATE_WAITING;
         fishingWaitTimer = 25 + rand() % 25;
+        castPopupTimer = 10; // Trigger pop-up display for ~1 second (10 timer ticks)
     }
     else if (fishingState == FISH_STATE_HOOKED)
     {

@@ -274,17 +274,64 @@ void iDraw()
 		drawMenu();
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
+		// 1. Draw Background Image
+
 		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
-		iSetColor(255, 255, 255);
-		iText(330, 450, "GAME MENU", GLUT_BITMAP_HELVETICA_18);
+		// -------------------------------------------------------------
+		// BUTTON 1: NEW GAME (Warm Amber-Wood Box: Width 160, X: 320 to 480)
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40); // Softer, warmer amber-brown fill
+		iFilledRectangle(320, 360, 160, 45);
+		iSetColor(220, 160, 90); // Lighter warm golden border
+		iRectangle(320, 360, 160, 45);
 
-		// Buttons
-		iText(350, 370, "1. NEW GAME", GLUT_BITMAP_HELVETICA_12);
-		iText(350, 300, "2. LOAD GAME", GLUT_BITMAP_HELVETICA_12);
-		iText(350, 230, "3. DELETE GAME", GLUT_BITMAP_HELVETICA_12);
-		iText(365, 160, "MAIN MENU", GLUT_BITMAP_HELVETICA_12);
+		// Centered yellowish-orange bold text
+		iSetColor(40, 20, 10); // Shadow
+		iSetColor(40, 20, 10);
+		iText(371, 377, "NEW GAME", GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100); // Brighter golden-yellow
+		iText(370, 376, "NEW GAME", GLUT_BITMAP_HELVETICA_12);
+
+		// -------------------------------------------------------------
+		// BUTTON 2: LOAD GAME (Width: 160)
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(320, 300, 160, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(320, 300, 160, 45);
+
+		iSetColor(40, 20, 10);
+		iText(369, 317, "LOAD GAME", GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(368, 316, "LOAD GAME", GLUT_BITMAP_HELVETICA_12);
+
+		// -------------------------------------------------------------
+		// BUTTON 3: DELETE GAME (Width: 160)
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(320, 240, 160, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(320, 240, 160, 45);
+
+		iSetColor(40, 20, 10);
+		iText(363, 257, "DELETE GAME", GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(362, 256, "DELETE GAME", GLUT_BITMAP_HELVETICA_12);
+
+		// -------------------------------------------------------------
+		// BUTTON 4: MAIN MENU (Shorter Width: 120, Centered X: 340 to 460)
+		// -------------------------------------------------------------
+		iSetColor(140, 75, 30); // Slightly deeper shade for back button
+		iFilledRectangle(340, 175, 120, 40);
+		iSetColor(200, 140, 75);
+		iRectangle(340, 175, 120, 40);
+
+		iSetColor(40, 20, 10);
+		iText(369, 190, "MAIN MENU", GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(368, 189, "MAIN MENU", GLUT_BITMAP_HELVETICA_12);
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
