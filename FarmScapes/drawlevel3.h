@@ -4,6 +4,7 @@
 #include "iGraphics.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 // ============================================================
@@ -15,47 +16,50 @@
 #define FISH_STATE_CAUGHT 2
 #define FISH_STATE_NOTHING 3
 
-// 1/9th Center Screen Proportions (800x600 resolution)
-// Width = 800 / 3 = ~266px, Height = 600 / 3 = 200px
+#define NUM_FISH_TYPES 6
+
+// 1/9th Center Screen Proportions (800x600 screen)
+// Width = 800 / 3 = 266px, Height = 600 / 3 = 200px
 #define FISH_POPUP_W 266
 #define FISH_POPUP_H 200
-#define FISH_POPUP_X 267 // (800 - 266) / 2
-#define FISH_POPUP_Y 200 // (600 - 200) / 2
+#define FISH_POPUP_X 267 // Center X: (800 - 266) / 2
+#define FISH_POPUP_Y 200 // Center Y: (600 - 200) / 2
 
 // ============================================================
 // LEVEL 3 GLOBAL VARIABLES
 // ============================================================
 
-int boatX = 360;
-int boatY = 250;
-int boatSpeed = 6;
-
 int fishingState = FISH_STATE_IDLE;
 int fishingWaitTimer = 0;
 int resultDisplayTimer = 0;
 
-int lastCaughtFishType = -1; // 0: Small Fish, 1: Medium Fish, 2: Rare Fish
+int lastCaughtFishType = -1; // 0 to 5 corresponding to Fish 1 through Fish 6
 char caughtFishName[50] = "";
 int caughtFishValue = 0;
 
-// Inventory
-int countSmallFish = 0;
-int countMediumFish = 0;
-int countRareFish = 0;
+// Inventory & Placeholder Prices for Fish 1 - Fish 6 (Index 0 to 5)
+int fishCount[NUM_FISH_TYPES] = { 0, 0, 0, 0, 0, 0 };
+int fishPrices[NUM_FISH_TYPES] = { 10, 20, 30, 40, 50, 60 };
 
-// Market Prices
-int smallFishPrice = 15;
-int mediumFishPrice = 35;
-int rareFishPrice = 75;
+char fishNames[NUM_FISH_TYPES][20] = {
+    "Fish 1",
+    "Fish 2",
+    "Fish 3",
+    "Fish 4",
+    "Fish 5",
+    "Fish 6"
+};
+
+char fishImages[NUM_FISH_TYPES][100] = {
+    "assets/fish_1.bmp",
+    "assets/fish_2.bmp",
+    "assets/fish_3.bmp",
+    "assets/fish_4.bmp",
+    "assets/fish_5.bmp",
+    "assets/fish_6.bmp"
+};
 
 int isFishMarketOpen = 0;
-
-// Fish asset file paths
-char fishImages[3][100] = {
-    "assets/fish_small.bmp",
-    "assets/fish_medium.bmp",
-    "assets/fish_rare.bmp"
-};
 
 
 // ============================================================
@@ -64,8 +68,6 @@ char fishImages[3][100] = {
 
 void initLevel3()
 {
-    boatX = 360;
-    boatY = 250;
     fishingState = FISH_STATE_IDLE;
     fishingWaitTimer = 0;
     resultDisplayTimer = 0;
@@ -80,7 +82,7 @@ void initLevel3()
 
 void updateLevel3Logic()
 {
-    // Handle waiting state before hook result
+    // Handle fishing wait timer
     if (fishingState == FISH_STATE_WAITING)
     {
         if (fishingWaitTimer > 0)
@@ -89,7 +91,7 @@ void updateLevel3Logic()
         }
         else
         {
-            // Determine result: 30% chance nothing, 70% chance fish
+            // 30% chance nothing bit, 70% chance catching a fish
             int chance = rand() % 100;
 
             if (chance < 30)
@@ -100,35 +102,20 @@ void updateLevel3Logic()
             else
             {
                 fishingState = FISH_STATE_CAUGHT;
-                resultDisplayTimer = 30; // Displays pop-up image for ~3.0s
+                resultDisplayTimer = 30; // Displays pop-up for ~3.0s
 
-                int fishRoll = rand() % 100;
-                if (fishRoll < 50)
-                {
-                    lastCaughtFishType = 0;
-                    strcpy(caughtFishName, "Common Tilapia");
-                    caughtFishValue = smallFishPrice;
-                    countSmallFish++;
-                }
-                else if (fishRoll < 85)
-                {
-                    lastCaughtFishType = 1;
-                    strcpy(caughtFishName, "River Salmon");
-                    caughtFishValue = mediumFishPrice;
-                    countMediumFish++;
-                }
-                else
-                {
-                    lastCaughtFishType = 2;
-                    strcpy(caughtFishName, "Golden Trout");
-                    caughtFishValue = rareFishPrice;
-                    countRareFish++;
-                }
+                // Select fish by index (0 through 5)
+                int type = rand() % NUM_FISH_TYPES;
+
+                lastCaughtFishType = type;
+                strcpy(caughtFishName, fishNames[type]);
+                caughtFishValue = fishPrices[type];
+                fishCount[type]++;
             }
         }
     }
 
-    // Result display timers
+    // Timer countdown to reset back to idle
     if (fishingState == FISH_STATE_CAUGHT || fishingState == FISH_STATE_NOTHING)
     {
         if (resultDisplayTimer > 0)
@@ -153,12 +140,27 @@ void drawLevel3()
     iSetColor(28, 107, 160);
     iFilledRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    // Decorative water accents
+    // Decorative Water Accents
     iSetColor(45, 130, 185);
     iFilledRectangle(50, 100, 120, 10);
     iFilledRectangle(550, 420, 180, 10);
     iFilledRectangle(200, 480, 150, 10);
     iFilledRectangle(620, 150, 100, 10);
+
+    // Fishing Pier / Dock
+    iSetColor(120, 70, 30);
+    iFilledRectangle(320, 0, 160, 150);
+    iSetColor(90, 50, 20);
+    iRectangle(320, 0, 160, 150);
+
+    // Fishing Rod Line (Visible when line is cast)
+    if (fishingState == FISH_STATE_WAITING)
+    {
+        iSetColor(255, 255, 255);
+        iLine(400, 140, 400, 280);
+        iSetColor(220, 50, 50);
+        iFilledCircle(400, 280, 6); // Bobber
+    }
 
     // 2. Navigation Top Bar
     iSetColor(20, 30, 45);
@@ -171,7 +173,7 @@ void drawLevel3()
     sprintf(goldText, "Gold: %d", playerGold);
     iText(220, 565, goldText, GLUT_BITMAP_HELVETICA_18);
 
-    // Buttons
+    // Navigation Buttons
     iSetColor(40, 120, 200);
     iFilledRectangle(430, 555, 100, 34);
     iSetColor(255, 255, 255);
@@ -187,29 +189,13 @@ void drawLevel3()
     iSetColor(255, 255, 255);
     iText(705, 565, "MENU", GLUT_BITMAP_HELVETICA_12);
 
-    // 3. Player Boat
-    iSetColor(139, 69, 19);
-    iFilledRectangle(boatX, boatY, 80, 35);
-    iSetColor(100, 40, 10);
-    iFilledRectangle(boatX + 10, boatY + 35, 60, 10);
-
-    // Fishing Line / Rod indicator
-    if (fishingState == FISH_STATE_WAITING)
-    {
-        iSetColor(255, 255, 255);
-        iLine(boatX + 70, boatY + 45, boatX + 120, boatY - 30);
-        iSetColor(220, 50, 50);
-        iFilledCircle(boatX + 120, boatY - 30, 5); // Bobber
-    }
-
-    // Boat Instructions
+    // Control Prompt
     iSetColor(255, 255, 255);
-    iText(20, 20, "WASD: Move Boat  |  SPACE: Cast Line", GLUT_BITMAP_HELVETICA_12);
+    iText(20, 20, "SPACE: Cast Fishing Line", GLUT_BITMAP_HELVETICA_12);
 
-    // 4. "NOTHING BIT" DISPLAY (NO IMAGE, JUST TEXT BOX)
+    // 3. "NOTHING BIT" DISPLAY (PURE TEXT - NO IMAGE)
     if (fishingState == FISH_STATE_NOTHING)
     {
-        // Dark translucent dialogue card
         iSetColor(15, 25, 35);
         iFilledRectangle(220, 260, 360, 80);
         iSetColor(200, 180, 60);
@@ -221,12 +207,10 @@ void drawLevel3()
         iText(250, 280, "The fish swam away. Cast your line again!", GLUT_BITMAP_HELVETICA_12);
     }
 
-    // 5. "FISH CAUGHT" POPUP (CENTER 1/9TH SCREEN AREA)
+    // 4. "FISH CAUGHT" POPUP (CENTERED AT 1/9TH SCREEN AREA: 266x200)
     if (fishingState == FISH_STATE_CAUGHT && lastCaughtFishType >= 0)
     {
-        // Outer Popup Modal Overlay
-        iSetColor(0, 0, 0);
-        // Dim outer background behind popup
+        // Card frame behind popup
         iSetColor(10, 20, 30);
         iFilledRectangle(FISH_POPUP_X - 20, FISH_POPUP_Y - 55, FISH_POPUP_W + 40, FISH_POPUP_H + 90);
 
@@ -234,60 +218,53 @@ void drawLevel3()
         iRectangle(FISH_POPUP_X - 20, FISH_POPUP_Y - 55, FISH_POPUP_W + 40, FISH_POPUP_H + 90);
         iRectangle(FISH_POPUP_X - 18, FISH_POPUP_Y - 53, FISH_POPUP_W + 36, FISH_POPUP_H + 86);
 
-        // Header Text
+        // Header Title
         iSetColor(255, 255, 255);
         iText(FISH_POPUP_X + 50, FISH_POPUP_Y + FISH_POPUP_H + 15, "FISH CAUGHT!", GLUT_BITMAP_HELVETICA_18);
 
-        // Fish Image (Rendered at exactly 1/9th center of screen area: 266x200)
+        // Fish BMP Image rendered cleanly at center 1/9th size (266x200)
         iShowBMP2(FISH_POPUP_X, FISH_POPUP_Y, fishImages[lastCaughtFishType], 0);
 
-        // Details Text
+        // Fish details text
         char caughtDetails[100];
         sprintf(caughtDetails, "%s  (+%d Gold)", caughtFishName, caughtFishValue);
         iSetColor(100, 255, 120);
-        iText(FISH_POPUP_X + 15, FISH_POPUP_Y - 35, caughtDetails, GLUT_BITMAP_HELVETICA_18);
+        iText(FISH_POPUP_X + 45, FISH_POPUP_Y - 35, caughtDetails, GLUT_BITMAP_HELVETICA_18);
     }
 
-    // 6. MARKET OVERLAY
+    // 5. MARKET OVERLAY (FISH 1 THROUGH FISH 6)
     if (isFishMarketOpen)
     {
         iSetColor(15, 25, 35);
-        iFilledRectangle(200, 100, 400, 380);
+        iFilledRectangle(180, 80, 440, 420);
         iSetColor(40, 120, 200);
-        iRectangle(200, 100, 400, 380);
+        iRectangle(180, 80, 440, 420);
 
         iSetColor(255, 255, 255);
-        iText(330, 440, "FISH MARKET", GLUT_BITMAP_HELVETICA_18);
+        iText(330, 465, "FISH MARKET", GLUT_BITMAP_HELVETICA_18);
 
-        // Items & Selling
-        char lineStr[100];
+        // Render rows for Fish 1 to Fish 6
+        for (int i = 0; i < NUM_FISH_TYPES; i++)
+        {
+            int itemY = 410 - (i * 45);
+            char lineStr[100];
+            sprintf(lineStr, "%s: %d owned (%d Gold)", fishNames[i], fishCount[i], fishPrices[i]);
 
-        sprintf(lineStr, "Common Tilapia: %d in stock (%d Gold each)", countSmallFish, smallFishPrice);
-        iText(220, 380, lineStr, GLUT_BITMAP_HELVETICA_12);
-        iSetColor(40, 180, 80);
-        iFilledRectangle(510, 370, 65, 25);
-        iSetColor(255, 255, 255);
-        iText(525, 378, "SELL", GLUT_BITMAP_HELVETICA_12);
+            iSetColor(255, 255, 255);
+            iText(200, itemY + 6, lineStr, GLUT_BITMAP_HELVETICA_12);
 
-        sprintf(lineStr, "River Salmon:     %d in stock (%d Gold each)", countMediumFish, mediumFishPrice);
-        iText(220, 320, lineStr, GLUT_BITMAP_HELVETICA_12);
-        iSetColor(40, 180, 80);
-        iFilledRectangle(510, 310, 65, 25);
-        iSetColor(255, 255, 255);
-        iText(525, 318, "SELL", GLUT_BITMAP_HELVETICA_12);
-
-        sprintf(lineStr, "Golden Trout:    %d in stock (%d Gold each)", countRareFish, rareFishPrice);
-        iText(220, 260, lineStr, GLUT_BITMAP_HELVETICA_12);
-        iSetColor(40, 180, 80);
-        iFilledRectangle(510, 250, 65, 25);
-        iSetColor(255, 255, 255);
-        iText(525, 258, "SELL", GLUT_BITMAP_HELVETICA_12);
+            // Sell Button
+            iSetColor(40, 180, 80);
+            iFilledRectangle(520, itemY, 70, 26);
+            iSetColor(255, 255, 255);
+            iText(538, itemY + 7, "SELL", GLUT_BITMAP_HELVETICA_12);
+        }
 
         // Close Button
         iSetColor(200, 50, 50);
-        iFilledRectangle(360, 130, 80, 30);
+        iFilledRectangle(360, 100, 80, 30);
         iSetColor(255, 255, 255);
-        iText(380, 140, "CLOSE", GLUT_BITMAP_HELVETICA_12);
+        iText(380, 110, "CLOSE", GLUT_BITMAP_HELVETICA_12);
     }
 }
 
@@ -304,19 +281,13 @@ void handleLevel3Keyboard(unsigned char key)
         return;
     }
 
-    // Boat Movements
-    if (key == 'w' || key == 'W') { if (boatY + boatSpeed < 480) boatY += boatSpeed; }
-    if (key == 's' || key == 'S') { if (boatY - boatSpeed > 60)  boatY -= boatSpeed; }
-    if (key == 'a' || key == 'A') { if (boatX - boatSpeed > 20)  boatX -= boatSpeed; }
-    if (key == 'd' || key == 'D') { if (boatX + boatSpeed < 700) boatX += boatSpeed; }
-
-    // Start Fishing
+    // Spacebar to Cast Line
     if (key == ' ')
     {
         if (fishingState == FISH_STATE_IDLE)
         {
             fishingState = FISH_STATE_WAITING;
-            fishingWaitTimer = 20 + rand() % 20; // Waiting countdown
+            fishingWaitTimer = 20 + rand() % 20;
         }
     }
 }
@@ -326,29 +297,25 @@ void handleLevel3MouseClick(int mx, int my)
     if (isFishMarketOpen)
     {
         // Close market button
-        if (mx >= 360 && mx <= 440 && my >= 130 && my <= 160)
+        if (mx >= 360 && mx <= 440 && my >= 100 && my <= 130)
         {
             isFishMarketOpen = 0;
             return;
         }
 
-        // Sell Small Fish
-        if (mx >= 510 && mx <= 575 && my >= 370 && my <= 395 && countSmallFish > 0)
+        // Check clicks on sell buttons for Fish 1 - Fish 6
+        for (int i = 0; i < NUM_FISH_TYPES; i++)
         {
-            countSmallFish--;
-            playerGold += smallFishPrice;
-        }
-        // Sell Medium Fish
-        else if (mx >= 510 && mx <= 575 && my >= 310 && my <= 335 && countMediumFish > 0)
-        {
-            countMediumFish--;
-            playerGold += mediumFishPrice;
-        }
-        // Sell Rare Fish
-        else if (mx >= 510 && mx <= 575 && my >= 250 && my <= 275 && countRareFish > 0)
-        {
-            countRareFish--;
-            playerGold += rareFishPrice;
+            int itemY = 410 - (i * 45);
+            if (mx >= 520 && mx <= 590 && my >= itemY && my <= itemY + 26)
+            {
+                if (fishCount[i] > 0)
+                {
+                    fishCount[i]--;
+                    playerGold += fishPrices[i];
+                }
+                return;
+            }
         }
     }
 }
