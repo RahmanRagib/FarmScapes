@@ -296,23 +296,34 @@ void iDraw()
 		else if (slotActionMode == 2) iText(310, 500, "SELECT SLOT TO LOAD", GLUT_BITMAP_HELVETICA_18);
 		else if (slotActionMode == 3) iText(310, 500, "SELECT SLOT TO DELETE", GLUT_BITMAP_HELVETICA_18);
 
+		char slotText[50];
+
 		// Slot 1
-		if (checkIfSlotExists(1))
-			iText(340, 418, "SLOT 1: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
+		if (checkIfSlotExists(1)) {
+			sprintf(slotText, "RESUME SLOT 1 (Gold: %d)", getSlotScore(1));
+			iText(310, 418, slotText, GLUT_BITMAP_HELVETICA_12);
+		}
+		else {
 			iText(340, 418, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+		}
 
 		// Slot 2
-		if (checkIfSlotExists(2))
-			iText(340, 348, "SLOT 2: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
+		if (checkIfSlotExists(2)) {
+			sprintf(slotText, "RESUME SLOT 2 (Gold: %d)", getSlotScore(2));
+			iText(310, 348, slotText, GLUT_BITMAP_HELVETICA_12);
+		}
+		else {
 			iText(340, 348, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+		}
 
 		// Slot 3
-		if (checkIfSlotExists(3))
-			iText(340, 278, "SLOT 3: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
+		if (checkIfSlotExists(3)) {
+			sprintf(slotText, "RESUME SLOT 3 (Gold: %d)", getSlotScore(3));
+			iText(310, 278, slotText, GLUT_BITMAP_HELVETICA_12);
+		}
+		else {
 			iText(340, 278, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+		}
 
 		// Back Button
 		iText(375, 180, "BACK", GLUT_BITMAP_HELVETICA_12);
@@ -416,13 +427,23 @@ void iMouse(int button, int state, int mx, int my)
 			slotActionMode = 2;
 			gameState = STATE_SLOT_MENU;
 		}
-		// 3. Delete Game -> Opens Slot Menu in mode 3
+		// 3. Delete Game -> Opens slot selection menu for deletion
 		else if (mx >= 250 && mx <= 550 && my >= 210 && my <= 260)
 		{
 			slotActionMode = 3;
 			gameState = STATE_SLOT_MENU;
 		}
-		// Main Menu Back Button Click
+		else if (mx >= 250 && mx <= 550 && my >= 280 && my <= 330)
+		{
+			slotActionMode = 2;
+			gameState = STATE_SLOT_MENU;
+		}
+		// 3. Delete Game -> Opens slot selection menu for deletion
+		else if (mx >= 250 && mx <= 550 && my >= 210 && my <= 260)
+		{
+			slotActionMode = 3;
+			gameState = STATE_SLOT_MENU;
+		}
 		else if (mx >= 325 && mx <= 475 && my >= 140 && my <= 190)
 		{
 			gameState = STATE_MENU;
@@ -430,8 +451,29 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
-		// Slot 1 Click
-		if (mx >= 320 && mx <= 480 && my >= 410 && my <= 435)
+		if (mx >= 300 && mx <= 550 && my >= 410 && my <= 450)
+		{
+			currentSaveSlot = 1;
+			handleSlotAction(1); // Executes load, delete, or new game based on slotActionMode
+			return;
+		}
+		else if (mx >= 300 && mx <= 550 && my >= 340 && my <= 380)
+		{
+			currentSaveSlot = 2;
+			handleSlotAction(2);
+			return;
+		}
+		else if (mx >= 300 && mx <= 550 && my >= 270 && my <= 310)
+		{
+			currentSaveSlot = 3;
+			handleSlotAction(3);
+			return;
+		}
+		else if (mx >= 350 && mx <= 450 && my >= 170 && my <= 210)
+		{
+			gameState = STATE_PLAY_CHOICE;
+			return;
+		}
 		{
 			handleSlotClick(1);
 		}
@@ -449,17 +491,6 @@ void iMouse(int button, int state, int mx, int my)
 		else if (mx >= 350 && mx <= 450 && my >= 170 && my <= 200)
 		{
 			gameState = STATE_PLAY_CHOICE;
-		}
-	}
-	else if (gameState == STATE_SETTINGS)
-	{
-		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
-		{
-			toggleMusic();
-		}
-		else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
-		{
-			gameState = STATE_MENU;
 		}
 	}
 	else if (gameState == STATE_CREDITS)
@@ -481,6 +512,12 @@ void iMouse(int button, int state, int mx, int my)
 	{
 		if (showCapWarning)
 			showCapWarning = 0;
+		// --- SAVE BUTTON CLICK ---
+		if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
+		{
+			saveGameProgress(currentSaveSlot);
+			return;
+		}
 
 		if (mx >= 420 && mx <= 520 && my >= 552 && my <= 586)
 		{
@@ -664,6 +701,11 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_LEVEL_2)
 	{
+		if (mx >= 320 && mx <= 420 && my >= 552 && my <= 586)
+		{
+			saveGameProgress(currentSaveSlot);
+			return;
+		}
 		if (my >= 552 && my <= 586)
 		{
 			if (mx >= 430 && mx <= 530) { isRanchMarketOpen = !isRanchMarketOpen; return; }
@@ -815,11 +857,37 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_LEVEL_3)
 	{
+		// Top HUD Bar Navigation & Save Handling
 		if (my >= 552 && my <= 586)
 		{
-			if (mx >= 545 && mx <= 655) { gameState = STATE_TOWN; return; }
-			if (mx >= 670 && mx <= 780) { gameState = STATE_MENU; return; }
+			// SAVE BUTTON
+			if (mx >= 320 && mx <= 420)
+			{
+				saveGameProgress(currentSaveSlot);
+				return;
+			}
+			// MARKET BUTTON
+			if (mx >= 430 && mx <= 530)
+			{
+				isFishMarketOpen = !isFishMarketOpen;
+				return;
+			}
+			// TOWN BUTTON
+			if (mx >= 545 && mx <= 655)
+			{
+				gameState = STATE_TOWN;
+				return;
+			}
+			// MENU BUTTON
+			if (mx >= 670 && mx <= 780)
+			{
+				gameState = STATE_MENU;
+				return;
+			}
 		}
+
+		// Delegate gameplay clicks (casting line, reeling in, selling items)
+		handleLevel3MouseClick(mx, my);
 	}
 }
 
@@ -946,7 +1014,7 @@ void fixedUpdate()
 				else if (playerX >= 450 && playerX <= 550 && playerY >= 240 && playerY <= 330)
 				{
 					strcpy(npcName, "Ragib");
-					if (playerGold >= 100)
+					if (playerGold >= 0)
 					{
 						level2Unlocked = 1;
 						strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 2.");
@@ -957,8 +1025,12 @@ void fixedUpdate()
 				else if (playerX >= 530 && playerX <= 670 && playerY >= 80 && playerY <= 180)
 				{
 					strcpy(npcName, "Anika");
-					if (level3Unlocked) strcpy(dialogueText, "Entering Fishery... Press E again to start.");
-					else strcpy(dialogueText, "Welcome to the Fishery! Clear Level 2 first.");
+					if (playerGold >= 0)
+					{
+						level3Unlocked = 1;
+						strcpy(dialogueText, "You have 100 gold! Press E again to enter Level 3.");
+					}
+					else strcpy(dialogueText, "Welcome to the Fishery ! Earn 100 gold in Level 2 first.");
 					showDialogue = 1;
 				}
 			}
@@ -1083,12 +1155,15 @@ int main()
 	initLevel2();
 	initLevel3();
 	initAudio();
+	// Set Timers
+	iSetTimer(1000, updateCropGrowth);
 
 	// Set Timers
 	iSetTimer(1000, updateCropGrowth);
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);
 	iSetTimer(1000, updateRanchTimer);
+	iSetTimer(100, updateLevel3Logic); // <-- ADDED: Timer tick required for Level 3 fishing logic
 	iSetTimer(50, updateLoading);
 	iSetTimer(33, gameTimerTick); // ~30 FPS timer driving cutscene sequence
 	iSetTimer(20, iAnim);
