@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+void deleteSaveSlot(int slotNumber);
+
 // Save Game Function (Creates or overwrites a save slot file)
 void saveGameProgress(int slot) {
 	char filename[30];
@@ -27,6 +29,15 @@ void saveGameProgress(int slot) {
 		fprintf(file, "WOOL: %d\n", countWool);
 		fclose(file);
 	}
+}
+
+void deleteSaveSlot(int slotNumber)
+{
+	char filename[50];
+	sprintf(filename, "save_slot_%d.txt", slotNumber);
+
+	// Delete the save file from disk
+	remove(filename);
 }
 
 // Load Game Function (Reads progress from a save slot file)
