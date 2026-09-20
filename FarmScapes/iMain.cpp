@@ -1043,7 +1043,7 @@ void fixedUpdate()
 
 	if (gameState == STATE_TOWN)
 	{
-		// Check for 'E'/'e' or Enter key ('\r')
+		// Listen for 'E' / 'e' or Enter key ('\r')
 		int eIsDown = isKeyPressed('e') || isKeyPressed('E') || isKeyPressed('\r');
 
 		if (eIsDown && !eKeyPressedLastFrame)
@@ -1067,14 +1067,14 @@ void fixedUpdate()
 			}
 			else
 			{
-				// Level 1: Nadira
+				// Nadira (Level 1)
 				if (playerX >= 480 && playerX <= 570 && playerY >= 370 && playerY <= 460)
 				{
 					strcpy(npcName, "Nadira");
 					strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
 					showDialogue = 1;
 				}
-				// Level 2: Ragib
+				// Ragib (Level 2)
 				else if (playerX >= 450 && playerX <= 550 && playerY >= 240 && playerY <= 330)
 				{
 					strcpy(npcName, "Ragib");
@@ -1085,13 +1085,18 @@ void fixedUpdate()
 						showDialogue = 1;
 					}
 				}
-				// Level 3: Anika (Added missing interaction bounds)
-				else if (playerX >= 200 && playerX <= 320 && playerY >= 240 && playerY <= 330)
+				// Anika (Level 3) - Bounds matched to drawTown.h (X: 530-670, Y: 80-180)
+				else if (playerX >= 530 && playerX <= 670 && playerY >= 80 && playerY <= 180)
 				{
 					strcpy(npcName, "Anika");
 					if (level3Unlocked)
 					{
-						strcpy(dialogueText, "Welcome to the Fishing Spot! Press E again to enter Level 3.");
+						strcpy(dialogueText, "Welcome to the Boathouse! Press E again to enter Level 3.");
+						showDialogue = 1;
+					}
+					else
+					{
+						strcpy(dialogueText, "Level 3 is locked! Complete previous levels first.");
 						showDialogue = 1;
 					}
 				}
