@@ -100,12 +100,14 @@ int ranchCompleteMessageTimer = 0;
 // INCLUDE GAME HEADERS
 // ============================================================
 
+// ============================================================
+// INCLUDE GAME HEADERS
+// ============================================================
+
 #include "toggleMusic.h"
 #include "menu.h"
 #include "settings.h"
 #include "credits.h"
-
-#include "storyline.h"
 
 #include "loading.h"
 
@@ -120,6 +122,7 @@ int ranchCompleteMessageTimer = 0;
 
 #include "drawlevel3.h"
 #include "saveSystem.h"
+#include "storyline.h"
 
 
 // ============================================================
