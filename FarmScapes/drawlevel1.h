@@ -208,6 +208,31 @@ inline void drawLevel1() {
 	iText(110, 562, hudStr, GLUT_BITMAP_HELVETICA_10);
 
 	// Buttons
+
+	// SAVE BUTTON
+	iSetColor(240, 140, 30); // Orange background
+	iFilledRectangle(
+		340,
+		552,
+		70,
+		34
+		);
+
+	iSetColor(255, 255, 255); // White border
+	iRectangle(
+		340,
+		552,
+		70,
+		34
+		);
+
+	iSetColor(0, 0, 0); // Black text
+	iText(
+		360,
+		564,
+		(char*)"SAVE",
+		GLUT_BITMAP_HELVETICA_12
+		);
 	iSetColor(45, 130, 180);
 	iFilledRectangle(420, 552, 100, 34);
 	iSetColor(255, 255, 255);
