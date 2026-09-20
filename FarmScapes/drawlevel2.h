@@ -863,7 +863,30 @@ inline void drawLevel2()
 		hudStr,
 		GLUT_BITMAP_HELVETICA_10
 		);
+	// SAVE BUTTON
+	iSetColor(240, 140, 30); // Orange background
+	iFilledRectangle(
+		320,
+		552,
+		100,
+		34
+		);
 
+	iSetColor(255, 255, 255); // White border
+	iRectangle(
+		320,
+		552,
+		100,
+		34
+		);
+
+	iSetColor(0, 0, 0); // Black text
+	iText(
+		355,
+		564,
+		(char*)"SAVE",
+		GLUT_BITMAP_HELVETICA_12
+		);
 
 	// MARKET
 	iSetColor(45, 130, 180);

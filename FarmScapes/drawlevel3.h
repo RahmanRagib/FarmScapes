@@ -103,6 +103,30 @@ inline void drawLevel3() {
     iShowBMPAlternative2((int)boat.x, (int)boat.y, (char*)boatSprite, SPRITE_TRANSPARENT_KEY);
 
     // 3. Top Navigation Buttons (Town & Menu)
+	// SAVE BUTTON
+	iSetColor(240, 140, 30); // Orange background
+	iFilledRectangle(
+		425,
+		552,
+		110,
+		34
+		);
+
+	iSetColor(255, 255, 255); // White border & rectangle matching level 3 style
+	iRectangle(
+		425,
+		552,
+		110,
+		34
+		);
+
+	iSetColor(0, 0, 0); // Black text
+	iText(
+		465,
+		563,
+		(char*)"SAVE",
+		GLUT_BITMAP_HELVETICA_12
+		);
     iSetColor(50, 50, 50);
     iFilledRectangle(545, 552, 110, 34);
     iFilledRectangle(670, 552, 110, 34);
