@@ -377,28 +377,25 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
-		// 1. New Game Click -> Instantly creates fresh save in Slot 1 and starts game
+		// New Game Click -> Automatically creates a fresh game in Slot 1
 		if (mx >= 250 && mx <= 550 && my >= 350 && my <= 400)
 		{
 			currentSaveSlot = 1;
 			slotActionMode = 1;
-			saveGameProgress(currentSaveSlot); // Overwrites/creates fresh file
-			gameState = STATE_LOADING;         // Starts game loading screen
-			loadingTimer = 0;
+			handleSlotAction(1); // This will now reset and save fresh!
 		}
-		// 2. Load Game Click -> Opens 3 slots menu to choose which to resume
+		// Load Game Click -> Opens slot selection menu
 		else if (mx >= 250 && mx <= 550 && my >= 280 && my <= 330)
 		{
 			slotActionMode = 2;
 			gameState = STATE_SLOT_MENU;
 		}
-		// 3. Delete Game Click -> Opens 3 slots menu for deletion
+		// Delete Game Click -> Opens slot selection menu for deletion
 		else if (mx >= 250 && mx <= 550 && my >= 210 && my <= 260)
 		{
 			slotActionMode = 3;
 			gameState = STATE_SLOT_MENU;
 		}
-		// Main Menu Back Button Click
 		else if (mx >= 325 && mx <= 475 && my >= 140 && my <= 190)
 		{
 			gameState = STATE_MENU;
@@ -406,28 +403,24 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
-		// Slot 1 Click
 		if (mx >= 300 && mx <= 550 && my >= 410 && my <= 450)
 		{
 			currentSaveSlot = 1;
-			handleSlotAction(1);
+			handleSlotAction(1); // Executes load, delete, or new game based on slotActionMode
 			return;
 		}
-		// Slot 2 Click
 		else if (mx >= 300 && mx <= 550 && my >= 340 && my <= 380)
 		{
 			currentSaveSlot = 2;
 			handleSlotAction(2);
 			return;
 		}
-		// Slot 3 Click
 		else if (mx >= 300 && mx <= 550 && my >= 270 && my <= 310)
 		{
 			currentSaveSlot = 3;
 			handleSlotAction(3);
 			return;
 		}
-		// Back Button Click
 		else if (mx >= 350 && mx <= 450 && my >= 170 && my <= 210)
 		{
 			gameState = STATE_PLAY_CHOICE;
