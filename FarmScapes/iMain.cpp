@@ -399,180 +399,76 @@ void iDraw()
 void iMouse(int button, int state, int mx, int my)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-		{
-		// SETTINGS MENU INPUTS
-		if (gameState == STATE_SETTING)
-		{
-			// Music Toggle Button (Y: 250 to 300)
-			if (mx >= 300 && mx <= 500 && my >= 350 && my <= 400) //my >= 250 && my <= 300)
-			{
-				toggleMusic();
-				return; // Prevents code execution from continuing
-			}
-			// Exit / Back Button (Y:  200 to 300)
-			else if (mx >= 300 && mx <= 500 && my >= 200 && my <= 300)
-			{
-				gameState = STATE_MENU;
-				return; // Exits state cleanly without touching music
-			}
-			return;
-		}
-
-		if (gameState == STATE_LOADING_LEVEL3)
-		{
-			initLevel3();
-			gameState = STATE_LEVEL_3;
-			loadingTimer = 0;
-		}
-		else if (mx >= 290 && mx <= 510 && my >= 320 && my <= 390)
-		{
-			gameState = STATE_SETTING;
-		}
-		else if (mx >= 290 && mx <= 510 && my >= 230 && my <= 300)
-		{
-			gameState = STATE_CREDITS;
-		}
-		else if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
-		{
-			mciSendString("close bgmusic", NULL, 0, NULL);
-			exit(0);
-		}
-	}
-	else if (gameState == STATE_PLAY_CHOICE)
 	{
-		// 1. NEW GAME BUTTON (X: 290 to 510, Y: 360 to 405)
-		if (mx >= 290 && mx <= 510 && my >= 360 && my <= 405)
-		{
-			// Directly launch your game state (e.g., STATE_LEVEL1 or your gameplay loop)
-			gameState = STATE_LEVEL_1; // Replace with your active gameplay state variable if needed
-		}
-		// 2. LOAD GAME BUTTON (X: 290 to 510, Y: 300 to 345)
-		else if (mx >= 290 && mx <= 510 && my >= 300 && my <= 345)
-		{
-			slotActionMode = 2; // Load Game mode
-			gameState = STATE_SLOT_MENU;
-		}
-		// 3. DELETE GAME BUTTON (X: 290 to 510, Y: 240 to 285)
-		else if (mx >= 290 && mx <= 510 && my >= 240 && my <= 285)
-		{
-			slotActionMode = 3; // Delete Game mode
-			gameState = STATE_SLOT_MENU;
-		}
-		// 4. MAIN MENU BUTTON (X: 340 to 460, Y: 170 to 210)
-		else if (mx >= 340 && mx <= 460 && my >= 170 && my <= 210)
-		{
-			gameState = STATE_MENU; // Your main menu state
-		}
-	}
-	else if (gameState == STATE_SLOT_MENU)
-	{
-		// SLOT 1 (X: 290 to 510, Y: 400 to 445)
-		if (mx >= 290 && mx <= 510 && my >= 400 && my <= 445)
-		{
-			handleSlotAction(1); // Calls your backend logic for slot 1 based on slotActionMode
-		}
-		// SLOT 2 (X: 290 to 510, Y: 330 to 375)
-		else if (mx >= 290 && mx <= 510 && my >= 330 && my <= 375)
-		{
-			handleSlotAction(2);
-		}
-		// SLOT 3 (X: 290 to 510, Y: 260 to 305)
-		else if (mx >= 290 && mx <= 510 && my >= 260 && my <= 305)
-		{
-			handleSlotAction(3);
-		}
-		// BACK BUTTON (X: 340 to 460, Y: 170 to 210)
-		else if (mx >= 340 && mx <= 460 && my >= 170 && my <= 210)
-		{
-			gameState = STATE_PLAY_CHOICE;
-		}
-	}
-	// ==========================================
-	else if (gameState == STATE_SETTING)
-	{
-		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
-		{
-			toggleMusic();
-		}
-		else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
-		{
-			gameState = STATE_MENU;
-		}
-	}
-	else if (gameState == STATE_CREDITS)
-	{
-		if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
-		{
-			gameState = STATE_MENU;
-		}
-	}
-	else if (gameState == STATE_TOWN)
-	{
-		if (mx >= 670 && mx <= 780 && my >= 20 && my <= 60)
-		{
-			gameState = STATE_MENU;
-			return;
-		}
-	}
-	else if (gameState == STATE_LEVEL_1)
-	{
-		if (showCapWarning)
-			showCapWarning = 0;
-		// --- SAVE BUTTON CLICK ---
-		if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
-		{
-			saveGameProgress(currentSaveSlot);
-
-			return;
-		}
-
+		// ==========================================
+		// MAIN MENU
+		// ==========================================
 		if (gameState == STATE_MENU)
 		{
+			// 1. PLAY BUTTON
 			if (mx >= 290 && mx <= 510 && my >= 410 && my <= 480)
 			{
 				gameState = STATE_PLAY_CHOICE;
 				loadingTimer = 0;
+				return;
 			}
+			// 2. SETTINGS BUTTON
 			else if (mx >= 290 && mx <= 510 && my >= 320 && my <= 390)
 			{
 				gameState = STATE_SETTING;
+				return;
 			}
+			// 3. CREDITS BUTTON
 			else if (mx >= 290 && mx <= 510 && my >= 230 && my <= 300)
 			{
 				gameState = STATE_CREDITS;
+				return;
 			}
+			// 4. EXIT BUTTON
 			else if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
 			{
 				mciSendString("close bgmusic", NULL, 0, NULL);
 				exit(0);
 			}
 		}
+
+		// ==========================================
+		// PLAY CHOICE MENU (NEW / LOAD / DELETE)
+		// ==========================================
 		else if (gameState == STATE_PLAY_CHOICE)
 		{
-			// 1. New Game
+			// 1. NEW GAME
 			if (mx >= 320 && mx <= 480 && my >= 360 && my <= 405)
 			{
 				slotActionMode = 1;
 				gameState = STATE_SLOT_MENU;
+				return;
 			}
-			// 2. Load Game
+			// 2. LOAD GAME
 			else if (mx >= 320 && mx <= 480 && my >= 300 && my <= 345)
 			{
 				slotActionMode = 2;
 				gameState = STATE_SLOT_MENU;
+				return;
 			}
-			// 3. Delete Game
+			// 3. DELETE GAME
 			else if (mx >= 320 && mx <= 480 && my >= 240 && my <= 285)
 			{
 				slotActionMode = 3;
 				gameState = STATE_SLOT_MENU;
+				return;
 			}
-			// 4. Main Menu
+			// 4. MAIN MENU
 			else if (mx >= 340 && mx <= 460 && my >= 175 && my <= 215)
 			{
 				gameState = STATE_MENU;
+				return;
 			}
 		}
+
+		// ==========================================
+		// SLOT MENU
+		// ==========================================
 		else if (gameState == STATE_SLOT_MENU)
 		{
 			// Slot 1
@@ -603,18 +499,73 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 		}
+
+		// ==========================================
+		// SETTINGS MENU
+		// ==========================================
+		else if (gameState == STATE_SETTING)
+		{
+			// Toggle Music Button
+			if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
+			{
+				toggleMusic();
+				return;
+			}
+			// Back Button
+			else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
+			{
+				gameState = STATE_MENU;
+				return;
+			}
+		}
+
+		// ==========================================
+		// CREDITS MENU
+		// ==========================================
 		else if (gameState == STATE_CREDITS)
 		{
 			if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
 			{
 				gameState = STATE_MENU;
+				return;
 			}
 		}
+
+		// ==========================================
+		// LOADING LEVEL 3
+		// ==========================================
+		else if (gameState == STATE_LOADING_LEVEL3)
+		{
+			initLevel3();
+			gameState = STATE_LEVEL_3;
+			loadingTimer = 0;
+			return;
+		}
+
+		// ==========================================
+		// TOWN
+		// ==========================================
 		else if (gameState == STATE_TOWN)
 		{
 			if (mx >= 670 && mx <= 780 && my >= 20 && my <= 60)
 			{
 				gameState = STATE_MENU;
+				return;
+			}
+		}
+
+		// ==========================================
+		// LEVEL 1
+		// ==========================================
+		else if (gameState == STATE_LEVEL_1)
+		{
+			if (showCapWarning)
+				showCapWarning = 0;
+
+			// Save Button
+			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
+			{
+				saveGameProgress(currentSaveSlot);
 				return;
 			}
 		}
