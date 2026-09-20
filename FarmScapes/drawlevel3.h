@@ -41,9 +41,9 @@ extern int playerGold;
 #define FISH_POPUP_X 267 // Center X: (800 - 266) / 2
 #define FISH_POPUP_Y 200 // Center Y: (600 - 200) / 2
 
-// Position of the red exclamation mark above the fisherman's head
-#define FISHERMAN_HEAD_X 470
-#define FISHERMAN_HEAD_Y 245
+// Repositioned red.bmp higher above the fisherman's head
+#define FISHERMAN_HEAD_X 465
+#define FISHERMAN_HEAD_Y 330
 
 // ============================================================
 // LEVEL 3 GLOBAL VARIABLES
@@ -61,7 +61,7 @@ int caughtFishValue = 0;
 // Background & Icon image paths (Must be true 24-bit BMP files)
 char bgIdleImage[100] = "assets/fisherman_idle.bmp";
 char bgPullingImage[100] = "assets/fisherman_pulling.bmp";
-char redMarkImage[100] = "assets/red.bmp";
+char redMarkImage[100] = "assets/red2.bmp";
 
 // Inventory & Placeholder Prices for Fish 1 - Fish 6 (Index 0 to 5)
 int fishCount[NUM_FISH_TYPES] = { 0, 0, 0, 0, 0, 0 };
@@ -214,7 +214,10 @@ void drawLevel3()
     // 3. RED EXCLAMATION MARK ABOVE FISHERMAN'S HEAD WHEN HOOKED
     if (fishingState == FISH_STATE_HOOKED)
     {
-        iShowBMP2(FISHERMAN_HEAD_X, FISHERMAN_HEAD_Y, redMarkImage, 0);
+        // Renders red.bmp at higher Y position above head
+        // If red.bmp has a white background, use iShowBMP2(..., 0xFFFFFF)
+        // Otherwise, iShowBMP renders the full BMP crisp and solid
+        iShowBMP(FISHERMAN_HEAD_X, FISHERMAN_HEAD_Y, redMarkImage);
     }
 
     // 4. "NOTHING BIT" DISPLAY (PURE TEXT - NO IMAGE)
@@ -231,11 +234,11 @@ void drawLevel3()
         iText(250, 280, "The fish got away. Left click to cast again!", GLUT_BITMAP_HELVETICA_12);
     }
 
-    // 5. "FISH CAUGHT" POPUP (CLEAN IMAGE ONLY - BORDER REMOVED)
+    // 5. "FISH CAUGHT" POPUP (CLEAN FULL IMAGE - FIXED BLURRY/FADED ISSUE)
     if (fishingState == FISH_STATE_CAUGHT && lastCaughtFishType >= 0)
     {
-        // Renders the fish BMP directly at center (1/9th screen dimensions at 267, 200)
-        iShowBMP2(FISH_POPUP_X, FISH_POPUP_Y, fishImages[lastCaughtFishType], 0);
+        // Using iShowBMP ensures black text/borders inside fish BMP are NOT erased as transparent
+        iShowBMP(FISH_POPUP_X, FISH_POPUP_Y, fishImages[lastCaughtFishType]);
     }
 
     // 6. MARKET OVERLAY
