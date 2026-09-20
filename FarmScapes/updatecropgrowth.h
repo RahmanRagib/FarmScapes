@@ -97,7 +97,6 @@ inline void updateCropGrowth() {
 			for (int r = 0; r < GRID_ROWS; r++) {
 				for (int c = 0; c < GRID_COLS; c++) {
 					int s = farmGrid[r][c].state;
-					// Fix: Only actual planted crops rot. Plowed dirt (CROP_PLOWED) is ignored.
 					if (s == CROP_SEEDED || s == CROP_WATERED ||
 						s == CROP_READY || s == TOMATO_READY || s == BERRY_TREE || s == BERRY_READY) {
 						farmGrid[r][c].state = CROP_ROTTEN;
@@ -109,13 +108,16 @@ inline void updateCropGrowth() {
 }
 
 inline void initFarmGrid() {
-	int startX = 200, startY = 200;
-	int tileSize = 80, spacing = 10;
+	int startX = 230; // Shifted a little bit left
+	int startY = 150; // Shifted a little bit down
+	int tileSize = 70;
+	int spacingX = 95;
+	int spacingY = 90;
 
 	for (int r = 0; r < GRID_ROWS; r++) {
 		for (int c = 0; c < GRID_COLS; c++) {
-			farmGrid[r][c].x = startX + c * (tileSize + spacing);
-			farmGrid[r][c].y = startY + r * (tileSize + spacing);
+			farmGrid[r][c].x = startX + c * spacingX;
+			farmGrid[r][c].y = startY + r * spacingY;
 			farmGrid[r][c].state = CROP_EMPTY;
 			farmGrid[r][c].growTimer = 0;
 			farmGrid[r][c].spoilTimer = 0;
