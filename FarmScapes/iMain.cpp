@@ -56,6 +56,8 @@ int currentSaveSlot = 1;
 int slotActionMode = 0;
 
 int slotMenuBgImage;
+int showSavePrompt = 0;       // 1 if confirmation dialog is open
+int targetNextState = 0;      // Where the player wanted to go (e.g., STATE_MENU)
 
 
 // ============================================================
@@ -342,6 +344,23 @@ void iMouse(int button, int state, int mx, int my)
 {
 	if (button != GLUT_LEFT_BUTTON || state != GLUT_DOWN)
 		return;
+	if (showSavePrompt)
+	{
+		// YES Button Click (Wooden Box Yes coordinates)
+		if (mx >= 325 && mx <= 390 && my >= 240 && my <= 270)
+		{
+			saveGameProgress(currentSaveSlot); // Save to current slot
+			showSavePrompt = 0;
+			gameState = targetNextState;       // Go to Market, Town, or Menu
+		}
+		// NO Button Click (Wooden Box No coordinates)
+		else if (mx >= 410 && mx <= 475 && my >= 240 && my <= 270)
+		{
+			showSavePrompt = 0;
+			gameState = targetNextState;       // Go to Market, Town, or Menu without saving
+		}
+		return; // Blocks all other clicks while prompt is open
+	}
 
 	if (gameState == STATE_MENU)
 	{
@@ -475,14 +494,18 @@ void iMouse(int button, int state, int mx, int my)
 			isMarketOpen = !isMarketOpen;
 			return;
 		}
+		// Explore Town -> Triggers Save Prompt
 		if (mx >= 535 && mx <= 655 && my >= 552 && my <= 586)
 		{
-			gameState = STATE_TOWN;
+			showSavePrompt = 1;
+			targetNextState = STATE_TOWN;
 			return;
 		}
+		// MENU -> Triggers Save Prompt
 		if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586)
 		{
-			gameState = STATE_MENU;
+			showSavePrompt = 1;
+			targetNextState = STATE_MENU;
 			return;
 		}
 
