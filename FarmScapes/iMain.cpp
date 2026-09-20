@@ -439,17 +439,6 @@ void iMouse(int button, int state, int mx, int my)
 			gameState = STATE_MENU;
 		}
 	}
-	else if (gameState == STATE_SETTINGS)
-	{
-		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
-		{
-			toggleMusic();
-		}
-		else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
-		{
-			gameState = STATE_MENU;
-		}
-	}
 	else if (gameState == STATE_CREDITS)
 	{
 		if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
@@ -814,17 +803,37 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_LEVEL_3)
 	{
-		// --- SAVE BUTTON CLICK ---
-		if (mx >= 425 && mx <= 535 && my >= 552 && my <= 586)
-		{
-			saveGameProgress(currentSaveSlot);
-			return;
-		}
+		// Top HUD Bar Navigation & Save Handling
 		if (my >= 552 && my <= 586)
 		{
-			if (mx >= 545 && mx <= 655) { gameState = STATE_TOWN; return; }
-			if (mx >= 670 && mx <= 780) { gameState = STATE_MENU; return; }
+			// SAVE BUTTON
+			if (mx >= 320 && mx <= 420)
+			{
+				saveGameProgress(currentSaveSlot);
+				return;
+			}
+			// MARKET BUTTON
+			if (mx >= 430 && mx <= 530)
+			{
+				isFishMarketOpen = !isFishMarketOpen;
+				return;
+			}
+			// TOWN BUTTON
+			if (mx >= 545 && mx <= 655)
+			{
+				gameState = STATE_TOWN;
+				return;
+			}
+			// MENU BUTTON
+			if (mx >= 670 && mx <= 780)
+			{
+				gameState = STATE_MENU;
+				return;
+			}
 		}
+
+		// Delegate gameplay clicks (casting line, reeling in, selling items)
+		handleLevel3MouseClick(mx, my);
 	}
 }
 
@@ -1088,6 +1097,7 @@ int main()
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);
 	iSetTimer(1000, updateRanchTimer);
+	iSetTimer(100, updateLevel3Logic); // <-- ADDED: Timer tick required for Level 3 fishing logic
 	iSetTimer(50, updateLoading);
 	iSetTimer(20, iAnim);
 

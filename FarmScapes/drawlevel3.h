@@ -7,10 +7,6 @@
 #include <string.h>
 #include <time.h>
 
-// ============================================================
-// EXTERNAL & FALLBACK DEFINITIONS (Fixes C2065 Errors)
-// ============================================================
-
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH 800
 #endif
@@ -19,8 +15,11 @@
 #define SCREEN_HEIGHT 600
 #endif
 
-// Link playerGold from iMain.cpp
+// Link global variables from main
+extern int gameState;
 extern int playerGold;
+extern int currentSaveSlot;
+extern void saveGameProgress(int slot);
 
 // ============================================================
 // LEVEL 3 DEFINITIONS & CONSTANTS
@@ -32,16 +31,15 @@ extern int playerGold;
 #define FISH_STATE_CAUGHT 3
 #define FISH_STATE_NOTHING 4
 
+#ifndef NUM_FISH_TYPES
 #define NUM_FISH_TYPES 6
+#endif
 
-// 1/9th Center Screen Proportions (800x600 screen)
-// Width = 800 / 3 = 266px, Height = 600 / 3 = 200px
 #define FISH_POPUP_W 266
 #define FISH_POPUP_H 200
-#define FISH_POPUP_X 267 // Center X: (800 - 266) / 2
-#define FISH_POPUP_Y 200 // Center Y: (600 - 200) / 2
+#define FISH_POPUP_X 267
+#define FISH_POPUP_Y 200
 
-// Repositioned red.bmp higher above the fisherman's head
 #define FISHERMAN_HEAD_X 465
 #define FISHERMAN_HEAD_Y 330
 
@@ -54,16 +52,14 @@ int fishingWaitTimer = 0;
 int hookTimer = 0;
 int resultDisplayTimer = 0;
 
-int lastCaughtFishType = -1; // Index 0 to 5 for Fish 1 to Fish 6
+int lastCaughtFishType = -1;
 char caughtFishName[50] = "";
 int caughtFishValue = 0;
 
-// Background & Icon image paths (Must be true 24-bit BMP files)
 char bgIdleImage[100] = "assets/fisherman_idle.bmp";
 char bgPullingImage[100] = "assets/fisherman_pulling.bmp";
 char redMarkImage[100] = "assets/red2.bmp";
 
-// Inventory & Placeholder Prices for Fish 1 - Fish 6 (Index 0 to 5)
 int fishCount[NUM_FISH_TYPES] = { 0, 0, 0, 0, 0, 0 };
 int fishPrices[NUM_FISH_TYPES] = { 10, 20, 30, 40, 50, 60 };
 
@@ -87,7 +83,6 @@ char fishImages[NUM_FISH_TYPES][100] = {
 
 int isFishMarketOpen = 0;
 
-
 // ============================================================
 // INITIALIZATION
 // ============================================================
@@ -102,13 +97,15 @@ void initLevel3()
     srand((unsigned int)time(NULL));
 }
 
-
 // ============================================================
 // LOGIC UPDATES
 // ============================================================
 
 void updateLevel3Logic()
 {
+    if (gameState != STATE_LEVEL_3)
+        return;
+
     // 1. Waiting for fish to bite
     if (fishingState == FISH_STATE_WAITING)
     {
@@ -118,23 +115,22 @@ void updateLevel3Logic()
         }
         else
         {
-            // 30% chance nothing bit, 70% chance fish hooked
             int chance = rand() % 100;
 
             if (chance < 30)
             {
                 fishingState = FISH_STATE_NOTHING;
-                resultDisplayTimer = 25; // Displays "NOTHING BIT" text for ~2.5s
+                resultDisplayTimer = 25;
             }
             else
             {
                 fishingState = FISH_STATE_HOOKED;
-                hookTimer = 35; // Window to click and reel in
+                hookTimer = 35;
             }
         }
     }
 
-    // 2. Fish is hooked on the line (Red exclamation mark active)
+    // 2. Fish is hooked on the line
     if (fishingState == FISH_STATE_HOOKED)
     {
         if (hookTimer > 0)
@@ -143,7 +139,6 @@ void updateLevel3Logic()
         }
         else
         {
-            // Missed hook window - fish got away
             fishingState = FISH_STATE_NOTHING;
             resultDisplayTimer = 25;
         }
@@ -163,14 +158,13 @@ void updateLevel3Logic()
     }
 }
 
-
 // ============================================================
 // DRAW LEVEL 3
 // ============================================================
 
 void drawLevel3()
 {
-    // 1. Pixel Art Background Rendering
+    // 1. Pixel Art Background
     if (fishingState == FISH_STATE_CAUGHT || fishingState == FISH_STATE_HOOKED)
     {
         iShowBMP(0, 0, bgPullingImage);
@@ -181,46 +175,57 @@ void drawLevel3()
     }
 
     // 2. Navigation Top Bar Overlay
-    iSetColor(20, 30, 45);
-    iFilledRectangle(0, 550, SCREEN_WIDTH, 50);
+    iSetColor(40, 40, 40);
+    iFilledRectangle(0, 540, SCREEN_WIDTH, 60);
 
     iSetColor(255, 255, 255);
-    iText(20, 565, "LEVEL 3: FISHERY", GLUT_BITMAP_HELVETICA_18);
+    iText(10, 572, "LEVEL 3: FISHERY", GLUT_BITMAP_HELVETICA_12);
 
     char goldText[50];
-    sprintf(goldText, "Gold: %d", playerGold);
-    iText(220, 565, goldText, GLUT_BITMAP_HELVETICA_18);
+    sprintf(goldText, "Gold: $%d", playerGold);
+    iSetColor(255, 215, 0);
+    iText(160, 572, goldText, GLUT_BITMAP_HELVETICA_12);
 
-    // Navigation Buttons
-    iSetColor(40, 120, 200);
-    iFilledRectangle(430, 555, 100, 34);
+    // SAVE BUTTON
+    iSetColor(240, 140, 30);
+    iFilledRectangle(320, 552, 100, 34);
     iSetColor(255, 255, 255);
-    iText(455, 565, "MARKET", GLUT_BITMAP_HELVETICA_12);
+    iRectangle(320, 552, 100, 34);
+    iSetColor(0, 0, 0);
+    iText(355, 564, "SAVE", GLUT_BITMAP_HELVETICA_12);
 
-    iSetColor(180, 100, 40);
-    iFilledRectangle(545, 555, 110, 34);
+    // MARKET BUTTON
+    iSetColor(45, 130, 180);
+    iFilledRectangle(430, 552, 100, 34);
     iSetColor(255, 255, 255);
-    iText(580, 565, "TOWN", GLUT_BITMAP_HELVETICA_12);
+    iRectangle(430, 552, 100, 34);
+    iText(452, 564, "MARKET", GLUT_BITMAP_HELVETICA_12);
 
-    iSetColor(180, 40, 40);
-    iFilledRectangle(670, 555, 110, 34);
+    // TOWN BUTTON
+    iSetColor(40, 160, 120);
+    iFilledRectangle(545, 552, 110, 34);
     iSetColor(255, 255, 255);
-    iText(705, 565, "MENU", GLUT_BITMAP_HELVETICA_12);
+    iRectangle(545, 552, 110, 34);
+    iText(557, 564, "Back to Town", GLUT_BITMAP_HELVETICA_10);
 
-    // Control Prompt
+    // MENU BUTTON
+    iSetColor(170, 45, 45);
+    iFilledRectangle(670, 552, 110, 34);
+    iSetColor(255, 255, 255);
+    iRectangle(670, 552, 110, 34);
+    iText(705, 564, "MENU", GLUT_BITMAP_HELVETICA_12);
+
+    // Prompt
     iSetColor(255, 255, 255);
     iText(20, 20, "LEFT CLICK: Cast Line / Reel In Fish", GLUT_BITMAP_HELVETICA_12);
 
-    // 3. RED EXCLAMATION MARK ABOVE FISHERMAN'S HEAD WHEN HOOKED
+    // 3. Exclamation mark when hooked
     if (fishingState == FISH_STATE_HOOKED)
     {
-        // Renders red.bmp at higher Y position above head
-        // If red.bmp has a white background, use iShowBMP2(..., 0xFFFFFF)
-        // Otherwise, iShowBMP renders the full BMP crisp and solid
         iShowBMP(FISHERMAN_HEAD_X, FISHERMAN_HEAD_Y, redMarkImage);
     }
 
-    // 4. "NOTHING BIT" DISPLAY (PURE TEXT - NO IMAGE)
+    // 4. "NOTHING BIT" Popup
     if (fishingState == FISH_STATE_NOTHING)
     {
         iSetColor(15, 25, 35);
@@ -234,10 +239,9 @@ void drawLevel3()
         iText(250, 280, "The fish got away. Left click to cast again!", GLUT_BITMAP_HELVETICA_12);
     }
 
-    // 5. "FISH CAUGHT" POPUP (CLEAN FULL IMAGE - FIXED BLURRY/FADED ISSUE)
+    // 5. "FISH CAUGHT" Popup
     if (fishingState == FISH_STATE_CAUGHT && lastCaughtFishType >= 0)
     {
-        // Using iShowBMP ensures black text/borders inside fish BMP are NOT erased as transparent
         iShowBMP(FISH_POPUP_X, FISH_POPUP_Y, fishImages[lastCaughtFishType]);
     }
 
@@ -252,7 +256,6 @@ void drawLevel3()
         iSetColor(255, 255, 255);
         iText(330, 465, "FISH MARKET", GLUT_BITMAP_HELVETICA_18);
 
-        // Render rows for Fish 1 to Fish 6
         for (int i = 0; i < NUM_FISH_TYPES; i++)
         {
             int itemY = 410 - (i * 45);
@@ -277,7 +280,6 @@ void drawLevel3()
     }
 }
 
-
 // ============================================================
 // CONTROLS & INPUT
 // ============================================================
@@ -286,24 +288,27 @@ void handleLevel3Keyboard(unsigned char key)
 {
     if (isFishMarketOpen)
     {
-        if (key == 27) isFishMarketOpen = 0; // ESC closes market
+        if (key == 27) isFishMarketOpen = 0;
         return;
+    }
+
+    if (key == 27)
+    {
+        gameState = STATE_TOWN;
     }
 }
 
 void handleLevel3MouseClick(int mx, int my)
 {
-    // 1. If Fish Market is open, handle UI clicks
+    // 1. If Market is open, handle sell and close buttons
     if (isFishMarketOpen)
     {
-        // Close market button
         if (mx >= 360 && mx <= 440 && my >= 100 && my <= 130)
         {
             isFishMarketOpen = 0;
             return;
         }
 
-        // Check clicks on sell buttons for Fish 1 - Fish 6
         for (int i = 0; i < NUM_FISH_TYPES; i++)
         {
             int itemY = 410 - (i * 45);
@@ -320,32 +325,23 @@ void handleLevel3MouseClick(int mx, int my)
         return;
     }
 
-    // 2. Navigation Top Bar Clicks
-    if (my >= 550)
+    // 2. Ignore top bar area
+    if (my >= 540)
     {
-        // Market Button
-        if (mx >= 430 && mx <= 530)
-        {
-            isFishMarketOpen = 1;
-            return;
-        }
         return;
     }
 
-    // 3. Fishing Sequence Control
+    // 3. Fishing Logic Clicks
     if (fishingState == FISH_STATE_IDLE)
     {
-        // First Left Click: Cast fishing line
         fishingState = FISH_STATE_WAITING;
         fishingWaitTimer = 25 + rand() % 25;
     }
     else if (fishingState == FISH_STATE_HOOKED)
     {
-        // Second Left Click: Reel in hooked fish!
         fishingState = FISH_STATE_CAUGHT;
-        resultDisplayTimer = 30; // Displays popup image for ~3.0s
+        resultDisplayTimer = 30;
 
-        // Select fish by index (0 through 5)
         int type = rand() % NUM_FISH_TYPES;
 
         lastCaughtFishType = type;
