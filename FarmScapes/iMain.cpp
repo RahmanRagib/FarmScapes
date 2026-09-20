@@ -36,8 +36,9 @@
 #define STATE_LOADING_LEVEL2 7
 #define STATE_LEVEL_3 8
 #define STATE_LOADING_LEVEL3 9
-#define STATE_PLAY_CHOICE 10   
+#define STATE_PLAY_CHOICE 10
 #define STATE_SLOT_MENU 11
+#define STATE_STORYLINE 12
 
 // ============================================================
 // GLOBAL GAME VARIABLES
@@ -102,6 +103,9 @@ int ranchCompleteMessageTimer = 0;
 #include "menu.h"
 #include "settings.h"
 #include "credits.h"
+
+#include "storyline.h"
+
 #include "loading.h"
 
 #include "updatecropgrowth.h"
@@ -114,7 +118,6 @@ int ranchCompleteMessageTimer = 0;
 #include "drawTown.h"
 
 #include "drawlevel3.h"
-
 #include "saveSystem.h"
 
 
@@ -260,7 +263,10 @@ void iDraw()
 {
 	iClear();
 
-	if (gameState == STATE_MENU)
+	if (gameState == STATE_STORYLINE) {
+		drawStoryline();
+	}
+	else if (gameState == STATE_MENU)
 		drawMenu();
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
@@ -279,7 +285,6 @@ void iDraw()
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
-		// Replace the old iSetColor and iFilledRectangle with this:
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
 		iSetColor(255, 255, 255);
@@ -366,13 +371,13 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
-		// 1. New Game Click -> Starts fresh game immediately
+		// 1. New Game Click -> Starts cutscene storyline first
 		if (mx >= 250 && mx <= 550 && my >= 350 && my <= 400)
 		{
 			currentSaveSlot = 1;
 			saveGameProgress(1);          // Creates a new save file
-			gameState = STATE_LOADING;    // Runs the game loading screen
-			loadingTimer = 0;
+			startStoryline();            // Reset cutscene variables
+			gameState = STATE_STORYLINE; // Switch state to play cutscene
 		}
 		// 2. Load Game Click -> Opens 3 slots menu
 		else if (mx >= 250 && mx <= 550 && my >= 280 && my <= 330)
@@ -400,7 +405,7 @@ void iMouse(int button, int state, int mx, int my)
 		// 2. Now show the image
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
-		// Text color for buttons/titles can be set right after
+		// Text color for buttons/titles
 		iSetColor(255, 255, 255);
 		if (slotActionMode == 1) iText(310, 500, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_HELVETICA_18);
 		else if (slotActionMode == 2) iText(310, 500, "SELECT SLOT TO LOAD", GLUT_BITMAP_HELVETICA_18);
@@ -426,18 +431,6 @@ void iMouse(int button, int state, int mx, int my)
 
 		// Back Button
 		iText(375, 180, "BACK", GLUT_BITMAP_HELVETICA_12);
-	}
-	// ==========================================
-	else if (gameState == STATE_SETTINGS)
-	{
-		if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
-		{
-			toggleMusic();
-		}
-		else if (mx >= 290 && mx <= 510 && my >= 220 && my <= 290)
-		{
-			gameState = STATE_MENU;
-		}
 	}
 	else if (gameState == STATE_SETTINGS)
 	{
@@ -962,13 +955,18 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
+	if (gameState == STATE_STORYLINE) {
+		handleStorylineKeyboard(key);
+		return;
+	}
+
 	if (gameState == STATE_LEVEL_3)
 	{
 		handleLevel3Keyboard(key);
-		 if (key == 27)
-		 {
-			 gameState = STATE_TOWN;
-		 }
+		if (key == 27)
+		{
+			gameState = STATE_TOWN;
+		}
 		return;
 	}
 
@@ -1035,6 +1033,11 @@ void updateLoading()
 	}
 }
 
+void gameTimerTick() {
+	if (gameState == STATE_STORYLINE) {
+		updateStoryline();
+	}
+}
 
 // ============================================================
 // MAIN
@@ -1061,13 +1064,15 @@ int main()
 	initLevel2();
 	initLevel3();
 	initAudio();
-	
+	initStorylineAssets(); // Loads bitmap assets for cutscenes
+
 
 	iSetTimer(1000, updateCropGrowth);
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);
 	iSetTimer(1000, updateRanchTimer);
 	iSetTimer(50, updateLoading);
+	iSetTimer(33, gameTimerTick); // ~30 FPS timer driving cutscene sequence
 	iSetTimer(20, iAnim);
 
 	iInitialize(SCREEN_WIDTH, SCREEN_HEIGHT, "FarmScapes - 2D Farming Simulator");
