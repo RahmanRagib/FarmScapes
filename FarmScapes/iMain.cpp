@@ -405,29 +405,7 @@ void iDraw()
 // HELPER FOR SLOT SELECTION
 // ============================================================
 
-void handleSlotClick(int slotNumber)
-{
-	currentSaveSlot = slotNumber;
 
-	if (slotActionMode == 1) // New Game
-	{
-		saveGameProgress(slotNumber); // Initialize/Overwrite slot
-		startStoryline();            // Reset storyline timer and text
-		gameState = STATE_STORYLINE; // Play storyline ONCE
-	}
-	else if (slotActionMode == 2) // Load Game
-	{
-		if (checkIfSlotExists(slotNumber))
-		{
-			loadGameProgress(slotNumber);
-			gameState = STATE_LOADING; // Go directly to loading screen
-		}
-	}
-	else if (slotActionMode == 3) // Delete Game
-	{
-		deleteSaveSlot(slotNumber);
-	}
-}
 
 
 // ============================================================
@@ -521,18 +499,20 @@ void iMouse(int button, int state, int mx, int my)
 			gameState = STATE_PLAY_CHOICE;
 			return;
 		}
+		// Slot 1 Click
+		else if (mx >= 320 && mx <= 480 && my >= 380 && my <= 405) // Update coordinates for Slot 1
 		{
-			handleSlotClick(1);
+			handleSlotAction(1);
 		}
 		// Slot 2 Click
 		else if (mx >= 320 && mx <= 480 && my >= 340 && my <= 365)
 		{
-			handleSlotClick(2);
+			handleSlotAction(2);
 		}
 		// Slot 3 Click
 		else if (mx >= 320 && mx <= 480 && my >= 270 && my <= 295)
 		{
-			handleSlotClick(3);
+			handleSlotAction(3);
 		}
 		// Back Button Click
 		else if (mx >= 350 && mx <= 450 && my >= 170 && my <= 200)
