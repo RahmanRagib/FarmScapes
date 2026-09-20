@@ -29,14 +29,14 @@ typedef enum {
 } StoryScene;
 
 // Dialogues corresponding to each scene
-static const char* STORY_DIALOGUES[STORY_SCENE_COUNT] = {
-	"Working non-stop at 100% capacity... Life is a blur.",
-	"Energy draining down to 50%... Can't keep up much longer.",
-	"Burnout hits at 10%... I need a change before I collapse.",
-	"Reflecting on life... Maybe urban life isn't everything.",
-	"Leaving the metro city behind...",
-	"Heading out towards the quiet countryside...",
-	"Arriving at grandfather's old farm to start fresh!"
+static const char* STORY_DIALOGUES[] = {
+	"Arham spent years in the city as a software engineer...",
+	"His days were a cycle of code, coffee, and deadlines.",
+	"Work. Time. Life. Everything had to be optimized.",
+	"Until he realized... he was completely exhausted.",
+	"So he packed his bag and left.",
+	"Returning to the old family farm he had almost forgotten.",
+	"Maybe life didn't need to be optimized. Maybe it needed to be lived."
 };
 
 static StoryScene currentStoryScene = STORY_SCENE_WORK_HIGH;
