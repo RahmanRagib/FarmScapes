@@ -279,7 +279,7 @@ void iDraw()
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
-		// Replace the old iSetColor and iFilledRectangle with this:
+		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
 		iSetColor(255, 255, 255);
@@ -287,23 +287,34 @@ void iDraw()
 		else if (slotActionMode == 2) iText(310, 500, "SELECT SLOT TO LOAD", GLUT_BITMAP_HELVETICA_18);
 		else if (slotActionMode == 3) iText(310, 500, "SELECT SLOT TO DELETE", GLUT_BITMAP_HELVETICA_18);
 
+		char slotText[50];
+
 		// Slot 1
-		if (checkIfSlotExists(1))
-			iText(340, 418, "SLOT 1: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
+		if (checkIfSlotExists(1)) {
+			sprintf(slotText, "RESUME SLOT 1 (Gold: %d)", getSlotScore(1));
+			iText(310, 418, slotText, GLUT_BITMAP_HELVETICA_12);
+		}
+		else {
 			iText(340, 418, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+		}
 
 		// Slot 2
-		if (checkIfSlotExists(2))
-			iText(340, 348, "SLOT 2: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
+		if (checkIfSlotExists(2)) {
+			sprintf(slotText, "RESUME SLOT 2 (Gold: %d)", getSlotScore(2));
+			iText(310, 348, slotText, GLUT_BITMAP_HELVETICA_12);
+		}
+		else {
 			iText(340, 348, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+		}
 
 		// Slot 3
-		if (checkIfSlotExists(3))
-			iText(340, 278, "SLOT 3: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
+		if (checkIfSlotExists(3)) {
+			sprintf(slotText, "RESUME SLOT 3 (Gold: %d)", getSlotScore(3));
+			iText(310, 278, slotText, GLUT_BITMAP_HELVETICA_12);
+		}
+		else {
 			iText(340, 278, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+		}
 
 		// Back Button
 		iText(375, 180, "BACK", GLUT_BITMAP_HELVETICA_12);
@@ -366,15 +377,16 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
-		// 1. New Game Click -> Starts fresh game immediately
+		// 1. New Game Click -> Instantly creates fresh save in Slot 1 and starts game
 		if (mx >= 250 && mx <= 550 && my >= 350 && my <= 400)
 		{
 			currentSaveSlot = 1;
-			saveGameProgress(1);          // Creates a new save file
-			gameState = STATE_LOADING;    // Runs the game loading screen
+			slotActionMode = 1;
+			saveGameProgress(currentSaveSlot); // Overwrites/creates fresh file
+			gameState = STATE_LOADING;         // Starts game loading screen
 			loadingTimer = 0;
 		}
-		// 2. Load Game Click -> Opens 3 slots menu
+		// 2. Load Game Click -> Opens 3 slots menu to choose which to resume
 		else if (mx >= 250 && mx <= 550 && my >= 280 && my <= 330)
 		{
 			slotActionMode = 2;
@@ -394,38 +406,33 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
-		// 1. Force white color so the image renders with its original colors
-		iSetColor(255, 255, 255);
-
-		// 2. Now show the image
-		iShowImage(0, 0, 800, 600, slotMenuBgImage);
-
-		// Text color for buttons/titles can be set right after
-		iSetColor(255, 255, 255);
-		if (slotActionMode == 1) iText(310, 500, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 2) iText(310, 500, "SELECT SLOT TO LOAD", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 3) iText(310, 500, "SELECT SLOT TO DELETE", GLUT_BITMAP_HELVETICA_18);
-
-		// Slot 1
-		if (checkIfSlotExists(1))
-			iText(340, 418, "SLOT 1: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
-			iText(340, 418, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-
-		// Slot 2
-		if (checkIfSlotExists(2))
-			iText(340, 348, "SLOT 2: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
-			iText(340, 348, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-
-		// Slot 3
-		if (checkIfSlotExists(3))
-			iText(340, 278, "SLOT 3: [SAVED DATA]", GLUT_BITMAP_HELVETICA_12);
-		else
-			iText(340, 278, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
-
-		// Back Button
-		iText(375, 180, "BACK", GLUT_BITMAP_HELVETICA_12);
+		// Slot 1 Click
+		if (mx >= 300 && mx <= 550 && my >= 410 && my <= 450)
+		{
+			currentSaveSlot = 1;
+			handleSlotAction(1);
+			return;
+		}
+		// Slot 2 Click
+		else if (mx >= 300 && mx <= 550 && my >= 340 && my <= 380)
+		{
+			currentSaveSlot = 2;
+			handleSlotAction(2);
+			return;
+		}
+		// Slot 3 Click
+		else if (mx >= 300 && mx <= 550 && my >= 270 && my <= 310)
+		{
+			currentSaveSlot = 3;
+			handleSlotAction(3);
+			return;
+		}
+		// Back Button Click
+		else if (mx >= 350 && mx <= 450 && my >= 170 && my <= 210)
+		{
+			gameState = STATE_PLAY_CHOICE;
+			return;
+		}
 	}
 	// ==========================================
 	else if (gameState == STATE_SETTINGS)
@@ -469,6 +476,12 @@ void iMouse(int button, int state, int mx, int my)
 	{
 		if (showCapWarning)
 			showCapWarning = 0;
+		// --- SAVE BUTTON CLICK ---
+		if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
+		{
+			saveGameProgress(currentSaveSlot);
+			return;
+		}
 
 		if (mx >= 420 && mx <= 520 && my >= 552 && my <= 586)
 		{
@@ -652,6 +665,11 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_LEVEL_2)
 	{
+		if (mx >= 320 && mx <= 420 && my >= 552 && my <= 586)
+		{
+			saveGameProgress(currentSaveSlot);
+			return;
+		}
 		if (my >= 552 && my <= 586)
 		{
 			if (mx >= 430 && mx <= 530) { isRanchMarketOpen = !isRanchMarketOpen; return; }
@@ -803,6 +821,12 @@ void iMouse(int button, int state, int mx, int my)
 	}
 	else if (gameState == STATE_LEVEL_3)
 	{
+		// --- SAVE BUTTON CLICK ---
+		if (mx >= 425 && mx <= 535 && my >= 552 && my <= 586)
+		{
+			saveGameProgress(currentSaveSlot);
+			return;
+		}
 		if (my >= 552 && my <= 586)
 		{
 			if (mx >= 545 && mx <= 655) { gameState = STATE_TOWN; return; }
