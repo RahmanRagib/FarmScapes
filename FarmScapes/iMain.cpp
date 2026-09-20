@@ -395,7 +395,6 @@ void iDraw()
 // ============================================================
 // MOUSE
 // ============================================================
-
 void iMouse(int button, int state, int mx, int my)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
@@ -555,32 +554,19 @@ void iMouse(int button, int state, int mx, int my)
 		}
 
 		// ==========================================
-		// LEVEL 1
+		// LEVEL 1 (FARMING)
 		// ==========================================
 		else if (gameState == STATE_LEVEL_1)
 		{
 			if (showCapWarning)
 				showCapWarning = 0;
 
-			// Save Button
+			// Top UI Buttons
 			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
 			{
 				saveGameProgress(currentSaveSlot);
 				return;
 			}
-		}
-		else if (gameState == STATE_LEVEL_1)
-		{
-			if (showCapWarning)
-				showCapWarning = 0;
-
-			// --- SAVE BUTTON CLICK ---
-			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
-			{
-				saveGameProgress(currentSaveSlot);
-				return;
-			}
-
 			if (mx >= 420 && mx <= 520 && my >= 552 && my <= 586)
 			{
 				isMarketOpen = !isMarketOpen;
@@ -597,6 +583,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
+			// Market Interactions
 			if (isMarketOpen)
 			{
 				if (mx >= 600 && mx <= 680 && my >= 80 && my <= 110)
@@ -647,6 +634,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
+			// Mass Plow Button
 			if (massPlowUnlocked && mx >= 90 && mx <= 160 && my >= 28 && my <= 72)
 			{
 				for (int r = 0; r < GRID_ROWS; r++)
@@ -663,6 +651,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
+			// Tool Selection
 			if (my >= 20 && my <= 80)
 			{
 				if (mx >= 170 && mx <= 260) selectedTool = 1;
@@ -671,6 +660,7 @@ void iMouse(int button, int state, int mx, int my)
 				if (mx >= 530 && mx <= 630) selectedTool = 4;
 			}
 
+			// Farm Grid Interactions
 			for (int r = 0; r < GRID_ROWS; r++)
 			{
 				for (int c = 0; c < GRID_COLS; c++)
@@ -761,6 +751,10 @@ void iMouse(int button, int state, int mx, int my)
 				}
 			}
 		}
+
+		// ==========================================
+		// LEVEL 2 (RANCH)
+		// ==========================================
 		else if (gameState == STATE_LEVEL_2)
 		{
 			if (mx >= 320 && mx <= 420 && my >= 552 && my <= 586)
@@ -917,6 +911,10 @@ void iMouse(int button, int state, int mx, int my)
 				}
 			}
 		}
+
+		// ==========================================
+		// LEVEL 3 (FISHING)
+		// ==========================================
 		else if (gameState == STATE_LEVEL_3)
 		{
 			if (my >= 552 && my <= 586)
