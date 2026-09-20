@@ -35,10 +35,10 @@ extern void saveGameProgress(int slot);
 #define NUM_FISH_TYPES 6
 #endif
 
-#define FISH_POPUP_W 266
-#define FISH_POPUP_H 200
-#define FISH_POPUP_X 267
-#define FISH_POPUP_Y 200
+#define FISH_POPUP_W 399
+#define FISH_POPUP_H 300
+#define FISH_POPUP_X 201
+#define FISH_POPUP_Y 150
 
 #define FISHERMAN_HEAD_X 465
 #define FISHERMAN_HEAD_Y 330
