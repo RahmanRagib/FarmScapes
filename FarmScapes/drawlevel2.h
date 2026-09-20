@@ -439,25 +439,17 @@ inline void drawRanchMarketUI()
 	iSetColor(140, 95, 45);
 	iRectangle(100, 70, 600, 440);
 
-	char buf[64];
+	// Header BMP Banner
+	iShowBMPAlternative2(280, 455, (char*)"assets/market.bmp", 0xFFFFFF);
 
-	// Title
+	// Gold Icon & Current Gold Balance (Shifted left)
+	iShowBMPAlternative2(150, 410, (char*)"assets/gold.bmp", 0xFFFFFF);
+	char goldBuf[64];
+	sprintf_s(goldBuf, sizeof(goldBuf), "$%d", playerGold);
 	iSetColor(240, 200, 80);
+	iText(290, 417, goldBuf, GLUT_BITMAP_HELVETICA_18);
 
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"RANCH MARKET (Gold: $%d)",
-		playerGold
-		);
-
-	iText(
-		280,
-		470,
-		buf,
-		GLUT_BITMAP_HELVETICA_18
-		);
-
+	char buf[64];
 
 	// ========================================================
 	// SELL EGGS
@@ -474,18 +466,18 @@ inline void drawRanchMarketUI()
 	iSetColor(255, 255, 255);
 	iText(
 		130,
-		400,
+		360,
 		buf,
 		GLUT_BITMAP_HELVETICA_12
 		);
 
 	iSetColor(45, 130, 55);
-	iFilledRectangle(320, 395, 65, 22);
+	iFilledRectangle(320, 355, 65, 22);
 
 	iSetColor(255, 255, 255);
 	iText(
 		332,
-		401,
+		361,
 		(char*)"SELL",
 		GLUT_BITMAP_HELVETICA_12
 		);
@@ -506,18 +498,18 @@ inline void drawRanchMarketUI()
 	iSetColor(255, 255, 255);
 	iText(
 		130,
-		350,
+		310,
 		buf,
 		GLUT_BITMAP_HELVETICA_12
 		);
 
 	iSetColor(45, 130, 55);
-	iFilledRectangle(320, 345, 65, 22);
+	iFilledRectangle(320, 305, 65, 22);
 
 	iSetColor(255, 255, 255);
 	iText(
 		332,
-		351,
+		311,
 		(char*)"SELL",
 		GLUT_BITMAP_HELVETICA_12
 		);
@@ -538,18 +530,18 @@ inline void drawRanchMarketUI()
 	iSetColor(255, 255, 255);
 	iText(
 		130,
-		300,
+		260,
 		buf,
 		GLUT_BITMAP_HELVETICA_12
 		);
 
 	iSetColor(45, 130, 55);
-	iFilledRectangle(320, 295, 65, 22);
+	iFilledRectangle(320, 255, 65, 22);
 
 	iSetColor(255, 255, 255);
 	iText(
 		332,
-		301,
+		261,
 		(char*)"SELL",
 		GLUT_BITMAP_HELVETICA_12
 		);
@@ -570,18 +562,18 @@ inline void drawRanchMarketUI()
 	iSetColor(255, 255, 255);
 	iText(
 		420,
-		400,
+		360,
 		buf,
 		GLUT_BITMAP_HELVETICA_12
 		);
 
 	iSetColor(35, 105, 175);
-	iFilledRectangle(610, 395, 65, 22);
+	iFilledRectangle(610, 355, 65, 22);
 
 	iSetColor(255, 255, 255);
 	iText(
 		622,
-		401,
+		361,
 		(char*)"BUY",
 		GLUT_BITMAP_HELVETICA_12
 		);
@@ -601,18 +593,18 @@ inline void drawRanchMarketUI()
 	iSetColor(255, 255, 255);
 	iText(
 		420,
-		350,
+		310,
 		buf,
 		GLUT_BITMAP_HELVETICA_12
 		);
 
 	iSetColor(35, 105, 175);
-	iFilledRectangle(610, 345, 65, 22);
+	iFilledRectangle(610, 305, 65, 22);
 
 	iSetColor(255, 255, 255);
 	iText(
 		622,
-		351,
+		311,
 		(char*)"BUY",
 		GLUT_BITMAP_HELVETICA_12
 		);
@@ -632,18 +624,18 @@ inline void drawRanchMarketUI()
 	iSetColor(255, 255, 255);
 	iText(
 		420,
-		300,
+		260,
 		buf,
 		GLUT_BITMAP_HELVETICA_12
 		);
 
 	iSetColor(35, 105, 175);
-	iFilledRectangle(610, 295, 65, 22);
+	iFilledRectangle(610, 255, 65, 22);
 
 	iSetColor(255, 255, 255);
 	iText(
 		622,
-		301,
+		261,
 		(char*)"BUY",
 		GLUT_BITMAP_HELVETICA_12
 		);
@@ -663,18 +655,18 @@ inline void drawRanchMarketUI()
 	iSetColor(255, 255, 255);
 	iText(
 		420,
-		250,
+		210,
 		buf,
 		GLUT_BITMAP_HELVETICA_12
 		);
 
 	iSetColor(35, 105, 175);
-	iFilledRectangle(610, 245, 65, 22);
+	iFilledRectangle(610, 205, 65, 22);
 
 	iSetColor(255, 255, 255);
 	iText(
 		622,
-		251,
+		211,
 		(char*)"BUY",
 		GLUT_BITMAP_HELVETICA_12
 		);
