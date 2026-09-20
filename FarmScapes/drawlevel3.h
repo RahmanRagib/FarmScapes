@@ -11,7 +11,7 @@
 #define FISH_STATE_CAUGHT    2
 #define FISH_STATE_MISSED    3
 
-// Extern variables from main setup
+// Extern variables from main application
 extern int gameState;
 extern int playerGold;
 
@@ -25,7 +25,7 @@ inline int countFish4 = 0;
 inline int countFish5 = 0;
 inline int countFish6 = 0;
 
-// Default prices (Adjust these variables when you decide final prices)
+// Default prices (Easily customizable)
 inline int sellFish1Price = 10, buyFish1Price = 15;
 inline int sellFish2Price = 20, buyFish2Price = 25;
 inline int sellFish3Price = 30, buyFish3Price = 35;
@@ -33,24 +33,23 @@ inline int sellFish4Price = 45, buyFish4Price = 50;
 inline int sellFish5Price = 65, buyFish5Price = 75;
 inline int sellFish6Price = 90, buyFish6Price = 100;
 
-// Display Names matching asset filenames
 inline char fishNames[6][10] = { "fish1", "fish2", "fish3", "fish4", "fish5", "fish6" };
 
 // ------------------------------------------------------------
 // GAMEPLAY STATE VARIABLES
 // ------------------------------------------------------------
 inline int fishingState = FISH_STATE_WAITING;
-inline int waitTimer = 0;           // Timer (0 to 15 seconds)
-inline int reactionTimer = 0;       // Reaction window for player click
+inline int waitTimer = 0;           // Timer until a fish bites (0 to 15s)
+inline int reactionTimer = 0;       // Window to react when red.bmp appears
 inline int resultDisplayTimer = 0;  // Display duration for caught/missed states
 
-inline int caughtFishIndex = -1;    // 1 to 6 corresponding to fish1..fish6
+inline int caughtFishIndex = -1;    // Index 1..6 for fish1..fish6
 inline int isFishMarketOpen = 0;
 
-// Helper to reset back to waiting state
+// Reset timer & return to waiting stance
 inline void startWaitingForBite() {
 	fishingState = FISH_STATE_WAITING;
-	// Random timer between 10 to 150 ticks (1.0 to 15.0 seconds)
+	// Random wait timer between 10 to 150 ticks (1.0 to 15.0 seconds at 100ms intervals)
 	waitTimer = 10 + (rand() % 141);
 }
 
@@ -63,7 +62,19 @@ inline void initLevel3() {
 	startWaitingForBite();
 }
 
-// Logic update called via iSetTimer(100, updateLevel3Logic) in main
+// Increment inventory when fish is caught
+inline void addFishToInventory(int fishIdx) {
+	switch (fishIdx) {
+		case 1: countFish1++; break;
+		case 2: countFish2++; break;
+		case 3: countFish3++; break;
+		case 4: countFish4++; break;
+		case 5: countFish5++; break;
+		case 6: countFish6++; break;
+	}
+}
+
+// Update loop called every 100ms via iSetTimer
 inline void updateLevel3Logic() {
 	if (gameState != 8) return; // 8 = STATE_LEVEL_3
 
@@ -75,51 +86,38 @@ inline void updateLevel3Logic() {
 			// 70% chance a fish bites, 30% chance nothing bites
 			if ((rand() % 100) < 70) {
 				fishingState = FISH_STATE_BITEN;
-				reactionTimer = 15; // 1.5 seconds reaction window
+				reactionTimer = 15; // 1.5 second reaction window
 			} else {
 				fishingState = FISH_STATE_MISSED;
 				resultDisplayTimer = 20; // Show "nothing_bit.bmp" for 2 seconds
 			}
 		}
 	}
-	// 2. Bite phase (assets/red.bmp visible)
+	// 2. Fish Bite phase (assets/red.bmp is active)
 	else if (fishingState == FISH_STATE_BITEN) {
 		if (reactionTimer > 0) {
 			reactionTimer--;
 		} else {
-			// Failed to click in time
+			// Player didn't click in time -> Fish runs away
 			fishingState = FISH_STATE_MISSED;
 			resultDisplayTimer = 20;
 		}
 	}
-	// 3. Display phase for Caught or Missed outcomes
+	// 3. Display Result phase (Caught / Missed)
 	else if (fishingState == FISH_STATE_CAUGHT || fishingState == FISH_STATE_MISSED) {
 		if (resultDisplayTimer > 0) {
 			resultDisplayTimer--;
 		} else {
-			// Return to waiting stance for the next fish
 			startWaitingForBite();
 		}
 	}
 }
 
-// Helper to increment inventory when a fish is caught
-inline void addFishToInventory(int fishIdx) {
-	switch (fishIdx) {
-		case 1: countFish1++; playerGold += sellFish1Price; break;
-		case 2: countFish2++; playerGold += sellFish2Price; break;
-		case 3: countFish3++; playerGold += sellFish3Price; break;
-		case 4: countFish4++; playerGold += sellFish4Price; break;
-		case 5: countFish5++; playerGold += sellFish5Price; break;
-		case 6: countFish6++; playerGold += sellFish6Price; break;
-	}
-}
-
 // ------------------------------------------------------------
-// LEVEL ONE STYLE MARKETPLACE UI (REFACTORED FOR FISH)
+// MARKET UI (LEVEL 1 STYLE)
 // ------------------------------------------------------------
 inline void drawFishMarketUI() {
-	// Market Frame Background
+	// Market Overlay Frame
 	iSetColor(20, 40, 65);
 	iFilledRectangle(100, 70, 600, 440);
 
@@ -131,21 +129,20 @@ inline void drawFishMarketUI() {
 	sprintf_s(buf, sizeof(buf), "FISHERY MARKET (Gold: $%d)", playerGold);
 	iText(260, 470, buf, GLUT_BITMAP_HELVETICA_18);
 
-	// Pointers & Price mapping arrays for clean row rendering
 	int* counts[6] = { &countFish1, &countFish2, &countFish3, &countFish4, &countFish5, &countFish6 };
 	int sellPrices[6] = { sellFish1Price, sellFish2Price, sellFish3Price, sellFish4Price, sellFish5Price, sellFish6Price };
 	int buyPrices[6]  = { buyFish1Price,  buyFish2Price,  buyFish3Price,  buyFish4Price,  buyFish5Price,  buyFish6Price  };
 
-	// 6 Rows for fish1 through fish6 (matching Level 1 layout and spacing)
+	// 6 Item Rows matching Level 1 Market positions
 	for (int i = 0; i < 6; i++) {
 		int rowY = 410 - (i * 55);
 
-		// Render Fish Icon PNG/BMP (Level 1 Style Placement)
+		// Item PNG/BMP Icon
 		char fishImgPath[64];
 		sprintf_s(fishImgPath, sizeof(fishImgPath), "assets/%s.bmp", fishNames[i]);
 		iShowBMP2(120, rowY - 5, fishImgPath, 0);
 
-		// Item Name & Inventory Count
+		// Name & Inventory Count
 		sprintf_s(buf, sizeof(buf), "%s (Owned: %d)", fishNames[i], *counts[i]);
 		iSetColor(255, 255, 255);
 		iText(175, rowY + 5, buf, GLUT_BITMAP_HELVETICA_12);
@@ -165,68 +162,74 @@ inline void drawFishMarketUI() {
 		iText(448, rowY + 4, buf, GLUT_BITMAP_HELVETICA_10);
 	}
 
-	// CLOSE BUTTON (Level 1 position, bottom right)
+	// CLOSE BUTTON
 	iSetColor(160, 40, 40);
 	iFilledRectangle(600, 90, 80, 30);
 	iSetColor(255, 255, 255);
 	iText(618, 100, "CLOSE", GLUT_BITMAP_HELVETICA_12);
 }
 
-// Handle Market Buy & Sell Clicks
-inline void handleFishMarketClicks(int mx, int my) {
-	// Close Button
-	if (mx >= 600 && mx <= 680 && my >= 90 && my <= 120) {
-		isFishMarketOpen = 0;
-		return;
-	}
-
-	int* counts[6] = { &countFish1, &countFish2, &countFish3, &countFish4, &countFish5, &countFish6 };
-	int sellPrices[6] = { sellFish1Price, sellFish2Price, sellFish3Price, sellFish4Price, sellFish5Price, sellFish6Price };
-	int buyPrices[6]  = { buyFish1Price,  buyFish2Price,  buyFish3Price,  buyFish4Price,  buyFish5Price,  buyFish6Price  };
-
-	for (int i = 0; i < 6; i++) {
-		int rowY = 410 - (i * 55);
-
-		// SELL CLICK
-		if (mx >= 340 && mx <= 420 && my >= rowY - 2 && my <= rowY + 22) {
-			if (*counts[i] > 0) {
-				(*counts[i])--;
-				playerGold += sellPrices[i];
-			}
-			return;
-		}
-
-		// BUY CLICK
-		if (mx >= 440 && mx <= 520 && my >= rowY - 2 && my <= rowY + 22) {
-			if (playerGold >= buyPrices[i]) {
-				playerGold -= buyPrices[i];
-				(*counts[i])++;
-			}
-			return;
-		}
-	}
-}
-
-// Handle Gameplay Fishing Clicks
+// ------------------------------------------------------------
+// MOUSE CLICK ROUTING & GAMEPLAY TRIGGER
+// ------------------------------------------------------------
 inline void handleLevel3MouseClick(int mx, int my) {
+	// 1. If Market is open, handle Market clicks exclusively
 	if (isFishMarketOpen) {
-		handleFishMarketClicks(mx, my);
-		return;
+		// Close Button
+		if (mx >= 600 && mx <= 680 && my >= 90 && my <= 120) {
+			isFishMarketOpen = 0;
+			return;
+		}
+
+		int* counts[6] = { &countFish1, &countFish2, &countFish3, &countFish4, &countFish5, &countFish6 };
+		int sellPrices[6] = { sellFish1Price, sellFish2Price, sellFish3Price, sellFish4Price, sellFish5Price, sellFish6Price };
+		int buyPrices[6]  = { buyFish1Price,  buyFish2Price,  buyFish3Price,  buyFish4Price,  buyFish5Price,  buyFish6Price  };
+
+		for (int i = 0; i < 6; i++) {
+			int rowY = 410 - (i * 55);
+
+			// SELL CLICK
+			if (mx >= 340 && mx <= 420 && my >= rowY - 2 && my <= rowY + 22) {
+				if (*counts[i] > 0) {
+					(*counts[i])--;
+					playerGold += sellPrices[i];
+				}
+				return;
+			}
+
+			// BUY CLICK
+			if (mx >= 440 && mx <= 520 && my >= rowY - 2 && my <= rowY + 22) {
+				if (playerGold >= buyPrices[i]) {
+					playerGold -= buyPrices[i];
+					(*counts[i])++;
+				}
+				return;
+			}
+		}
+		return; // Prevent triggering fishing action while clicking in market
 	}
 
-	// Trigger sequence when red exclamation mark is active
-	if (fishingState == FISH_STATE_BITEN) {
-		fishingState = FISH_STATE_CAUGHT;
-		resultDisplayTimer = 25; // 2.5 second animation window
+	// 2. Ignore gameplay clicks on the Top Header Bar
+	if (my >= 540) return;
 
-		// Select random fish index (1 to 6 for fish1..fish6)
+	// 3. FULL-SCREEN CLICK MECHANIC FOR FISHING
+	if (fishingState == FISH_STATE_BITEN) {
+		// Successful Reaction! Hook the fish
+		fishingState = FISH_STATE_CAUGHT;
+		resultDisplayTimer = 25; // Display pulling sequence & fish for 2.5s
+
+		// Catch random fish (index 1 to 6)
 		caughtFishIndex = 1 + (rand() % 6);
 		addFishToInventory(caughtFishIndex);
+	}
+	else if (fishingState == FISH_STATE_CAUGHT || fishingState == FISH_STATE_MISSED) {
+		// Instant-skip pop-ups on click to start waiting immediately
+		startWaitingForBite();
 	}
 }
 
 // ------------------------------------------------------------
-// MAIN LEVEL 3 RENDER FUNCTION
+// MAIN RENDER FUNCTION FOR LEVEL 3
 // ------------------------------------------------------------
 inline void drawLevel3() {
 	// Background
@@ -236,39 +239,39 @@ inline void drawLevel3() {
 	int fishermanX = 350;
 	int fishermanY = 280;
 
-	// 1. Render Fisherman Base Image
+	// 1. Render Fisherman Base Sprite
 	if (fishingState == FISH_STATE_CAUGHT) {
-		// Fisherman pulling rod out of water
+		// Image 2: Fisherman pulling rod out of water
 		iShowBMP2(fishermanX, fishermanY, "assets/fisherman_pulling.bmp", 0);
 	} else {
-		// Fisherman standing with hook in the water (Default Initial View)
+		// Image 1: Fisherman standing with hook in water
 		iShowBMP2(fishermanX, fishermanY, "assets/fisherman_idle.bmp", 0);
 	}
 
-	// 2. Render Fishing Line into Water
+	// 2. Fishing Line in Water (during waiting/biting)
 	if (fishingState == FISH_STATE_WAITING || fishingState == FISH_STATE_BITEN) {
 		iSetColor(200, 200, 200);
 		iLine(fishermanX + 65, fishermanY + 80, fishermanX + 150, fishermanY - 80);
 	}
 
-	// 3. Render Red Exclamation Mark Pop-up
+	// 3. Red Exclamation Mark Pop-up on Fish Bite
 	if (fishingState == FISH_STATE_BITEN) {
 		iShowBMP2(fishermanX + 20, fishermanY + 95, "assets/red.bmp", 0);
 	}
 
-	// 4. Render Caught Fish Image (assets/fish1.bmp to assets/fish6.bmp)
+	// 4. Caught Fish Pop-up Image (assets/fish1.bmp to assets/fish6.bmp)
 	if (fishingState == FISH_STATE_CAUGHT && caughtFishIndex >= 1 && caughtFishIndex <= 6) {
 		char fishPath[64];
 		sprintf_s(fishPath, sizeof(fishPath), "assets/fish%d.bmp", caughtFishIndex);
 		iShowBMP2(fishermanX + 10, fishermanY + 110, fishPath, 0);
 	}
 
-	// 5. Render "Nothing Bit The Bait" Image Pop-up (Box size: 200x150 at x=300, y=180)
+	// 5. "Nothing Bit The Bait" Pop-up Image (200x150 at x=300, y=180)
 	if (fishingState == FISH_STATE_MISSED) {
 		iShowBMP2(300, 180, "assets/nothing_bit.bmp", 0);
 	}
 
-	// Top Header HUD Bar
+	// 6. Header Bar & HUD Navigation
 	iSetColor(40, 40, 40);
 	iFilledRectangle(0, 540, 800, 60);
 
