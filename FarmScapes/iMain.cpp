@@ -571,190 +571,108 @@ void iMouse(int button, int state, int mx, int my)
 		}
 		else if (gameState == STATE_LEVEL_1)
 		{
-			if (showCapWarning)
-				showCapWarning = 0;
-
-			// --- SAVE BUTTON CLICK ---
-			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
-			{
-				saveGameProgress(currentSaveSlot);
-				return;
-			}
-
-			if (mx >= 420 && mx <= 520 && my >= 552 && my <= 586)
-			{
-				isMarketOpen = !isMarketOpen;
-				return;
-			}
-			if (mx >= 535 && mx <= 655 && my >= 552 && my <= 586)
-			{
-				gameState = STATE_TOWN;
-				return;
-			}
-			if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586)
-			{
-				gameState = STATE_MENU;
-				return;
-			}
-
+			// 1. If Marketplace is open, handle its UI clicks first
 			if (isMarketOpen)
 			{
-				if (mx >= 600 && mx <= 680 && my >= 80 && my <= 110)
-				{
+				// Close button check (X: 600 to 680, Y: 80 to 110)
+				if (mx >= 600 && mx <= 680 && my >= 80 && my <= 110) {
 					isMarketOpen = 0;
-					return;
-				}
-				if (mx >= 330 && mx <= 395 && my >= 370 && my <= 392 && cropRiceCount > 0)
-				{
-					cropRiceCount--;
-					playerGold += riceSellPrice;
-				}
-				else if (mx >= 330 && mx <= 395 && my >= 330 && my <= 352 && cropTomatoCount > 0)
-				{
-					cropTomatoCount--;
-					playerGold += tomatoSellPrice;
-				}
-				else if (mx >= 330 && mx <= 395 && my >= 290 && my <= 312 && cropBerryCount > 0)
-				{
-					cropBerryCount--;
-					playerGold += berrySellPrice;
-				}
-
-				if (mx >= 600 && mx <= 665 && my >= 370 && my <= 392 && playerGold >= riceBuyPrice)
-				{
-					playerGold -= riceBuyPrice;
-					seedRice++;
-				}
-				else if (mx >= 600 && mx <= 665 && my >= 330 && my <= 352 && playerGold >= tomatoBuyPrice)
-				{
-					playerGold -= tomatoBuyPrice;
-					seedTomato++;
-				}
-				else if (mx >= 600 && mx <= 665 && my >= 290 && my <= 312 && playerGold >= berryBuyPrice)
-				{
-					playerGold -= berryBuyPrice;
-					seedBerry++;
-				}
-
-				if (!massPlowUnlocked && mx >= 380 && mx <= 510 && my >= 188 && my <= 214)
-				{
-					if (playerGold >= 1500)
-					{
-						playerGold -= 1500;
-						massPlowUnlocked = 1;
-					}
 				}
 				return;
 			}
 
-			if (massPlowUnlocked && mx >= 90 && mx <= 160 && my >= 28 && my <= 72)
+			// 2. Top HUD Bar Buttons
+			// SAVE BUTTON (X: 340 to 410, Y: 552 to 586)
+			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586) {
+				// Call your save function here
+			}
+			// MARKET BUTTON (X: 420 to 520, Y: 552 to 586)
+			else if (mx >= 420 && mx <= 520 && my >= 552 && my <= 586) {
+				isMarketOpen = 1;
+			}
+			// EXPLORE TOWN BUTTON (X: 535 to 655, Y: 552 to 586)
+			else if (mx >= 535 && mx <= 655 && my >= 552 && my <= 586) {
+				gameState = STATE_TOWN;
+			}
+			// MENU BUTTON (X: 670 to 780, Y: 552 to 586)
+			else if (mx >= 670 && mx <= 780 && my >= 552 && my <= 586) {
+				gameState = STATE_PLAY_CHOICE;
+			}
+
+			// 3. Bottom Toolbar Tool Selection Buttons (Y: 28 to 72)
+			// MASS PLOW BUTTON (X: 90 to 160) - Only if unlocked
+			else if (massPlowUnlocked && mx >= 90 && mx <= 160 && my >= 28 && my <= 72) {
+				// Optional: Trigger mass plow action for all tiles
+				for (int r = 0; r < GRID_ROWS; r++) {
+					for (int c = 0; c < GRID_COLS; c++) {
+						if (farmGrid[r][c].state == CROP_EMPTY) {
+							farmGrid[r][c].state = CROP_PLOWED;
+						}
+					}
+				}
+			}
+			// PLOW TOOL (X: 170 to 260)
+			else if (mx >= 170 && mx <= 260 && my >= 28 && my <= 72) {
+				selectedTool = 1;
+			}
+			// PLANT TOOL (X: 290 to 380)
+			else if (mx >= 290 && mx <= 380 && my >= 28 && my <= 72) {
+				selectedTool = 2;
+			}
+			// WATER TOOL (X: 410 to 500)
+			else if (mx >= 410 && mx <= 500 && my >= 28 && my <= 72) {
+				selectedTool = 3;
+			}
+			// HARVEST TOOL (X: 530 to 630)
+			else if (mx >= 530 && mx <= 630 && my >= 28 && my <= 72) {
+				selectedTool = 4;
+			}
+
+			// 4. Farm Tile Grid Click Detection & Tool Actions
+			else
 			{
 				for (int r = 0; r < GRID_ROWS; r++)
 				{
 					for (int c = 0; c < GRID_COLS; c++)
 					{
-						if (farmGrid[r][c].state == CROP_EMPTY || farmGrid[r][c].state == CROP_ROTTEN)
-						{
-							farmGrid[r][c].state = CROP_PLOWED;
-							farmGrid[r][c].growTimer = 0;
-						}
-					}
-				}
-				return;
-			}
+						Tile *t = &farmGrid[r][c];
 
-			if (my >= 20 && my <= 80)
-			{
-				if (mx >= 170 && mx <= 260) selectedTool = 1;
-				if (mx >= 290 && mx <= 380) selectedTool = 2;
-				if (mx >= 410 && mx <= 500) selectedTool = 3;
-				if (mx >= 530 && mx <= 630) selectedTool = 4;
-			}
-
-			for (int r = 0; r < GRID_ROWS; r++)
-			{
-				for (int c = 0; c < GRID_COLS; c++)
-				{
-					Tile *t = &farmGrid[r][c];
-
-					if (mx >= t->x && mx <= t->x + 80 && my >= t->y && my <= t->y + 80)
-					{
-						if (selectedTool == 1)
+						// Check if click is inside the 70x70 tile bounds
+						if (mx >= t->x && mx <= t->x + 70 && my >= t->y && my <= t->y + 70)
 						{
-							if (t->state == CROP_EMPTY || t->state == CROP_ROTTEN)
+							// TOOL 1: PLOW (Turns empty grass into plowed dirt)
+							if (selectedTool == 1)
 							{
-								t->state = CROP_PLOWED;
-								t->growTimer = 0;
-							}
-						}
-						else if (selectedTool == 2 && t->state == CROP_PLOWED)
-						{
-							if (seedBerry > 0)
-							{
-								seedBerry--;
-								t->cropType = 2;
-								t->state = BERRY_TREE;
-								t->growTimer = 0;
-								if (!batchActive) { batchActive = 1; batchTimer = 20; }
-							}
-							else if (seedTomato > 0)
-							{
-								seedTomato--;
-								t->cropType = 1;
-								t->state = CROP_SEEDED;
-								t->growTimer = 0;
-								if (!batchActive) { batchActive = 1; batchTimer = 20; }
-							}
-							else if (seedRice > 0)
-							{
-								seedRice--;
-								t->cropType = 0;
-								t->state = CROP_SEEDED;
-								t->growTimer = 0;
-								if (!batchActive) { batchActive = 1; batchTimer = 20; }
-							}
-						}
-						else if (selectedTool == 3)
-						{
-							if (t->state == CROP_SEEDED || t->state == BERRY_TREE)
-							{
-								t->state = CROP_WATERED;
-								t->growTimer = 0;
-							}
-						}
-						else if (selectedTool == 4)
-						{
-							if (t->state == CROP_READY)
-							{
-								if (cropRiceCount < MAX_INVENTORY_CAP) { t->state = CROP_EMPTY; cropRiceCount++; }
-								else { showCapWarning = 1; }
-							}
-							else if (t->state == TOMATO_READY)
-							{
-								if (cropTomatoCount < MAX_INVENTORY_CAP) { t->state = CROP_EMPTY; cropTomatoCount++; }
-								else { showCapWarning = 1; }
-							}
-							else if (t->state == BERRY_READY)
-							{
-								if (cropBerryCount < MAX_INVENTORY_CAP) { t->state = CROP_EMPTY; cropBerryCount++; }
-								else { showCapWarning = 1; }
-							}
-
-							int activeCrops = 0;
-							for (int r2 = 0; r2 < GRID_ROWS; r2++)
-							{
-								for (int c2 = 0; c2 < GRID_COLS; c2++)
-								{
-									int s = farmGrid[r2][c2].state;
-									if (s == CROP_SEEDED || s == CROP_WATERED || s == CROP_READY || s == TOMATO_READY || s == BERRY_TREE || s == BERRY_READY)
-									{
-										activeCrops++;
-									}
+								if (t->state == CROP_EMPTY || t->state == CROP_ROTTEN) {
+									t->state = CROP_PLOWED;
+									t->growTimer = 0;
 								}
 							}
-							if (activeCrops == 0)
+							// TOOL 2: PLANT (Turns plowed dirt into seeded crops)
+							else if (selectedTool == 2)
 							{
-								batchActive = 0; batchTimer = 0; hasRottenCrop = 0;
+								if (t->state == CROP_PLOWED) {
+									t->state = CROP_SEEDED;
+									t->growTimer = 0;
+									t->cropType = 0; // 0 = Rice (or configure based on selection)
+								}
+							}
+							// TOOL 3: WATER (Waters seeded crops to start growth timer)
+							else if (selectedTool == 3)
+							{
+								if (t->state == CROP_SEEDED) {
+									t->state = CROP_WATERED;
+									t->growTimer = 0;
+								}
+							}
+							// TOOL 4: HARVEST (Collects ready crops and clears tile)
+							else if (selectedTool == 4)
+							{
+								if (t->state == CROP_READY || t->state == TOMATO_READY || t->state == BERRY_READY) {
+									t->state = CROP_EMPTY;
+									cropRiceCount++; // Increment harvested crop inventory
+									playerGold += 15; // Give gold reward
+								}
 							}
 						}
 					}
@@ -1246,7 +1164,7 @@ int main()
 	slotMenuBgImage = iLoadImage("assets/loadscreen.bmp");
 	initStorylineAssets();
 
-printf("DEBUG: Loaded slotMenuBgImage ID = %d\n", slotMenuBgImage);
+
 
 	iStart();
 
