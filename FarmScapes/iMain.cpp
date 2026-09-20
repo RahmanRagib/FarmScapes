@@ -324,45 +324,99 @@ void iDraw()
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
+		// 1. Draw Background Image
 		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
-		iSetColor(255, 255, 255);
-		if (slotActionMode == 1) iText(310, 500, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 2) iText(310, 500, "SELECT SLOT TO LOAD", GLUT_BITMAP_HELVETICA_18);
-		else if (slotActionMode == 3) iText(310, 500, "SELECT SLOT TO DELETE", GLUT_BITMAP_HELVETICA_18);
+		// -------------------------------------------------------------
+		// TOP TITLE (Placed higher up in the sky area, Y: 490)
+		// -------------------------------------------------------------
+		iSetColor(40, 20, 10); // Dark shadow
+		if (slotActionMode == 1) iText(191, 491, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 2) iText(254, 491, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 3) iText(231, 491, "SELECT SLOT TO DELETE", GLUT_BITMAP_TIMES_ROMAN_24);
 
+		iSetColor(210, 145, 80); // Mixed brown / golden-brown
+		if (slotActionMode == 1) iText(190, 490, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 2) iText(250, 490, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 3) iText(230, 490, "SELECT SLOT TO DELETE", GLUT_BITMAP_TIMES_ROMAN_24);
 		char slotText[50];
 
-		// Slot 1
+		// -------------------------------------------------------------
+		// SLOT 1 BUTTON (Wider Width: 220, Centered X: 290 to 510, Y: 400)
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(290, 400, 220, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(290, 400, 220, 45);
+
+		iSetColor(40, 20, 10);
 		if (checkIfSlotExists(1)) {
 			sprintf(slotText, "RESUME SLOT 1 (Gold: %d)", getSlotScore(1));
-			iText(310, 418, slotText, GLUT_BITMAP_HELVETICA_12);
+			iText(331, 416, slotText, GLUT_BITMAP_HELVETICA_12);
+			iSetColor(255, 215, 100);
+			iText(330, 415, slotText, GLUT_BITMAP_HELVETICA_12);
 		}
 		else {
-			iText(340, 418, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+			iText(356, 416, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+			iSetColor(255, 215, 100);
+			iText(355, 415, "SLOT 1: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
 		}
 
-		// Slot 2
+		// -------------------------------------------------------------
+		// SLOT 2 BUTTON (Wider Width: 220, Centered X: 290 to 510, Y: 330)
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(290, 330, 220, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(290, 330, 220, 45);
+
+		iSetColor(40, 20, 10);
 		if (checkIfSlotExists(2)) {
 			sprintf(slotText, "RESUME SLOT 2 (Gold: %d)", getSlotScore(2));
-			iText(310, 348, slotText, GLUT_BITMAP_HELVETICA_12);
+			iText(331, 346, slotText, GLUT_BITMAP_HELVETICA_12);
+			iSetColor(255, 215, 100);
+			iText(330, 345, slotText, GLUT_BITMAP_HELVETICA_12);
 		}
 		else {
-			iText(340, 348, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+			iText(356, 346, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+			iSetColor(255, 215, 100);
+			iText(355, 345, "SLOT 2: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
 		}
 
-		// Slot 3
+		// -------------------------------------------------------------
+		// SLOT 3 BUTTON (Wider Width: 220, Centered X: 290 to 510, Y: 260)
+		// -------------------------------------------------------------
+		iSetColor(160, 90, 40);
+		iFilledRectangle(290, 260, 220, 45);
+		iSetColor(220, 160, 90);
+		iRectangle(290, 260, 220, 45);
+
+		iSetColor(40, 20, 10);
 		if (checkIfSlotExists(3)) {
 			sprintf(slotText, "RESUME SLOT 3 (Gold: %d)", getSlotScore(3));
-			iText(310, 278, slotText, GLUT_BITMAP_HELVETICA_12);
+			iText(331, 276, slotText, GLUT_BITMAP_HELVETICA_12);
+			iSetColor(255, 215, 100);
+			iText(330, 275, slotText, GLUT_BITMAP_HELVETICA_12);
 		}
 		else {
-			iText(340, 278, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+			iText(356, 276, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
+			iSetColor(255, 215, 100);
+			iText(355, 275, "SLOT 3: [EMPTY]", GLUT_BITMAP_HELVETICA_12);
 		}
 
-		// Back Button
-		iText(375, 180, "BACK", GLUT_BITMAP_HELVETICA_12);
+		// -------------------------------------------------------------
+		// BACK BUTTON (Kept compact at Width 120, Centered X: 340 to 460, Y: 170)
+		// -------------------------------------------------------------
+		iSetColor(140, 75, 30);
+		iFilledRectangle(340, 170, 120, 40);
+		iSetColor(200, 140, 75);
+		iRectangle(340, 170, 120, 40);
+
+		iSetColor(40, 20, 10);
+		iText(386, 186, "BACK", GLUT_BITMAP_HELVETICA_12);
+		iSetColor(255, 215, 100);
+		iText(385, 185, "BACK", GLUT_BITMAP_HELVETICA_12);
 	}
 	else if (gameState == STATE_LOADING)
 		drawLoading();
