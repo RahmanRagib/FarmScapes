@@ -40,7 +40,7 @@ extern void saveGameProgress(int slot);
 
 #define FISH_POPUP_W 399
 #define FISH_POPUP_H 300
-#define FISH_POPUP_X 235 // Shifted right from 201 to center properly
+#define FISH_POPUP_X 235 // Centered pop-up graphic position
 #define FISH_POPUP_Y 150
 
 #define FISHERMAN_HEAD_X 465
@@ -160,7 +160,7 @@ void updateLevel3Logic()
         }
     }
 
-    // 3. Reset timers back to idle
+    // 3. Auto-reset timer back to idle if no click occurs
     if (fishingState == FISH_STATE_CAUGHT ||
         fishingState == FISH_STATE_NOTHING ||
         fishingState == FISH_STATE_TOO_EARLY)
@@ -268,7 +268,7 @@ void drawLevel3()
         iSetColor(255, 220, 100);
         iText(250, 115, "NOTHING BIT!", GLUT_BITMAP_HELVETICA_18);
         iSetColor(200, 200, 200);
-        iText(250, 90, "The fish got away. Left click to cast again!", GLUT_BITMAP_HELVETICA_12);
+        iText(250, 90, "Left click to cast again!", GLUT_BITMAP_HELVETICA_12);
     }
 
     // 6. "REELED IN TOO QUICKLY" Popup
@@ -282,8 +282,7 @@ void drawLevel3()
         iSetColor(255, 80, 80);
         iText(180, 125, "REELED IN TOO QUICKLY!", GLUT_BITMAP_HELVETICA_18);
         iSetColor(255, 220, 220);
-        iText(180, 100, "You reeled in too quickly and the fish got away.", GLUT_BITMAP_HELVETICA_12);
-        iText(180, 78, "You reeled in too quickly before the fish could even bite.", GLUT_BITMAP_HELVETICA_10);
+        iText(180, 100, "You reeled in too quickly before the fish could even bite.", GLUT_BITMAP_HELVETICA_12);
     }
 
     // 7. "FISH CAUGHT" Popup & Special Turtle Release Banner
@@ -399,11 +398,16 @@ void handleLevel3MouseClick(int mx, int my)
     }
 
     // 3. Fishing Logic Clicks
-    if (fishingState == FISH_STATE_IDLE)
+    if (fishingState == FISH_STATE_IDLE ||
+        fishingState == FISH_STATE_NOTHING ||
+        fishingState == FISH_STATE_TOO_EARLY ||
+        fishingState == FISH_STATE_CAUGHT)
     {
+        // Immediately cast line, bypassing display timer wait
         fishingState = FISH_STATE_WAITING;
         fishingWaitTimer = 25 + rand() % 25;
         castPopupTimer = 10;
+        resultDisplayTimer = 0;
     }
     else if (fishingState == FISH_STATE_WAITING)
     {
