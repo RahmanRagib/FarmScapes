@@ -91,7 +91,39 @@ char fishImages[NUM_FISH_TYPES][100] = {
     "assets/fish9.bmp"
 };
 
+// Probability weights (Sum = 100%)
+// Index 0: Goonch      (3%)  - Rare
+// Index 1: Perch       (13%) - High
+// Index 2: Catfish     (13%) - High
+// Index 3: Tilapia     (18%) - Common
+// Index 4: Rui         (10%) - Mid
+// Index 5: Chitol      (4%)  - Rare
+// Index 6: Puffer Fish (18%) - Common (Challenge/Trash)
+// Index 7: Pleco       (18%) - Common
+// Index 8: Turtle      (3%)  - Rare
+static const int fishWeights[NUM_FISH_TYPES] = { 3, 13, 13, 18, 10, 4, 18, 18, 3 };
+
 int isFishMarketOpen = 0;
+
+// ============================================================
+// PROBABILITY HELPER
+// ============================================================
+
+int getRandomFishType()
+{
+    int roll = rand() % 100; // Roll 0 to 99
+    int accumulated = 0;
+
+    for (int i = 0; i < NUM_FISH_TYPES; i++)
+    {
+        accumulated += fishWeights[i];
+        if (roll < accumulated)
+        {
+            return i;
+        }
+    }
+    return 3; // Default fallback to Tilapia
+}
 
 // ============================================================
 // INITIALIZATION
@@ -421,7 +453,7 @@ void handleLevel3MouseClick(int mx, int my)
         fishingState = FISH_STATE_CAUGHT;
         resultDisplayTimer = 35;
 
-        int type = rand() % NUM_FISH_TYPES;
+        int type = getRandomFishType();
 
         lastCaughtFishType = type;
         strcpy(caughtFishName, fishNames[type]);
