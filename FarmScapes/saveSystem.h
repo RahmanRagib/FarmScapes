@@ -13,6 +13,7 @@
 extern int gameState;
 extern int slotActionMode;
 extern int loadingTimer;
+extern int storyState;
 
 extern int playerGold;
 extern int level2Unlocked;
@@ -174,6 +175,18 @@ void deleteGameProgress(int slotNumber)
 void handleSlotAction(int slot) {
 	if (slotActionMode == 1) // NEW GAME - Reset everything to fresh start
 	{
+		// Check if all 3 save slots already exist (Full Slots Check)
+		bool slot1 = checkIfSlotExists(1);
+		bool slot2 = checkIfSlotExists(2);
+		bool slot3 = checkIfSlotExists(3);
+
+		if (slot1 && slot2 && slot3) {
+			// 3 ta slot-i full thakle new game shuru korte debe na,
+			// player ke age delete korte hobe.
+			printf("WARNING: All 3 save slots are full! Delete one to start a new game.\n");
+			return;
+		}
+
 		playerGold = 0;
 		seedRice = 9;       // Fresh starting rice seeds
 		seedTomato = 0;
@@ -191,41 +204,25 @@ void handleSlotAction(int slot) {
 		level2Unlocked = 0; // Lock levels for a true fresh game
 		level3Unlocked = 0;
 
-		saveGameProgress(slot); // Save the fresh default values
+		gameState = STATE_STORYLINE; // New game-er jonno storyline ashbe
+		storyState = 1;
+
+		saveGameProgress(slot); // Save the fresh default values and create file now
 		startStoryline();       // Trigger storyline cutscene
-		gameState = STATE_STORYLINE;
 	}
-	else if (slotActionMode == 2) // LOAD GAME
+	else if (slotActionMode == 2) // LOAD GAME (RESUME)
 	{
 		if (checkIfSlotExists(slot))
 		{
+			// Load progress from the text file
 			loadGameProgress(slot);
-			gameState = STATE_LOADING;
-			loadingTimer = 0;
+
+			// LOAD GAME KORLE EXACT SAVED STATE THEKE SHURU HOBE (No Storyline!)
+			// Fole gameState file thekei load hobe, amra force kore LOADING ba STORYLINE e pathabo na.
 		}
 		else
 		{
-			// Fallback if slot is empty: treat it as a new game
-			playerGold = 0;
-			seedRice = 9;
-			seedTomato = 0;
-			seedBerry = 0;
-			cropRiceCount = 0;
-			cropTomatoCount = 0;
-			cropBerryCount = 0;
-			countFeed = 5;
-			countEgg = 0;
-			countMilk = 0;
-			countWool = 0;
-			henCount = 0;
-			cowCount = 0;
-			sheepCount = 0;
-			level2Unlocked = 0;
-			level3Unlocked = 0;
-
-			saveGameProgress(slot);
-			startStoryline();
-			gameState = STATE_STORYLINE;
+			printf("Slot %d is empty! Cannot load.\n", slot);
 		}
 	}
 	else if (slotActionMode == 3) // DELETE GAME
