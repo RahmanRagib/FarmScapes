@@ -49,6 +49,7 @@ int eKeyPressedLastFrame = 0;
 int currentSaveSlot = 1;
 int slotActionMode = 0;
 int slotMenuBgImage;
+int slotFullWarning = 0;
 int storyState = 1;
 
 // ============================================================
@@ -228,11 +229,6 @@ int isWithinBounds(int x, int y)
 void updatePlayer()
 {
 }
-
-// ============================================================
-// DRAW
-// ============================================================
-
 void iDraw()
 {
 	iClear();
@@ -300,11 +296,13 @@ void iDraw()
 
 		// TOP TITLE
 		iSetColor(40, 20, 10);
-		if (slotActionMode == 2) iText(251, 491, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
+		if (slotActionMode == 1) iText(221, 491, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 2) iText(251, 491, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
 		else if (slotActionMode == 3) iText(231, 491, "SELECT SLOT TO DELETE", GLUT_BITMAP_TIMES_ROMAN_24);
 
 		iSetColor(210, 145, 80);
-		if (slotActionMode == 2) iText(250, 490, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
+		if (slotActionMode == 1) iText(220, 490, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_TIMES_ROMAN_24);
+		else if (slotActionMode == 2) iText(250, 490, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
 		else if (slotActionMode == 3) iText(230, 490, "SELECT SLOT TO DELETE", GLUT_BITMAP_TIMES_ROMAN_24);
 
 		char slotText[50];
@@ -315,7 +313,12 @@ void iDraw()
 		iSetColor(220, 160, 90);
 		iRectangle(290, 400, 220, 45);
 
-		sprintf(slotText, "RESUME SLOT 1 (Gold: %d)", getSlotScore(1));
+		if (checkIfSlotExists(1)) {
+			sprintf(slotText, "Slot 1 (Gold: %d)", getSlotScore(1));
+		}
+		else {
+			sprintf(slotText, "Slot 1 - Empty");
+		}
 		iSetColor(40, 20, 10);
 		iText(331, 416, slotText, GLUT_BITMAP_HELVETICA_12);
 		iSetColor(255, 215, 100);
@@ -327,7 +330,12 @@ void iDraw()
 		iSetColor(220, 160, 90);
 		iRectangle(290, 330, 220, 45);
 
-		sprintf(slotText, "RESUME SLOT 2 (Gold: %d)", getSlotScore(2));
+		if (checkIfSlotExists(2)) {
+			sprintf(slotText, "Slot 2 (Gold: %d)", getSlotScore(2));
+		}
+		else {
+			sprintf(slotText, "Slot 2 - Empty");
+		}
 		iSetColor(40, 20, 10);
 		iText(331, 346, slotText, GLUT_BITMAP_HELVETICA_12);
 		iSetColor(255, 215, 100);
@@ -339,11 +347,23 @@ void iDraw()
 		iSetColor(220, 160, 90);
 		iRectangle(290, 260, 220, 45);
 
-		sprintf(slotText, "RESUME SLOT 3 (Gold: %d)", getSlotScore(3));
+		if (checkIfSlotExists(3)) {
+			sprintf(slotText, "Slot 3 (Gold: %d)", getSlotScore(3));
+		}
+		else {
+			sprintf(slotText, "Slot 3 - Empty");
+		}
 		iSetColor(40, 20, 10);
 		iText(331, 276, slotText, GLUT_BITMAP_HELVETICA_12);
 		iSetColor(255, 215, 100);
 		iText(330, 275, slotText, GLUT_BITMAP_HELVETICA_12);
+
+		// --- 3 SLOTS FULL WARNING MESSAGE ---
+		if (slotFullWarning == 1) {
+			iSetColor(255, 0, 0); // Red color for warning
+			iText(210, 225, "WARNING: All 3 slots are full! Delete one.", GLUT_BITMAP_HELVETICA_12);
+			iSetColor(255, 255, 255); // Reset color
+		}
 
 		// BACK BUTTON
 		iSetColor(140, 75, 30);
@@ -427,19 +447,25 @@ void iMouse(int button, int state, int mx, int my)
 		{
 			if (mx >= 320 && mx <= 480 && my >= 360 && my <= 405)
 			{
-				slotActionMode = 1;
+				// New Game click korle slot menu-te jabe, ebong mode 1 (New Game) thakbe
+				slotActionMode = 1;          // 1 = New Game mode
+				slotFullWarning = 0;
 				gameState = STATE_SLOT_MENU;
 				return;
 			}
 			else if (mx >= 320 && mx <= 480 && my >= 300 && my <= 345)
 			{
-				slotActionMode = 2;
+				// Load Game click korle slot menu-te jabe, mode 2 (Load) thakbe
+				slotActionMode = 2;          // 2 = Load Game mode
+				slotFullWarning = 0;
 				gameState = STATE_SLOT_MENU;
 				return;
 			}
 			else if (mx >= 320 && mx <= 480 && my >= 240 && my <= 285)
 			{
-				slotActionMode = 3;
+				// Delete Game click korle slot menu-te jabe, mode 3 (Delete) thakbe
+				slotActionMode = 3;          // 3 = Delete Game mode
+				slotFullWarning = 0;
 				gameState = STATE_SLOT_MENU;
 				return;
 			}
@@ -457,24 +483,28 @@ void iMouse(int button, int state, int mx, int my)
 		{
 			if (mx >= 300 && mx <= 550 && my >= 400 && my <= 440)
 			{
+				slotFullWarning = 0; // Reset warning before action
 				currentSaveSlot = 1;
 				handleSlotAction(1);
 				return;
 			}
 			else if (mx >= 300 && mx <= 550 && my >= 330 && my <= 370)
 			{
+				slotFullWarning = 0; // Reset warning before action
 				currentSaveSlot = 2;
 				handleSlotAction(2);
 				return;
 			}
 			else if (mx >= 300 && mx <= 550 && my >= 260 && my <= 300)
 			{
+				slotFullWarning = 0; // Reset warning before action
 				currentSaveSlot = 3;
 				handleSlotAction(3);
 				return;
 			}
 			else if (mx >= 350 && mx <= 450 && my >= 170 && my <= 210)
 			{
+				slotFullWarning = 0; // Reset warning on back
 				gameState = STATE_PLAY_CHOICE;
 				return;
 			}
