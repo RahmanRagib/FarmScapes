@@ -30,6 +30,7 @@ extern void saveGameProgress(int slot);
 #define FISH_STATE_HOOKED 2
 #define FISH_STATE_CAUGHT 3
 #define FISH_STATE_NOTHING 4
+#define FISH_STATE_TOO_EARLY 5
 
 #ifndef NUM_FISH_TYPES
 #define NUM_FISH_TYPES 9
@@ -158,8 +159,10 @@ void updateLevel3Logic()
         }
     }
 
-    // 3. Reset timers back to idle
-    if (fishingState == FISH_STATE_CAUGHT || fishingState == FISH_STATE_NOTHING)
+    // 3. Reset timers back to idle for result popups
+    if (fishingState == FISH_STATE_CAUGHT ||
+        fishingState == FISH_STATE_NOTHING ||
+        fishingState == FISH_STATE_TOO_EARLY)
     {
         if (resultDisplayTimer > 0)
         {
@@ -263,17 +266,29 @@ void drawLevel3()
 
         iSetColor(255, 220, 100);
         iText(250, 115, "NOTHING BIT!", GLUT_BITMAP_HELVETICA_18);
-        iSetColor(200, 200, 200);
-        iText(250, 90, "The fish got away. Left click to cast again!", GLUT_BITMAP_HELVETICA_12);
     }
 
-    // 6. "FISH CAUGHT" Popup
+    // 6. "REELED IN TOO QUICKLY" Popup
+    if (fishingState == FISH_STATE_TOO_EARLY)
+    {
+        iSetColor(20, 15, 25);
+        iFilledRectangle(160, 60, 480, 95);
+        iSetColor(220, 60, 60);
+        iRectangle(160, 60, 480, 95);
+
+        iSetColor(255, 80, 80);
+        iText(180, 125, "REELED IN TOO QUICKLY!", GLUT_BITMAP_HELVETICA_18);
+        iSetColor(255, 220, 220);
+        iText(180, 100, "You reeled in too quickly before the fish could even bite.", GLUT_BITMAP_HELVETICA_12);
+    }
+
+    // 7. "FISH CAUGHT" Popup
     if (fishingState == FISH_STATE_CAUGHT && lastCaughtFishType >= 0)
     {
         iShowBMP(FISH_POPUP_X, FISH_POPUP_Y, fishImages[lastCaughtFishType]);
     }
 
-    // 7. MARKET OVERLAY
+    // 8. MARKET OVERLAY
     if (isFishMarketOpen)
     {
         iSetColor(15, 25, 35);
@@ -291,7 +306,7 @@ void drawLevel3()
         iSetColor(240, 200, 80);
         iText(370, 417, goldBuf, GLUT_BITMAP_HELVETICA_18);
 
-        // Fish List Items (Adjusted spacing to fit 9 items)
+        // Fish List Items
         for (int i = 0; i < NUM_FISH_TYPES; i++)
         {
             int itemY = 375 - (i * 30);
@@ -372,7 +387,14 @@ void handleLevel3MouseClick(int mx, int my)
     {
         fishingState = FISH_STATE_WAITING;
         fishingWaitTimer = 25 + rand() % 25;
-        castPopupTimer = 10; // Trigger pop-up display for ~1 second (10 timer ticks)
+        castPopupTimer = 10; // Trigger pop-up display for ~1 second
+    }
+    else if (fishingState == FISH_STATE_WAITING)
+    {
+        // Player clicked early before the red exclamation mark appeared!
+        fishingState = FISH_STATE_TOO_EARLY;
+        resultDisplayTimer = 35;
+        castPopupTimer = 0;
     }
     else if (fishingState == FISH_STATE_HOOKED)
     {
