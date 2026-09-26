@@ -944,27 +944,27 @@ void iMouse(int button, int state, int mx, int my)
 			// If Ranch Market is Open
 			if (isRanchMarketOpen)
 			{
-				if (mx >= 600 && mx <= 680 && my >= 80 && my <= 120)
+				if (mx >= 580 && mx <= 700 && my >= 70 && my <= 130)
 				{
 					isRanchMarketOpen = 0;
 					return;
 				}
 
-				if (mx >= 310 && mx <= 390)
+				if (mx >= 290 && mx <= 410)
 				{
-					if (my >= 330 && my <= 365 && countEgg > 0)
+					if (my >= 320 && my <= 375 && countEgg > 0)
 					{
 						countEgg--;
 						playerGold += eggSellPrice;
 						return;
 					}
-					else if (my >= 315 && my <= 330 && countMilk > 0)
+					else if (my >= 300 && my <= 340 && countMilk > 0)
 					{
 						countMilk--;
 						playerGold += milkSellPrice;
 						return;
 					}
-					else if (my >= 245 && my <= 280 && countWool > 0)
+					else if (my >= 235 && my <= 290 && countWool > 0)
 					{
 						countWool--;
 						playerGold += woolSellPrice;
@@ -979,9 +979,10 @@ void iMouse(int button, int state, int mx, int my)
 					}
 				}
 
-				if (mx >= 600 && mx <= 680)
+				if (mx >= 580 && mx <= 700)
 				{
-					if (my >= 370 && my <= 390)
+					// Buy Feed (Expanded hit box)
+					if (my >= 355 && my <= 405)
 					{
 						if (playerGold >= feedBuyPrice)
 						{
@@ -990,7 +991,8 @@ void iMouse(int button, int state, int mx, int my)
 						}
 						return;
 					}
-					else if (my >= 320 && my <= 340)
+					// Buy Hen
+					else if (my >= 305 && my <= 355)
 					{
 						if (playerGold >= henBuyPrice)
 						{
@@ -1010,7 +1012,8 @@ void iMouse(int button, int state, int mx, int my)
 						}
 						return;
 					}
-					else if (my >= 270 && my <= 290)
+					// Buy Cow
+					else if (my >= 255 && my <= 305)
 					{
 						if (playerGold >= cowBuyPrice)
 						{
@@ -1030,7 +1033,8 @@ void iMouse(int button, int state, int mx, int my)
 						}
 						return;
 					}
-					else if (my >= 210 && my <= 240)
+					// Buy Sheep
+					else if (my >= 195 && my <= 255)
 					{
 						if (playerGold >= sheepBuyPrice)
 						{
@@ -1069,7 +1073,7 @@ void iMouse(int button, int state, int mx, int my)
 				}
 			}
 
-			// Direct Animal Clicking Check (Bypassing strict pen restrictions so clicks always register)
+			// Direct Animal Clicking Check (Timer Fixed to 30s + Jump Prevention Guard)
 			// 1. Hens
 			for (int i = 0; i < henCount; i++)
 			{
@@ -1079,8 +1083,11 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						countFeed--;
 						hens[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
+
+						if (!isRanchTimerActive) {
+							ranchTimer = 30; // 30 seconds timer
+							isRanchTimerActive = 1;
+						}
 						return;
 					}
 					else if (selectedRanchTool == 2 && hens[i].hasProduce)
@@ -1102,8 +1109,11 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						countFeed--;
 						cows[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
+
+						if (!isRanchTimerActive) {
+							ranchTimer = 30;
+							isRanchTimerActive = 1;
+						}
 						return;
 					}
 					else if (selectedRanchTool == 2 && cows[i].hasProduce)
@@ -1125,8 +1135,11 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						countFeed--;
 						sheep[i].fedState = 1;
-						ranchTimer = 20;
-						isRanchTimerActive = 1;
+
+						if (!isRanchTimerActive) {
+							ranchTimer = 30;
+							isRanchTimerActive = 1;
+						}
 						return;
 					}
 					else if (selectedRanchTool == 2 && sheep[i].hasProduce)
@@ -1138,38 +1151,41 @@ void iMouse(int button, int state, int mx, int my)
 					}
 				}
 			}
-		}
-		else if (gameState == STATE_LEVEL_3)
-		{
-			if (my >= 550 && my <= 590)
+		
+			 if (gameState == STATE_LEVEL_3)
 			{
-				if (mx >= 320 && mx <= 420)
+				if (my >= 550 && my <= 590)
 				{
-					saveGameProgress(currentSaveSlot);
-					return;
+					if (mx >= 320 && mx <= 420)
+					{
+						saveGameProgress(currentSaveSlot);
+						return;
+					}
+					else if (mx >= 430 && mx <= 530)
+					{
+						isFishMarketOpen = !isFishMarketOpen;
+						return;
+					}
+					else if (mx >= 545 && mx <= 655)
+					{
+						gameState = STATE_TOWN;
+						return;
+					}
+					else if (mx >= 670 && mx <= 780)
+					{
+						gameState = STATE_MENU;
+						return;
+					}
 				}
-				else if (mx >= 430 && mx <= 530)
-				{
-					isFishMarketOpen = !isFishMarketOpen;
-					return;
-				}
-				else if (mx >= 545 && mx <= 655)
-				{
-					gameState = STATE_TOWN;
-					return;
-				}
-				else if (mx >= 670 && mx <= 780)
-				{
-					gameState = STATE_MENU;
-					return;
-				}
-			}
 
-			handleLevel3MouseClick(mx, my);
-			return;
+				handleLevel3MouseClick(mx, my);
+				return;
+			}
 		}
 	}
 }
+	
+
 void iMouseMove(int mx, int my) {}
 void iPassiveMouseMove(int mx, int my) {}
 
