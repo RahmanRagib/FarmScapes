@@ -91,7 +91,7 @@ inline void updateCropGrowth() {
 		if (batchTimer <= 0) {
 			batchActive = 0;
 			hasRottenCrop = 1;
-			playerGold -= 20;
+			
 			if (playerGold < 0) playerGold = 0;
 
 			for (int r = 0; r < GRID_ROWS; r++) {
