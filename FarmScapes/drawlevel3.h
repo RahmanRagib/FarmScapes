@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "sound.h"
 
 #ifndef SCREEN_WIDTH
 #define SCREEN_WIDTH 800
@@ -266,6 +267,7 @@ void drawLevel3()
     iText(705, 564, "MENU", GLUT_BITMAP_HELVETICA_12);
 
 
+
     // 3. Exclamation mark when hooked
     if (fishingState == FISH_STATE_HOOKED)
     {
@@ -332,9 +334,11 @@ void drawLevel3()
         }
     }
 
-    // 8. MARKET OVERLAY (Only displays sellable fish 0 to 5)
+    // 8. MARKET OVERLAY & MUSIC (Only displays sellable fish 0 to 5)
     if (isFishMarketOpen)
     {
+        playMarketBGM();
+
         iSetColor(15, 25, 35);
         iFilledRectangle(180, 80, 440, 420);
         iSetColor(40, 120, 200);
@@ -372,6 +376,10 @@ void drawLevel3()
         iFilledRectangle(360, 95, 80, 30);
         iSetColor(255, 255, 255);
         iText(380, 105, "CLOSE", GLUT_BITMAP_HELVETICA_12);
+    }
+    else
+    {
+        playDefaultBGM();
     }
 }
 

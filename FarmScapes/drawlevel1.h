@@ -2,6 +2,7 @@
 #define DRAWLEVEL1_H
 
 #include <stdio.h>
+#include "sound.h"
 
 extern int playerGold;
 extern int selectedTool;
@@ -232,8 +233,13 @@ inline void drawLevel1() {
 	iRectangle(670, 552, 110, 34);
 	iText(705, 564, "MENU", GLUT_BITMAP_HELVETICA_12);
 
+	// --- MARKET OVERLAY & MUSIC ---
 	if (isMarketOpen) {
+		playMarketBGM();
 		drawMarketplaceUI();
+	}
+	else {
+		playDefaultBGM();
 	}
 }
 #endif // DRAWLEVEL1_H
