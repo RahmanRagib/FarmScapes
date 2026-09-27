@@ -28,7 +28,7 @@ extern int isRanchMarketOpen;
 
 extern int ranchmanX;
 extern int ranchmanY;
-extern int ranchmanFacing;         // 0 = Facing Right (fireman1.bmp), 1 = Facing Left (fireman2.bmp)
+extern int ranchmanFacing;         // 0 = Facing Right, 1 = Facing Left
 
 extern int ranchCollectionTimer;
 extern bool ranchCollectionTimerRunning;
@@ -63,7 +63,6 @@ inline int isNearSheepPen()
 
 inline int isValidRoad(int x)
 {
-	// Ranchman can move horizontally across the bottom road
 	if (x >= 20 && x <= 740)
 		return 1;
 
@@ -80,18 +79,13 @@ inline void moveRanchMan(int dx, int dy)
 	int newX = ranchmanX + dx;
 	int newY = ranchmanY + dy;
 
-	// Track direction facing
 	if (dx > 0)
 		ranchmanFacing = 0; // Facing Right
 	else if (dx < 0)
 		ranchmanFacing = 1; // Facing Left
 
-	// Horizontal movement
 	if (isValidRoad(newX))
 		ranchmanX = newX;
-
-	// Vertical movement is intentionally restricted.
-	// ranchmanY remains fixed.
 }
 
 
@@ -175,7 +169,6 @@ inline void feedAnimalsByRanchMan()
 				countFeed > 0)
 			{
 				countFeed--;
-
 				hens[i].fedState = 1;
 
 				ranchTimer = 20;
@@ -194,7 +187,6 @@ inline void feedAnimalsByRanchMan()
 				countFeed > 0)
 			{
 				countFeed--;
-
 				cows[i].fedState = 1;
 
 				ranchTimer = 20;
@@ -213,7 +205,6 @@ inline void feedAnimalsByRanchMan()
 				countFeed > 0)
 			{
 				countFeed--;
-
 				sheep[i].fedState = 1;
 
 				ranchTimer = 20;
@@ -235,11 +226,9 @@ inline void collectProduceByRanchMan()
 	{
 		for (int i = 0; i < henCount; i++)
 		{
-			if (hens[i].isAlive &&
-				hens[i].hasProduce)
+			if (hens[i].isAlive && hens[i].hasProduce)
 			{
 				countEgg++;
-
 				hens[i].hasProduce = 0;
 				hens[i].produceTimer = 0;
 			}
@@ -251,11 +240,9 @@ inline void collectProduceByRanchMan()
 	{
 		for (int i = 0; i < cowCount; i++)
 		{
-			if (cows[i].isAlive &&
-				cows[i].hasProduce)
+			if (cows[i].isAlive && cows[i].hasProduce)
 			{
 				countMilk++;
-
 				cows[i].hasProduce = 0;
 				cows[i].produceTimer = 0;
 			}
@@ -267,18 +254,15 @@ inline void collectProduceByRanchMan()
 	{
 		for (int i = 0; i < sheepCount; i++)
 		{
-			if (sheep[i].isAlive &&
-				sheep[i].hasProduce)
+			if (sheep[i].isAlive && sheep[i].hasProduce)
 			{
 				countWool++;
-
 				sheep[i].hasProduce = 0;
 				sheep[i].produceTimer = 0;
 			}
 		}
 	}
 
-	// Stop the collection timer once every available product is collected (if level incomplete)
 	if (!hasAnyRanchProduce() && !ranchLevelCompleted)
 	{
 		ranchCollectionTimerRunning = false;
@@ -305,16 +289,12 @@ inline void initLevel2()
 	ranchLevelCompleted = false;
 	ranchCompleteMessageTimer = 0;
 
-	// Inventory
 	countFeed = 5;
-
 	countEgg = 0;
 	countMilk = 0;
 	countWool = 0;
 
-	// Prices
 	feedBuyPrice = 5;
-
 	eggSellPrice = 15;
 	milkSellPrice = 30;
 	woolSellPrice = 45;
@@ -323,7 +303,6 @@ inline void initLevel2()
 	cowBuyPrice = 100;
 	sheepBuyPrice = 70;
 
-	// Reset all animals
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 	{
 		hens[i].isAlive = 0;
@@ -331,12 +310,8 @@ inline void initLevel2()
 		sheep[i].isAlive = 0;
 	}
 
-	// ========================================================
 	// HENS
-	// ========================================================
-
 	henCount = 2;
-
 	hens[0].x = 100;
 	hens[0].y = 170;
 	hens[0].type = ANIMAL_HEN;
@@ -353,13 +328,8 @@ inline void initLevel2()
 	hens[1].hasProduce = 0;
 	hens[1].isAlive = 1;
 
-
-	// ========================================================
 	// COW
-	// ========================================================
-
 	cowCount = 1;
-
 	cows[0].x = 310;
 	cows[0].y = 260;
 	cows[0].type = ANIMAL_COW;
@@ -368,13 +338,8 @@ inline void initLevel2()
 	cows[0].hasProduce = 0;
 	cows[0].isAlive = 1;
 
-
-	// ========================================================
 	// SHEEP
-	// ========================================================
-
 	sheepCount = 1;
-
 	sheep[0].x = 610;
 	sheep[0].y = 230;
 	sheep[0].type = ANIMAL_SHEEP;
@@ -386,46 +351,80 @@ inline void initLevel2()
 
 
 // ============================================================
-// RENDER ANIMAL
+// TWO-PASS ANIMAL RENDERING SYSTEM (DEPTH SORTED)
 // ============================================================
 
-inline void renderAnimal(struct Animal *a, const char* bmpPath)
+inline void renderAnimalSprite(struct Animal *a, const char* bmpPath)
 {
 	if (!a->isAlive)
 		return;
 
-	// Animal sprite
-	iShowBMP2(
-		a->x,
-		a->y,
-		(char*)bmpPath,
-		0
-		);
+	iShowBMP2(a->x, a->y, (char*)bmpPath, 0);
+}
 
-	// Badge position
+inline void renderAnimalBadge(struct Animal *a)
+{
+	if (!a->isAlive)
+		return;
+
 	int badgeX = a->x + 14;
 	int badgeY = a->y + 52;
 
-	// Produce available
 	if (a->hasProduce)
 	{
-		iShowBMP2(
-			badgeX,
-			badgeY,
-			(char*)"assets/green.bmp",
-			0
-			);
+		iShowBMP2(badgeX, badgeY, (char*)"assets/green.bmp", 0);
 	}
-
-	// Animal needs feeding
 	else if (a->fedState == 0)
 	{
-		iShowBMP2(
-			badgeX,
-			badgeY,
-			(char*)"assets/red.bmp",
-			0
-			);
+		iShowBMP2(badgeX, badgeY, (char*)"assets/red.bmp", 0);
+	}
+}
+
+// Backward compatible single render call
+inline void renderAnimal(struct Animal *a, const char* bmpPath)
+{
+	renderAnimalSprite(a, bmpPath);
+	renderAnimalBadge(a);
+}
+
+// Render array of animals sorted by Y descending with two passes
+inline void renderAnimalArray(struct Animal *animals, int count, const char* bmpPath)
+{
+	struct Animal* sorted[MAX_ANIMALS_PER_TYPE];
+	int aliveCount = 0;
+
+	for (int i = 0; i < count; i++)
+	{
+		if (animals[i].isAlive)
+		{
+			sorted[aliveCount++] = &animals[i];
+		}
+	}
+
+	// Y-Sort descending (highest Y further back drawn first, lowest Y in front drawn last)
+	for (int i = 0; i < aliveCount - 1; i++)
+	{
+		for (int j = i + 1; j < aliveCount; j++)
+		{
+			if (sorted[i]->y < sorted[j]->y)
+			{
+				struct Animal* temp = sorted[i];
+				sorted[i] = sorted[j];
+				sorted[j] = temp;
+			}
+		}
+	}
+
+	// Pass 1: Render all animal body sprites back-to-front
+	for (int i = 0; i < aliveCount; i++)
+	{
+		renderAnimalSprite(sorted[i], bmpPath);
+	}
+
+	// Pass 2: Render all badges on top of all animal body sprites
+	for (int i = 0; i < aliveCount; i++)
+	{
+		renderAnimalBadge(sorted[i]);
 	}
 }
 
@@ -436,17 +435,14 @@ inline void renderAnimal(struct Animal *a, const char* bmpPath)
 
 inline void drawRanchMarketUI()
 {
-	// Main window
 	iSetColor(50, 28, 14);
 	iFilledRectangle(100, 70, 600, 440);
 
 	iSetColor(140, 95, 45);
 	iRectangle(100, 70, 600, 440);
 
-	// Header BMP Banner
 	iShowBMPAlternative2(280, 455, (char*)"assets/market.bmp", 0xFFFFFF);
 
-	// Gold Icon & Current Gold Balance (Shifted left)
 	iShowBMPAlternative2(150, 410, (char*)"assets/gold.bmp", 0xFFFFFF);
 	char goldBuf[64];
 	sprintf_s(goldBuf, sizeof(goldBuf), "$%d", playerGold);
@@ -455,241 +451,74 @@ inline void drawRanchMarketUI()
 
 	char buf[64];
 
-	// ========================================================
 	// SELL EGGS
-	// ========================================================
-
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"Eggs: %d (Sell $%d)",
-		countEgg,
-		eggSellPrice
-		);
-
+	sprintf_s(buf, sizeof(buf), "Eggs: %d (Sell $%d)", countEgg, eggSellPrice);
 	iSetColor(255, 255, 255);
-	iText(
-		130,
-		360,
-		buf,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(130, 360, buf, GLUT_BITMAP_HELVETICA_12);
 	iSetColor(45, 130, 55);
 	iFilledRectangle(320, 355, 65, 22);
-
 	iSetColor(255, 255, 255);
-	iText(
-		332,
-		361,
-		(char*)"SELL",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(332, 361, (char*)"SELL", GLUT_BITMAP_HELVETICA_12);
 
-
-	// ========================================================
 	// SELL MILK
-	// ========================================================
-
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"Milk: %d (Sell $%d)",
-		countMilk,
-		milkSellPrice
-		);
-
+	sprintf_s(buf, sizeof(buf), "Milk: %d (Sell $%d)", countMilk, milkSellPrice);
 	iSetColor(255, 255, 255);
-	iText(
-		130,
-		310,
-		buf,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(130, 310, buf, GLUT_BITMAP_HELVETICA_12);
 	iSetColor(45, 130, 55);
 	iFilledRectangle(320, 305, 65, 22);
-
 	iSetColor(255, 255, 255);
-	iText(
-		332,
-		311,
-		(char*)"SELL",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(332, 311, (char*)"SELL", GLUT_BITMAP_HELVETICA_12);
 
-
-	// ========================================================
 	// SELL WOOL
-	// ========================================================
-
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"Wool: %d (Sell $%d)",
-		countWool,
-		woolSellPrice
-		);
-
+	sprintf_s(buf, sizeof(buf), "Wool: %d (Sell $%d)", countWool, woolSellPrice);
 	iSetColor(255, 255, 255);
-	iText(
-		130,
-		260,
-		buf,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(130, 260, buf, GLUT_BITMAP_HELVETICA_12);
 	iSetColor(45, 130, 55);
 	iFilledRectangle(320, 255, 65, 22);
-
 	iSetColor(255, 255, 255);
-	iText(
-		332,
-		261,
-		(char*)"SELL",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(332, 261, (char*)"SELL", GLUT_BITMAP_HELVETICA_12);
 
-
-	// ========================================================
 	// BUY FEED
-	// ========================================================
-
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"Animal Feed: %d ($%d)",
-		countFeed,
-		feedBuyPrice
-		);
-
+	sprintf_s(buf, sizeof(buf), "Animal Feed: %d ($%d)", countFeed, feedBuyPrice);
 	iSetColor(255, 255, 255);
-	iText(
-		420,
-		360,
-		buf,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(420, 360, buf, GLUT_BITMAP_HELVETICA_12);
 	iSetColor(35, 105, 175);
 	iFilledRectangle(610, 355, 65, 22);
-
 	iSetColor(255, 255, 255);
-	iText(
-		622,
-		361,
-		(char*)"BUY",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(622, 361, (char*)"BUY", GLUT_BITMAP_HELVETICA_12);
 
-
-	// ========================================================
 	// BUY HEN
-	// ========================================================
-
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"Buy Hen ($%d)",
-		henBuyPrice
-		);
-
+	sprintf_s(buf, sizeof(buf), "Buy Hen ($%d)", henBuyPrice);
 	iSetColor(255, 255, 255);
-	iText(
-		420,
-		310,
-		buf,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(420, 310, buf, GLUT_BITMAP_HELVETICA_12);
 	iSetColor(35, 105, 175);
 	iFilledRectangle(610, 305, 65, 22);
-
 	iSetColor(255, 255, 255);
-	iText(
-		622,
-		311,
-		(char*)"BUY",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(622, 311, (char*)"BUY", GLUT_BITMAP_HELVETICA_12);
 
-
-	// ========================================================
 	// BUY COW
-	// ========================================================
-
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"Buy Cow ($%d)",
-		cowBuyPrice
-		);
-
+	sprintf_s(buf, sizeof(buf), "Buy Cow ($%d)", cowBuyPrice);
 	iSetColor(255, 255, 255);
-	iText(
-		420,
-		260,
-		buf,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(420, 260, buf, GLUT_BITMAP_HELVETICA_12);
 	iSetColor(35, 105, 175);
 	iFilledRectangle(610, 255, 65, 22);
-
 	iSetColor(255, 255, 255);
-	iText(
-		622,
-		261,
-		(char*)"BUY",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(622, 261, (char*)"BUY", GLUT_BITMAP_HELVETICA_12);
 
-
-	// ========================================================
 	// BUY SHEEP
-	// ========================================================
-
-	sprintf_s(
-		buf,
-		sizeof(buf),
-		"Buy Sheep ($%d)",
-		sheepBuyPrice
-		);
-
+	sprintf_s(buf, sizeof(buf), "Buy Sheep ($%d)", sheepBuyPrice);
 	iSetColor(255, 255, 255);
-	iText(
-		420,
-		210,
-		buf,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(420, 210, buf, GLUT_BITMAP_HELVETICA_12);
 	iSetColor(35, 105, 175);
 	iFilledRectangle(610, 205, 65, 22);
-
 	iSetColor(255, 255, 255);
-	iText(
-		622,
-		211,
-		(char*)"BUY",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(622, 211, (char*)"BUY", GLUT_BITMAP_HELVETICA_12);
 
-
-	// ========================================================
 	// CLOSE BUTTON
-	// ========================================================
-
 	iSetColor(160, 40, 40);
 	iFilledRectangle(600, 90, 80, 30);
-
 	iSetColor(255, 255, 255);
-	iText(
-		618,
-		100,
-		(char*)"CLOSE",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iText(618, 100, (char*)"CLOSE", GLUT_BITMAP_HELVETICA_12);
 }
 
 
@@ -702,65 +531,28 @@ inline void drawLevel2()
 	iSetColor(255, 255, 255);
 
 	// Background
-	iShowBMPAlternative(
-		0,
-		0,
-		(char*)"assets/level2_bg.bmp"
-		);
-
+	iShowBMPAlternative(0, 0, (char*)"assets/level2_bg.bmp");
 
 	// ========================================================
-	// DRAW ANIMALS
+	// DRAW ANIMALS (SORTED & TWO-PASS)
 	// ========================================================
 
-	for (int i = 0; i < henCount; i++)
-	{
-		renderAnimal(
-			&hens[i],
-			"assets/hen.bmp"
-			);
-	}
-
-	for (int i = 0; i < cowCount; i++)
-	{
-		renderAnimal(
-			&cows[i],
-			"assets/cow.bmp"
-			);
-	}
-
-	for (int i = 0; i < sheepCount; i++)
-	{
-		renderAnimal(
-			&sheep[i],
-			"assets/sheep.bmp"
-			);
-	}
-
+	renderAnimalArray(hens, henCount, "assets/hen.bmp");
+	renderAnimalArray(cows, cowCount, "assets/cow.bmp");
+	renderAnimalArray(sheep, sheepCount, "assets/sheep.bmp");
 
 	// ========================================================
-	// DRAW RANCHMAN (DYNAMIC ROTATION SPRITE)
+	// DRAW RANCHMAN
 	// ========================================================
 
 	if (ranchmanFacing == 0)
 	{
-		iShowBMP2(
-			ranchmanX,
-			ranchmanY,
-			(char*)"assets/farmman1.bmp",
-			0
-			);
+		iShowBMP2(ranchmanX, ranchmanY, (char*)"assets/farmman1.bmp", 0);
 	}
 	else
 	{
-		iShowBMP2(
-			ranchmanX,
-			ranchmanY,
-			(char*)"assets/farmman2.bmp",
-			0
-			);
+		iShowBMP2(ranchmanX, ranchmanY, (char*)"assets/farmman2.bmp", 0);
 	}
-
 
 	// ========================================================
 	// UPPER RIGHT TOOLBAR
@@ -772,29 +564,15 @@ inline void drawLevel2()
 	iSetColor(140, 95, 45);
 	iRectangle(538, 480, 246, 46);
 
-
 	// FEED BUTTON
 	if (selectedRanchTool == 1)
 		iSetColor(45, 160, 55);
 	else
 		iSetColor(120, 100, 80);
 
-	iFilledRectangle(
-		543,
-		485,
-		112,
-		36
-		);
-
+	iFilledRectangle(543, 485, 112, 36);
 	iSetColor(255, 255, 255);
-
-	iText(
-		560,
-		498,
-		(char*)"FEED ANIMAL",
-		GLUT_BITMAP_HELVETICA_10
-		);
-
+	iText(560, 498, (char*)"FEED ANIMAL", GLUT_BITMAP_HELVETICA_10);
 
 	// COLLECT BUTTON
 	if (selectedRanchTool == 2)
@@ -802,160 +580,54 @@ inline void drawLevel2()
 	else
 		iSetColor(120, 100, 80);
 
-	iFilledRectangle(
-		667,
-		485,
-		112,
-		36
-		);
-
+	iFilledRectangle(667, 485, 112, 36);
 	iSetColor(255, 255, 255);
-
-	iText(
-		695,
-		498,
-		(char*)"COLLECT",
-		GLUT_BITMAP_HELVETICA_10
-		);
-
+	iText(695, 498, (char*)"COLLECT", GLUT_BITMAP_HELVETICA_10);
 
 	// ========================================================
 	// TOP HUD
 	// ========================================================
 
 	iSetColor(40, 40, 40);
-	iFilledRectangle(
-		0,
-		540,
-		800,
-		60
-		);
-
+	iFilledRectangle(0, 540, 800, 60);
 
 	// Gold
 	iSetColor(255, 215, 0);
-
 	char hudStr[64];
-
-	sprintf_s(
-		hudStr,
-		sizeof(hudStr),
-		"Gold: $%d",
-		playerGold
-		);
-
-	iText(
-		10,
-		562,
-		hudStr,
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	sprintf_s(hudStr, sizeof(hudStr), "Gold: $%d", playerGold);
+	iText(10, 562, hudStr, GLUT_BITMAP_HELVETICA_12);
 
 	// Inventory
 	iSetColor(255, 255, 255);
-
-	sprintf_s(
-		hudStr,
-		sizeof(hudStr),
-		"Feed: %d | Eggs: %d | Milk: %d | Wool: %d",
-		countFeed,
-		countEgg,
-		countMilk,
-		countWool
-		);
-
-	iText(
-		110,
-		562,
-		hudStr,
-		GLUT_BITMAP_HELVETICA_10
-		);
+	sprintf_s(hudStr, sizeof(hudStr), "Feed: %d | Eggs: %d | Milk: %d | Wool: %d",
+		countFeed, countEgg, countMilk, countWool);
+	iText(110, 562, hudStr, GLUT_BITMAP_HELVETICA_10);
 
 	// SAVE BUTTON
-	iSetColor(240, 140, 30); // Orange background
-	iFilledRectangle(
-		320,
-		552,
-		100,
-		34
-		);
-
-	iSetColor(255, 255, 255); // White border
-	iRectangle(
-		320,
-		552,
-		100,
-		34
-		);
-
-	iSetColor(0, 0, 0); // Black text
-	iText(
-		355,
-		564,
-		(char*)"SAVE",
-		GLUT_BITMAP_HELVETICA_12
-		);
+	iSetColor(240, 140, 30);
+	iFilledRectangle(320, 552, 100, 34);
+	iSetColor(255, 255, 255);
+	iRectangle(320, 552, 100, 34);
+	iSetColor(0, 0, 0);
+	iText(355, 564, (char*)"SAVE", GLUT_BITMAP_HELVETICA_12);
 
 	// MARKET
 	iSetColor(45, 130, 180);
-
-	iFilledRectangle(
-		430,
-		552,
-		100,
-		34
-		);
-
+	iFilledRectangle(430, 552, 100, 34);
 	iSetColor(255, 255, 255);
-
-	iText(
-		452,
-		564,
-		(char*)"MARKET",
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(452, 564, (char*)"MARKET", GLUT_BITMAP_HELVETICA_12);
 
 	// BACK TO TOWN
 	iSetColor(40, 160, 120);
-
-	iFilledRectangle(
-		545,
-		552,
-		110,
-		34
-		);
-
+	iFilledRectangle(545, 552, 110, 34);
 	iSetColor(255, 255, 255);
-
-	iText(
-		557,
-		564,
-		(char*)"Back to Town",
-		GLUT_BITMAP_HELVETICA_10
-		);
-
+	iText(557, 564, (char*)"Back to Town", GLUT_BITMAP_HELVETICA_10);
 
 	// MENU
 	iSetColor(170, 45, 45);
-
-	iFilledRectangle(
-		670,
-		552,
-		110,
-		34
-		);
-
+	iFilledRectangle(670, 552, 110, 34);
 	iSetColor(255, 255, 255);
-
-	iText(
-		705,
-		564,
-		(char*)"MENU",
-		GLUT_BITMAP_HELVETICA_12
-		);
-
+	iText(705, 564, (char*)"MENU", GLUT_BITMAP_HELVETICA_12);
 
 	// ========================================================
 	// COLLECTION TIMER
@@ -964,13 +636,7 @@ inline void drawLevel2()
 	if (ranchCollectionTimerRunning || hasAnyRanchProduce() || ranchLevelCompleted)
 	{
 		char timerText[64];
-
-		sprintf_s(
-			timerText,
-			sizeof(timerText),
-			"Collect Time: %02d",
-			ranchCollectionTimer
-			);
+		sprintf_s(timerText, sizeof(timerText), "Collect Time: %02d", ranchCollectionTimer);
 
 		if (ranchLevelCompleted)
 			iSetColor(45, 160, 55);
@@ -978,14 +644,8 @@ inline void drawLevel2()
 			iSetColor(220, 45, 45);
 
 		iFilledRectangle(20, 495, 170, 30);
-
 		iSetColor(255, 255, 255);
-		iText(
-			35,
-			505,
-			timerText,
-			GLUT_BITMAP_HELVETICA_12
-			);
+		iText(35, 505, timerText, GLUT_BITMAP_HELVETICA_12);
 	}
 
 	// ========================================================
@@ -995,21 +655,9 @@ inline void drawLevel2()
 	if (!ranchLevelCompleted)
 	{
 		char goalText[64];
-
-		sprintf_s(
-			goalText,
-			sizeof(goalText),
-			"Goal: $200   Current: $%d",
-			playerGold
-			);
-
+		sprintf_s(goalText, sizeof(goalText), "Goal: $200   Current: $%d", playerGold);
 		iSetColor(255, 255, 255);
-		iText(
-			250,
-			525,
-			goalText,
-			GLUT_BITMAP_HELVETICA_12
-			);
+		iText(250, 525, goalText, GLUT_BITMAP_HELVETICA_12);
 	}
 
 	// ========================================================
@@ -1020,55 +668,28 @@ inline void drawLevel2()
 	{
 		iSetColor(55, 30, 20);
 		iFilledRectangle(220, 230, 360, 130);
-
 		iSetColor(255, 255, 255);
 		iRectangle(220, 230, 360, 130);
-
 		iSetColor(255, 220, 120);
-		iText(
-			320,
-			315,
-			(char*)"Failed to collect!",
-			GLUT_BITMAP_HELVETICA_18
-			);
-
+		iText(320, 315, (char*)"Failed to collect!", GLUT_BITMAP_HELVETICA_18);
 		iSetColor(255, 255, 255);
-		iText(
-			275,
-			280,
-			(char*)"The animals are hungry again.",
-			GLUT_BITMAP_HELVETICA_12
-			);
+		iText(275, 280, (char*)"The animals are hungry again.", GLUT_BITMAP_HELVETICA_12);
 	}
 
-
 	// ========================================================
-	// LEVEL COMPLETE MESSAGE (Temporary Pop-up)
+	// LEVEL COMPLETE MESSAGE
 	// ========================================================
 
 	if (ranchCompleteMessageTimer > 0)
 	{
 		iSetColor(35, 90, 40);
 		iFilledRectangle(200, 220, 400, 150);
-
 		iSetColor(255, 255, 255);
 		iRectangle(200, 220, 400, 150);
-
 		iSetColor(255, 215, 0);
-		iText(
-			315,
-			310,
-			(char*)"LEVEL 2 COMPLETE!",
-			GLUT_BITMAP_HELVETICA_18
-			);
-
+		iText(315, 310, (char*)"LEVEL 2 COMPLETE!", GLUT_BITMAP_HELVETICA_18);
 		iSetColor(255, 255, 255);
-		iText(
-			280,
-			275,
-			(char*)"You reached 200 gold!",
-			GLUT_BITMAP_HELVETICA_12
-			);
+		iText(280, 275, (char*)"You reached 200 gold!", GLUT_BITMAP_HELVETICA_12);
 	}
 
 	// ========================================================
