@@ -78,6 +78,7 @@ int level3Unlocked = 0;
 
 int ranchmanX = 400;
 int ranchmanY = 30;
+int ranchmanFacing = 0; // 0 = Facing Right (fireman1.bmp), 1 = Facing Left (fireman2.bmp)
 int ranchCollectionTimer = 30;
 bool ranchCollectionTimerRunning = false;
 
@@ -430,6 +431,11 @@ void resetGameData()
 	playerY = 270;
 	playerFacing = 0; // Reset facing right
 	showDialogue = 0;
+
+	// Reset Level 2 Player Position & Facing Direction
+	ranchmanX = 400;
+	ranchmanY = 30;
+	ranchmanFacing = 0; // Reset facing right
 
 	// Global / General Currency & Inventory
 	playerGold = 0;

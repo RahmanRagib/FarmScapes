@@ -28,6 +28,7 @@ extern int isRanchMarketOpen;
 
 extern int ranchmanX;
 extern int ranchmanY;
+extern int ranchmanFacing;         // 0 = Facing Right (fireman1.bmp), 1 = Facing Left (fireman2.bmp)
 
 extern int ranchCollectionTimer;
 extern bool ranchCollectionTimerRunning;
@@ -78,6 +79,12 @@ inline void moveRanchMan(int dx, int dy)
 {
 	int newX = ranchmanX + dx;
 	int newY = ranchmanY + dy;
+
+	// Track direction facing
+	if (dx > 0)
+		ranchmanFacing = 0; // Facing Right
+	else if (dx < 0)
+		ranchmanFacing = 1; // Facing Left
 
 	// Horizontal movement
 	if (isValidRoad(newX))
@@ -287,6 +294,7 @@ inline void initLevel2()
 {
 	ranchmanX = 400;
 	ranchmanY = 30;
+	ranchmanFacing = 0;
 
 	ranchCollectionTimer = 30;
 	ranchCollectionTimerRunning = false;
@@ -314,10 +322,6 @@ inline void initLevel2()
 	henBuyPrice = 30;
 	cowBuyPrice = 100;
 	sheepBuyPrice = 70;
-
-	// Ranchman starting position
-	ranchmanX = 400;
-	ranchmanY = 30;
 
 	// Reset all animals
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
@@ -735,15 +739,27 @@ inline void drawLevel2()
 
 
 	// ========================================================
-	// DRAW RANCHMAN
+	// DRAW RANCHMAN (DYNAMIC ROTATION SPRITE)
 	// ========================================================
 
-	iShowBMP2(
-		ranchmanX,
-		ranchmanY,
-		(char*)"assets/farmman1.bmp",
-		0
-		);
+	if (ranchmanFacing == 0)
+	{
+		iShowBMP2(
+			ranchmanX,
+			ranchmanY,
+			(char*)"assets/farmman1.bmp",
+			0
+			);
+	}
+	else
+	{
+		iShowBMP2(
+			ranchmanX,
+			ranchmanY,
+			(char*)"assets/farmman2.bmp",
+			0
+			);
+	}
 
 
 	// ========================================================
@@ -855,6 +871,7 @@ inline void drawLevel2()
 		hudStr,
 		GLUT_BITMAP_HELVETICA_10
 		);
+
 	// SAVE BUTTON
 	iSetColor(240, 140, 30); // Orange background
 	iFilledRectangle(
@@ -1023,7 +1040,6 @@ inline void drawLevel2()
 			GLUT_BITMAP_HELVETICA_12
 			);
 	}
-
 
 
 	// ========================================================
