@@ -230,6 +230,7 @@ int isWithinBounds(int x, int y)
 void updatePlayer()
 {
 }
+
 void iDraw()
 {
 	iClear();
@@ -423,6 +424,7 @@ void iDraw()
 	else if (gameState == STATE_CREDITS)
 		drawCredits();
 }
+
 void resetGameData()
 {
 	// Global / General Currency & Inventory
@@ -1156,40 +1158,42 @@ void iMouse(int button, int state, int mx, int my)
 					}
 				}
 			}
-		
-			 if (gameState == STATE_LEVEL_3)
-			{
-				if (my >= 550 && my <= 590)
-				{
-					if (mx >= 320 && mx <= 420)
-					{
-						saveGameProgress(currentSaveSlot);
-						return;
-					}
-					else if (mx >= 430 && mx <= 530)
-					{
-						isFishMarketOpen = !isFishMarketOpen;
-						return;
-					}
-					else if (mx >= 545 && mx <= 655)
-					{
-						gameState = STATE_TOWN;
-						return;
-					}
-					else if (mx >= 670 && mx <= 780)
-					{
-						gameState = STATE_MENU;
-						return;
-					}
-				}
+		}
 
-				handleLevel3MouseClick(mx, my);
-				return;
+		// ==========================================
+		// LEVEL 3
+		// ==========================================
+		else if (gameState == STATE_LEVEL_3)
+		{
+			if (my >= 550 && my <= 590)
+			{
+				if (mx >= 320 && mx <= 420)
+				{
+					saveGameProgress(currentSaveSlot);
+					return;
+				}
+				else if (mx >= 430 && mx <= 530)
+				{
+					isFishMarketOpen = !isFishMarketOpen;
+					return;
+				}
+				else if (mx >= 545 && mx <= 655)
+				{
+					gameState = STATE_TOWN;
+					return;
+				}
+				else if (mx >= 670 && mx <= 780)
+				{
+					gameState = STATE_MENU;
+					return;
+				}
 			}
+
+			handleLevel3MouseClick(mx, my);
+			return;
 		}
 	}
 }
-	
 
 void iMouseMove(int mx, int my) {}
 void iPassiveMouseMove(int mx, int my) {}
@@ -1234,10 +1238,6 @@ void updateRanchTimer()
 		if (ranchCompleteMessageTimer <= 0) { ranchCompleteMessageTimer = 0; }
 	}
 }
-
-// ============================================================
-// CONTINUOUS GAME LOOP
-// ============================================================
 
 // ============================================================
 // CONTINUOUS GAME LOOP
