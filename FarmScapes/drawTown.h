@@ -1,4 +1,4 @@
-#ifndef DRAW_TOWN_H
+﻿#ifndef DRAW_TOWN_H
 #define DRAW_TOWN_H
 
 #include "iGraphics.h"
@@ -11,48 +11,38 @@ extern int showDialogue;
 extern char dialogueText[200];
 extern char npcName[50];
 
-// 1. COLLISION LOGIC FOR DIRT PATHS
+// ============================================================
+// 1. COLLISION LOGIC PRECISELY MATCHING DIRT PATHS & INTERACTION ZONES
+// ============================================================
 int canWalk(int newX, int newY) {
-	// Player footprint center estimation
+	// Player footprint center estimation (48x48 sprite)
 	int px = newX + 24;
 	int py = newY + 8;
 
-	// --- MAIN VERTICAL SPINES ---
-	// Central North-South Main Dirt Path
-	if (px >= 360 && px <= 400 && py >= 90 && py <= 510) return 1;
+	// --- MAIN HORIZONTAL DIRT ROAD (WEST TO EAST) ---
+	if (px >= 10 && px <= 790 && py >= 270 && py <= 330) return 1;
 
-	// --- HORIZONTAL PATH SEGMENTS ---
-	// Top Path leading to Hut
-	if (px >= 120 && px <= 360 && py >= 360 && py <= 390) return 1;
+	// --- SECTION 1: NADIRA'S HERBARY & CROPLANDS (TOP LEFT) ---
+	// Vertical Branch from Main Road to Herbary
+	if (px >= 140 && px <= 240 && py >= 320 && py <= 460) return 1;
 
-	// Upper Cross Path leading to Market & Nadira's Herbary (East)
-	if (px >= 350 && px <= 580 && py >= 360 && py <= 400) return 1;
+	// Horizontal path across crops & front door of Herbary
+	if (px >= 80 && px <= 260 && py >= 340 && py <= 400) return 1;
 
-	// Path leading directly to Nadira's Herbary door (Level 1)
-	if (px >= 500 && px <= 580 && py >= 330 && py <= 480) return 1;
+	// --- SECTION 2: RAGIB'S RANCH (BOTTOM MIDDLE) ---
+	// Vertical Branch going down into Ranch (Extended so player can reach Y = 160)
+	if (px >= 320 && px <= 460 && py >= 150 && py <= 280) return 1;
 
-	// Middle Cross Path leading to Ragib's Barn (East)
-	if (px >= 360 && px <= 580 && py >= 250 && py <= 320) return 1;
-
-	// Path leading directly to Ragib's Barn door (Level 2)
-	if (px >= 480 && px <= 580 && py >= 280 && py <= 360) return 1;
-
-	// Lower Path sweeping past Big Red/Purple Trees
-	if (px >= 180 && px <= 360 && py >= 60 && py <= 100) return 1;
-
-	// Bottom-Left Trail loop connecting bottom-left tree area
-	if (px >= 180 && px <= 240 && py >= 100 && py <= 140) return 1;
-
-	// Lower Right Path leading towards Anika's Boathouse
-	if (px >= 360 && px <= 600 && py >= 60 && py <= 110) return 1;
-
-	// Branch leading up/across to Anika's Boathouse door (Level 3)
-	if (px >= 550 && px <= 690 && py >= 80 && py <= 220) return 1;
+	// --- SECTION 3: ANIKA'S FISHING & POND (TOP RIGHT) ---
+	// Vertical Branch & area around Boathouse/Pier
+	if (px >= 550 && px <= 730 && py >= 320 && py <= 450) return 1;
 
 	return 0; // Block movement off-road
 }
 
+// ============================================================
 // 2. TOWN RENDERING
+// ============================================================
 void drawTown() {
 	// Render 800x600 scaled background
 	if (currentSeason == 0) iShowBMP(0, 0, "assets/town_summer_bg.bmp");
@@ -62,29 +52,28 @@ void drawTown() {
 	// Render 48x48 player (ignoring pure black background key 0)
 	iShowBMP2(playerX, playerY, "assets/farmman1.bmp", 0);
 
-	// --- PERMANENT LEVEL LABELS ABOVE BUILDINGS ---
-	iSetColor(255, 255, 255); // White label background box
+	// --- LEVEL LABELS MOVED HIGHER ABOVE BUILDINGS ---
 
-	// Level 1: Nadira's Herbary
+	// Level 1: Nadira's Herbary (Top-Left)
 	iSetColor(0, 0, 0);
-	iFilledRectangle(545, 485, 75, 20);
-	iSetColor(255, 215, 0); // Gold text
-	iRectangle(545, 485, 75, 20);
-	iText(553, 490, "LEVEL 1", GLUT_BITMAP_HELVETICA_12);
+	iFilledRectangle(125, 535, 80, 20);
+	iSetColor(255, 215, 0); // Gold border
+	iRectangle(125, 535, 80, 20);
+	iText(133, 540, "LEVEL 1", GLUT_BITMAP_HELVETICA_12);
 
-	// Level 2: Ragib's Barn
+	// Level 2: Ragib's Ranch (Bottom-Middle)
 	iSetColor(0, 0, 0);
-	iFilledRectangle(505, 345, 75, 20);
+	iFilledRectangle(360, 235, 80, 20);
 	iSetColor(255, 215, 0);
-	iRectangle(505, 345, 75, 20);
-	iText(513, 350, "LEVEL 2", GLUT_BITMAP_HELVETICA_12);
+	iRectangle(360, 235, 80, 20);
+	iText(368, 240, "LEVEL 2", GLUT_BITMAP_HELVETICA_12);
 
-	// Level 3: Anika's Boathouse
+	// Level 3: Anika's Fishing (Top-Right)
 	iSetColor(0, 0, 0);
-	iFilledRectangle(615, 200, 75, 20);
+	iFilledRectangle(610, 535, 80, 20);
 	iSetColor(255, 215, 0);
-	iRectangle(615, 200, 75, 20);
-	iText(625, 205, "LEVEL 3", GLUT_BITMAP_HELVETICA_12);
+	iRectangle(610, 535, 80, 20);
+	iText(618, 540, "LEVEL 3", GLUT_BITMAP_HELVETICA_12);
 
 	// --- BOTTOM RIGHT: RETURN TO MENU BUTTON ---
 	iSetColor(180, 50, 50);
@@ -96,18 +85,18 @@ void drawTown() {
 
 	// --- INTERACTION PROMPTS ("PRESS E") ---
 	if (!showDialogue) {
-		// Doorway of Nadira's Herbary (Level 1)
-		if (playerX >= 480 && playerX <= 570 && playerY >= 370 && playerY <= 460) {
+		// Nadira (Top-Left)
+		if (playerX >= 120 && playerX <= 240 && playerY >= 340 && playerY <= 450) {
 			iSetColor(255, 255, 0);
 			iText(playerX - 20, playerY + 52, "[E] Talk to Nadira", GLUT_BITMAP_HELVETICA_12);
 		}
-		// Doorway of Ragib's Barn (Level 2)
-		else if (playerX >= 450 && playerX <= 550 && playerY >= 240 && playerY <= 330) {
+		// Ragib (Bottom-Middle)
+		else if (playerX >= 320 && playerX <= 460 && playerY >= 150 && playerY <= 260) {
 			iSetColor(255, 255, 0);
 			iText(playerX - 20, playerY + 52, "[E] Talk to Ragib", GLUT_BITMAP_HELVETICA_12);
 		}
-		// Doorway of Anika's Boathouse (Level 3)
-		else if (playerX >= 530 && playerX <= 670 && playerY >= 80 && playerY <= 180) {
+		// Anika (Top-Right)
+		else if (playerX >= 550 && playerX <= 720 && playerY >= 320 && playerY <= 440) {
 			iSetColor(255, 255, 0);
 			iText(playerX - 20, playerY + 52, "[E] Talk to Anika", GLUT_BITMAP_HELVETICA_12);
 		}
@@ -137,7 +126,7 @@ void drawTown() {
 		iText(190, 75, dialogueText, GLUT_BITMAP_HELVETICA_12);
 
 		iSetColor(180, 180, 180);
-		iText(560, 42, "[Press E to Close]", GLUT_BITMAP_HELVETICA_10);
+		iText(560, 42, "[Press E to Continue]", GLUT_BITMAP_HELVETICA_10);
 	}
 }
 
