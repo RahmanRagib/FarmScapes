@@ -389,11 +389,9 @@ void iDraw()
 		iSetColor(220, 20, 60); // Crimson / Red box fill
 		iFilledRectangle(230, 215, 320, 35); // Box-er X, Y, Width, Height
 
-		// Border dite chaile (Optional):
 		iSetColor(255, 255, 255);
 		iRectangle(230, 215, 320, 35);
 
-		// White Text inside the Red Box (Perfect Contrast)
 		iSetColor(255, 255, 255);
 		iText(240, 227, "All slots full! Delete a slot first.", GLUT_BITMAP_HELVETICA_12);
 	}
@@ -439,6 +437,8 @@ void resetGameData()
 	cropBerryCount = 0;
 	massPlowUnlocked = 0;
 	level2Unlocked = 0;
+	batchTimer = 0;
+	batchActive = 0;
 
 	// Farm Grid Reset
 	for (int r = 0; r < GRID_ROWS; r++)
@@ -569,7 +569,6 @@ void iMouse(int button, int state, int mx, int my)
 			{
 				noSaveFileWarning = 0;
 
-				// Bulletproof Serial Slot Assignment: 1 -> 2 -> 3 (Using exact save_slot_X.txt naming)
 				FILE *f1 = fopen("save_slot_1.txt", "r");
 				FILE *f2 = fopen("save_slot_2.txt", "r");
 				FILE *f3 = fopen("save_slot_3.txt", "r");
@@ -587,7 +586,6 @@ void iMouse(int button, int state, int mx, int my)
 					if (f3) fclose(f3);
 				}
 				else {
-					// Jodi 3 tai file thake, tokhoni shudhu slot menu-te jabe
 					if (f1) fclose(f1);
 					if (f2) fclose(f2);
 					if (f3) fclose(f3);
@@ -598,12 +596,10 @@ void iMouse(int button, int state, int mx, int my)
 					return;
 				}
 
-				// Clean up pointers safely if they were opened
 				if (f1) fclose(f1);
 				if (f2) fclose(f2);
 				if (f3) fclose(f3);
 
-				// Reset state, save to the found sequential slot, and go to Storyline directly!
 				resetGameData();
 				saveGameProgress(currentSaveSlot);
 				gameState = STATE_STORYLINE;
@@ -611,7 +607,6 @@ void iMouse(int button, int state, int mx, int my)
 			}
 			else if (mx >= 320 && mx <= 480 && my >= 300 && my <= 345)
 			{
-				// LOAD GAME: Check if ANY save file exists (Using exact save_slot_X.txt naming)
 				FILE *f1 = fopen("save_slot_1.txt", "r");
 				FILE *f2 = fopen("save_slot_2.txt", "r");
 				FILE *f3 = fopen("save_slot_3.txt", "r");
@@ -849,7 +844,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
-			// 4. Grid Interactions (Fixed for Rice, Tomato & Berry Planting)
+			// 4. Grid Interactions
 			for (int r = 0; r < GRID_ROWS; r++)
 			{
 				for (int c = 0; c < GRID_COLS; c++)
@@ -877,11 +872,8 @@ void iMouse(int button, int state, int mx, int my)
 									t->cropType = 0;
 									seedRice--;
 
-									// Timer jodi age theke active na thake, tokhoni 20 theke shuru hobe
-									if (!batchActive) {
-										batchTimer = 20;
-										batchActive = 1;
-									}
+									batchTimer = 20;
+									batchActive = 1;
 								}
 								else if (seedTomato > 0)
 								{
@@ -890,10 +882,8 @@ void iMouse(int button, int state, int mx, int my)
 									t->cropType = 1;
 									seedTomato--;
 
-									if (!batchActive) {
-										batchTimer = 20;
-										batchActive = 1;
-									}
+									batchTimer = 20;
+									batchActive = 1;
 								}
 								else if (seedBerry > 0)
 								{
@@ -902,10 +892,8 @@ void iMouse(int button, int state, int mx, int my)
 									t->cropType = 2;
 									seedBerry--;
 
-									if (!batchActive) {
-										batchTimer = 20;
-										batchActive = 1;
-									}
+									batchTimer = 20;
+									batchActive = 1;
 								}
 							}
 						}
@@ -917,9 +905,8 @@ void iMouse(int button, int state, int mx, int my)
 								t->growTimer = 0;
 							}
 						}
-						else if (selectedTool == 4)
+						else if (selectedTool == 4) // Harvest Tool
 						{
-							// Harvest based on specific crop type
 							if (t->state == CROP_READY || t->state == TOMATO_READY || t->state == BERRY_READY)
 							{
 								if (t->cropType == 0) cropRiceCount++;
@@ -928,6 +915,30 @@ void iMouse(int button, int state, int mx, int my)
 
 								t->state = CROP_EMPTY;
 								t->cropType = 0;
+
+								// Check if any active/growing crops remain on the farm grid
+								int activeCropsRemaining = 0;
+								for (int gr = 0; gr < GRID_ROWS; gr++)
+								{
+									for (int gc = 0; gc < GRID_COLS; gc++)
+									{
+										int st = farmGrid[gr][gc].state;
+										if (st == CROP_SEEDED || st == CROP_WATERED ||
+											st == CROP_READY || st == TOMATO_READY || st == BERRY_READY)
+										{
+											activeCropsRemaining = 1;
+											break;
+										}
+									}
+									if (activeCropsRemaining) break;
+								}
+
+								// Stop and reset timer if all active crops are gathered
+								if (!activeCropsRemaining)
+								{
+									batchActive = 0;
+									batchTimer = 0;
+								}
 							}
 						}
 					}
@@ -940,7 +951,7 @@ void iMouse(int button, int state, int mx, int my)
 		// ==========================================
 		else if (gameState == STATE_LEVEL_2)
 		{
-			// Top Navigation Bar clicks (Save, Market, Town, Menu)
+			// Top Navigation Bar clicks
 			if (my >= 550 && my <= 590)
 			{
 				if (mx >= 320 && mx <= 420) { saveGameProgress(currentSaveSlot); return; }
@@ -989,7 +1000,6 @@ void iMouse(int button, int state, int mx, int my)
 
 				if (mx >= 580 && mx <= 700)
 				{
-					// Buy Feed (Expanded hit box)
 					if (my >= 355 && my <= 405)
 					{
 						if (playerGold >= feedBuyPrice)
@@ -999,7 +1009,6 @@ void iMouse(int button, int state, int mx, int my)
 						}
 						return;
 					}
-					// Buy Hen
 					else if (my >= 305 && my <= 355)
 					{
 						if (playerGold >= henBuyPrice)
@@ -1020,7 +1029,6 @@ void iMouse(int button, int state, int mx, int my)
 						}
 						return;
 					}
-					// Buy Cow
 					else if (my >= 255 && my <= 305)
 					{
 						if (playerGold >= cowBuyPrice)
@@ -1041,7 +1049,6 @@ void iMouse(int button, int state, int mx, int my)
 						}
 						return;
 					}
-					// Buy Sheep
 					else if (my >= 195 && my <= 255)
 					{
 						if (playerGold >= sheepBuyPrice)
@@ -1066,7 +1073,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
-			// Bottom Toolbar Tool Selection (Feed Tool vs Collect Tool)
+			// Bottom Toolbar Tool Selection (Feed vs Collect Tool)
 			if (my >= 475 && my <= 535)
 			{
 				if (mx >= 530 && mx <= 660)
@@ -1081,7 +1088,7 @@ void iMouse(int button, int state, int mx, int my)
 				}
 			}
 
-			// Direct Animal Clicking Check (Timer Fixed to 30s + Jump Prevention Guard)
+			// Direct Animal Clicking
 			// 1. Hens
 			for (int i = 0; i < henCount; i++)
 			{
@@ -1093,7 +1100,7 @@ void iMouse(int button, int state, int mx, int my)
 						hens[i].fedState = 1;
 
 						if (!isRanchTimerActive) {
-							ranchTimer = 30; // 30 seconds timer
+							ranchTimer = 30;
 							isRanchTimerActive = 1;
 						}
 						return;
@@ -1366,7 +1373,7 @@ void iKeyboard(unsigned char key)
 	// --- STATE: SETTINGS ---
 	if (gameState == STATE_SETTING)
 	{
-		if (key == 27 || key == 8 || key == 'b' || key == 'B') // ESC, Backspace, or 'b'
+		if (key == 27 || key == 8 || key == 'b' || key == 'B')
 		{
 			gameState = STATE_MENU;
 		}
@@ -1383,7 +1390,6 @@ void iKeyboard(unsigned char key)
 	// --- STATE: TOWN ---
 	if (gameState == STATE_TOWN)
 	{
-		// Press ESC to return to Menu
 		if (key == 27)
 		{
 			gameState = STATE_MENU;
@@ -1436,7 +1442,7 @@ void iSpecialKeyboard(unsigned char key)
 	// --- TOWN MOVEMENT WITH COLLISION CHECKING ---
 	if (gameState == STATE_TOWN)
 	{
-		int step = 10; // Movement speed in pixels
+		int step = 10;
 
 		if (key == GLUT_KEY_LEFT)
 		{
@@ -1540,10 +1546,8 @@ int main()
 	iSetTimer(33, gameTimerTick);
 	iSetTimer(20, iAnim);
 
-	// MUST BE CALLED BEFORE LOADING ANY IMAGES
 	iInitialize(SCREEN_WIDTH, SCREEN_HEIGHT, "FarmScapes - 2D Farming Simulator");
 
-	// Load images ONLY AFTER iInitialize creates the OpenGL window
 	slotMenuBgImage = iLoadImage("assets/loadscreen.bmp");
 	initStorylineAssets();
 	printf("DEBUG: Loaded slotMenuBgImage ID = %d\n", slotMenuBgImage);
