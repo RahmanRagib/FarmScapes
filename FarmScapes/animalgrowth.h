@@ -46,10 +46,6 @@ inline void updateAnimalGrowth() {
 				hens[i].hasProduce = 1;
 				hens[i].fedState = 0;
 				hens[i].produceTimer = 0;
-
-				// Trigger 30-second collection timer
-				ranchCollectionTimer = 30;
-				ranchCollectionTimerRunning = true;
 			}
 		}
 	}
@@ -62,10 +58,6 @@ inline void updateAnimalGrowth() {
 				cows[i].hasProduce = 1;
 				cows[i].fedState = 0;
 				cows[i].produceTimer = 0;
-
-				// Trigger 30-second collection timer
-				ranchCollectionTimer = 30;
-				ranchCollectionTimerRunning = true;
 			}
 		}
 	}
@@ -78,10 +70,6 @@ inline void updateAnimalGrowth() {
 				sheep[i].hasProduce = 1;
 				sheep[i].fedState = 0;
 				sheep[i].produceTimer = 0;
-
-				// Trigger 30-second collection timer
-				ranchCollectionTimer = 30;
-				ranchCollectionTimerRunning = true;
 			}
 		}
 	}
