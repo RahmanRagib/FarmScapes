@@ -372,12 +372,6 @@ void iDraw()
 		iSetColor(255, 215, 100);
 		iText(330, 275, slotText, GLUT_BITMAP_HELVETICA_12);
 
-		// --- 3 SLOTS FULL WARNING MESSAGE ---
-		if (slotFullWarning == 1) {
-			iSetColor(255, 0, 0); // Red color for warning
-			iText(210, 225, "WARNING: All 3 slots are full! Delete one.", GLUT_BITMAP_HELVETICA_12);
-			iSetColor(255, 255, 255); // Reset color
-		}
 
 		// BACK BUTTON
 		iSetColor(140, 75, 30);
@@ -389,6 +383,18 @@ void iDraw()
 		iText(386, 186, "BACK", GLUT_BITMAP_HELVETICA_12);
 		iSetColor(255, 215, 100);
 		iText(385, 185, "BACK", GLUT_BITMAP_HELVETICA_12);
+	}
+	if (slotFullWarning == 1) {
+		iSetColor(220, 20, 60); // Crimson / Red box fill
+		iFilledRectangle(230, 215, 320, 35); // Box-er X, Y, Width, Height
+
+		// Border dite chaile (Optional):
+		iSetColor(255, 255, 255);
+		iRectangle(230, 215, 320, 35);
+
+		// White Text inside the Red Box (Perfect Contrast)
+		iSetColor(255, 255, 255);
+		iText(240, 227, "All slots full! Delete a slot first.", GLUT_BITMAP_HELVETICA_12);
 	}
 	else if (gameState == STATE_LOADING)
 		drawLoading();
@@ -584,7 +590,7 @@ void iMouse(int button, int state, int mx, int my)
 					if (f3) fclose(f3);
 
 					slotFullWarning = 1;
-					slotActionMode = 1;
+					slotActionMode = 3;
 					gameState = STATE_SLOT_MENU;
 					return;
 				}
