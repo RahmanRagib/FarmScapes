@@ -63,7 +63,7 @@ int noSaveFileWarning = 0;
 int playerX = 360;
 int playerY = 270;
 int playerSpeed = 8;
-int playerFacing = 0; // 0 = Facing Right (farmman1.bmp), 1 = Facing Left (farmman2.bmp)
+int playerFacing = 0; // 0 = Facing Right, 1 = Facing Left
 
 int currentSeason = 0;
 int seasonTimer = 40;
@@ -81,7 +81,7 @@ int level3Unlocked = 0;
 
 int ranchmanX = 400;
 int ranchmanY = 30;
-int ranchmanFacing = 0; // 0 = Facing Right (fireman1.bmp), 1 = Facing Left (fireman2.bmp)
+int ranchmanFacing = 0;
 int ranchCollectionTimer = 30;
 bool ranchCollectionTimerRunning = false;
 
@@ -90,6 +90,13 @@ int ranchFailedMessageTimer = 0;
 
 bool ranchLevelCompleted = false;
 int ranchCompleteMessageTimer = 0;
+
+// ============================================================
+// CURRENCY & LEVEL 3 BAIT SYSTEM
+// ============================================================
+
+int playerGold = 0;
+int playerBait = 20; // Starting bait count for Level 3
 
 // ============================================================
 // INCLUDE GAME HEADERS
@@ -114,12 +121,6 @@ int ranchCompleteMessageTimer = 0;
 #include "drawlevel3.h"
 #include "saveSystem.h"
 #include "storyline.h"
-
-// ============================================================
-// LEVEL 2 GOLD
-// ============================================================
-
-int playerGold = 0;
 
 // ============================================================
 // ANIMAL VARIABLES
@@ -247,7 +248,6 @@ void iDraw()
 		drawMenu();
 	else if (gameState == STATE_PLAY_CHOICE)
 	{
-		// 1. Draw Background Image
 		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
@@ -274,18 +274,16 @@ void iDraw()
 		iText(368, 316, "LOAD GAME", GLUT_BITMAP_HELVETICA_12);
 		if (noSaveFileWarning)
 		{
-			// Background color
 			iSetColor(180, 40, 40);
 			iFilledRectangle(250, 120, 320, 45);
 
-			// Border color
 			iSetColor(255, 255, 255);
 			iRectangle(250, 120, 320, 45);
 
-			// Text color
 			iSetColor(255, 255, 255);
 			iText(270, 135, "THERE IS NO SAVED FILE PREVIOUSLY", GLUT_BITMAP_HELVETICA_12);
 		}
+
 		// BUTTON 3: DELETE GAME
 		iSetColor(160, 90, 40);
 		iFilledRectangle(320, 240, 160, 45);
@@ -310,11 +308,9 @@ void iDraw()
 	}
 	else if (gameState == STATE_SLOT_MENU)
 	{
-		// Draw Background Image
 		iSetColor(255, 255, 255);
 		iShowImage(0, 0, 800, 600, slotMenuBgImage);
 
-		// TOP TITLE
 		iSetColor(40, 20, 10);
 		if (slotActionMode == 1) iText(221, 491, "SELECT SLOT FOR NEW GAME", GLUT_BITMAP_TIMES_ROMAN_24);
 		else if (slotActionMode == 2) iText(251, 491, "SELECT SLOT TO LOAD", GLUT_BITMAP_TIMES_ROMAN_24);
@@ -390,7 +386,7 @@ void iDraw()
 		iText(385, 185, "BACK", GLUT_BITMAP_HELVETICA_12);
 	}
 	if (slotFullWarning == 1) {
-		iSetColor(220, 20, 60); // Crimson / Red box fill
+		iSetColor(220, 20, 60);
 		iFilledRectangle(230, 215, 320, 35);
 
 		iSetColor(255, 255, 255);
@@ -429,21 +425,20 @@ void iDraw()
 
 void resetGameData()
 {
-	// Reset Player Spawn Position, Orientation & Dialogue State
 	playerX = 360;
 	playerY = 270;
-	playerFacing = 0; // Reset facing right
+	playerFacing = 0;
 	showDialogue = 0;
 
-	// Reset Level 2 Player Position & Facing Direction
 	ranchmanX = 400;
 	ranchmanY = 30;
-	ranchmanFacing = 0; // Reset facing right
+	ranchmanFacing = 0;
 
-	// Global / General Currency & Inventory
+	// Reset Global Currency & Bait
 	playerGold = 0;
+	playerBait = 20;
 
-	// Level 1: Farm Crops & Seeds
+	// Level 1 Reset
 	seedRice = 9;
 	seedTomato = 0;
 	seedBerry = 0;
@@ -455,7 +450,6 @@ void resetGameData()
 	batchTimer = 0;
 	batchActive = 0;
 
-	// Farm Grid Reset
 	for (int r = 0; r < GRID_ROWS; r++)
 	{
 		for (int c = 0; c < GRID_COLS; c++)
@@ -466,7 +460,7 @@ void resetGameData()
 		}
 	}
 
-	// Level 2: Ranch & Animals Initial Setup (2 Hens, 1 Cow, 1 Sheep)
+	// Level 2 Reset
 	countFeed = 5;
 	countEgg = 0;
 	countMilk = 0;
@@ -474,7 +468,7 @@ void resetGameData()
 	ranchLevelCompleted = false;
 	level3Unlocked = 0;
 
-	// Reset & Initialize Hens (2 Hens)
+	// Reset Hens
 	henCount = 2;
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 	{
@@ -494,7 +488,7 @@ void resetGameData()
 		}
 	}
 
-	// Reset & Initialize Cows (1 Cow)
+	// Reset Cows
 	cowCount = 1;
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 	{
@@ -514,7 +508,7 @@ void resetGameData()
 		}
 	}
 
-	// Reset & Initialize Sheep (1 Sheep)
+	// Reset Sheep
 	sheepCount = 1;
 	for (int i = 0; i < MAX_ANIMALS_PER_TYPE; i++)
 	{
@@ -543,9 +537,6 @@ void iMouse(int button, int state, int mx, int my)
 {
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		// ==========================================
-		// MAIN MENU
-		// ==========================================
 		if (gameState == STATE_MENU)
 		{
 			if (mx >= 290 && mx <= 510 && my >= 410 && my <= 480)
@@ -572,14 +563,10 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// ==========================================
-		// PLAY CHOICE MENU (NEW / LOAD / DELETE)
-		// ==========================================
 		else if (gameState == STATE_PLAY_CHOICE)
 		{
 			slotFullWarning = 0;
 
-			// NEW GAME CLICKED
 			if (mx >= 320 && mx <= 480 && my >= 360 && my <= 405)
 			{
 				noSaveFileWarning = 0;
@@ -588,29 +575,18 @@ void iMouse(int button, int state, int mx, int my)
 				FILE *f2 = fopen("save_slot_2.txt", "r");
 				FILE *f3 = fopen("save_slot_3.txt", "r");
 
-				if (f1 == NULL) {
-					currentSaveSlot = 1;
-				}
-				else if (f2 == NULL) {
-					currentSaveSlot = 2;
-				}
-				else if (f3 == NULL) {
-					currentSaveSlot = 3;
-				}
+				if (f1 == NULL) { currentSaveSlot = 1; }
+				else if (f2 == NULL) { currentSaveSlot = 2; }
+				else if (f3 == NULL) { currentSaveSlot = 3; }
 				else {
-					if (f1) fclose(f1);
-					if (f2) fclose(f2);
-					if (f3) fclose(f3);
-
+					if (f1) fclose(f1); if (f2) fclose(f2); if (f3) fclose(f3);
 					slotFullWarning = 1;
 					slotActionMode = 3;
 					gameState = STATE_SLOT_MENU;
 					return;
 				}
 
-				if (f1) fclose(f1);
-				if (f2) fclose(f2);
-				if (f3) fclose(f3);
+				if (f1) fclose(f1); if (f2) fclose(f2); if (f3) fclose(f3);
 
 				resetGameData();
 				saveGameProgress(currentSaveSlot);
@@ -650,9 +626,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 		}
-		// ==========================================
-		// SLOT MENU
-		// ==========================================
+
 		else if (gameState == STATE_SLOT_MENU)
 		{
 			if (mx >= 300 && mx <= 550 && my >= 400 && my <= 440)
@@ -684,9 +658,6 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// ==========================================
-		// SETTINGS MENU
-		// ==========================================
 		else if (gameState == STATE_SETTING)
 		{
 			if (mx >= 290 && mx <= 510 && my >= 340 && my <= 410)
@@ -701,9 +672,6 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// ==========================================
-		// CREDITS MENU
-		// ==========================================
 		else if (gameState == STATE_CREDITS)
 		{
 			if (mx >= 290 && mx <= 510 && my >= 140 && my <= 210)
@@ -713,9 +681,6 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// ==========================================
-		// LOADING LEVEL 3
-		// ==========================================
 		else if (gameState == STATE_LOADING_LEVEL3)
 		{
 			initLevel3();
@@ -724,9 +689,6 @@ void iMouse(int button, int state, int mx, int my)
 			return;
 		}
 
-		// ==========================================
-		// TOWN
-		// ==========================================
 		else if (gameState == STATE_TOWN)
 		{
 			if (mx >= 670 && mx <= 780 && my >= 20 && my <= 60)
@@ -736,14 +698,11 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// LEVEL 1
-		// ==========================================
 		else if (gameState == STATE_LEVEL_1)
 		{
 			if (showCapWarning)
 				showCapWarning = 0;
 
-			// 1. If Market is Open
 			if (isMarketOpen)
 			{
 				if (mx >= 600 && mx <= 680 && my >= 80 && my <= 110)
@@ -752,7 +711,6 @@ void iMouse(int button, int state, int mx, int my)
 					return;
 				}
 
-				// Sell crops
 				if (mx >= 330 && mx <= 395 && my >= 370 && my <= 392 && cropRiceCount > 0)
 				{
 					cropRiceCount--;
@@ -769,7 +727,6 @@ void iMouse(int button, int state, int mx, int my)
 					playerGold += berrySellPrice;
 				}
 
-				// Buy seeds
 				if (mx >= 600 && mx <= 665 && my >= 370 && my <= 392 && playerGold >= riceBuyPrice)
 				{
 					playerGold -= riceBuyPrice;
@@ -786,7 +743,6 @@ void iMouse(int button, int state, int mx, int my)
 					seedBerry++;
 				}
 
-				// Buy Mass Plow upgrade
 				if (!massPlowUnlocked && mx >= 380 && mx <= 510 && my >= 188 && my <= 214)
 				{
 					if (playerGold >= 1500)
@@ -798,7 +754,6 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
-			// 2. Top Navigation Bar
 			if (mx >= 340 && mx <= 410 && my >= 552 && my <= 586)
 			{
 				saveGameProgress(currentSaveSlot);
@@ -820,7 +775,6 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
-			// 3. Toolbar Tools
 			if (massPlowUnlocked && mx >= 90 && mx <= 160 && my >= 28 && my <= 72)
 			{
 				for (int r = 0; r < GRID_ROWS; r++)
@@ -837,26 +791,25 @@ void iMouse(int button, int state, int mx, int my)
 			}
 			else if (mx >= 170 && mx <= 260 && my >= 28 && my <= 72)
 			{
-				selectedTool = 1; // Plow
+				selectedTool = 1;
 				return;
 			}
 			else if (mx >= 290 && mx <= 380 && my >= 28 && my <= 72)
 			{
-				selectedTool = 2; // Plant
+				selectedTool = 2;
 				return;
 			}
 			else if (mx >= 410 && mx <= 500 && my >= 28 && my <= 72)
 			{
-				selectedTool = 3; // Water
+				selectedTool = 3;
 				return;
 			}
 			else if (mx >= 530 && mx <= 630 && my >= 28 && my <= 72)
 			{
-				selectedTool = 4; // Harvest
+				selectedTool = 4;
 				return;
 			}
 
-			// 4. Grid Interactions
 			for (int r = 0; r < GRID_ROWS; r++)
 			{
 				for (int c = 0; c < GRID_COLS; c++)
@@ -873,7 +826,7 @@ void iMouse(int button, int state, int mx, int my)
 								t->growTimer = 0;
 							}
 						}
-						else if (selectedTool == 2) // Plant Tool
+						else if (selectedTool == 2)
 						{
 							if (t->state == CROP_PLOWED)
 							{
@@ -917,7 +870,7 @@ void iMouse(int button, int state, int mx, int my)
 								t->growTimer = 0;
 							}
 						}
-						else if (selectedTool == 4) // Harvest Tool
+						else if (selectedTool == 4)
 						{
 							if (t->state == CROP_READY || t->state == TOMATO_READY || t->state == BERRY_READY)
 							{
@@ -928,7 +881,6 @@ void iMouse(int button, int state, int mx, int my)
 								t->state = CROP_EMPTY;
 								t->cropType = 0;
 
-								// Check if any active/growing crops remain on the farm grid
 								int activeCropsRemaining = 0;
 								for (int gr = 0; gr < GRID_ROWS; gr++)
 								{
@@ -945,7 +897,6 @@ void iMouse(int button, int state, int mx, int my)
 									if (activeCropsRemaining) break;
 								}
 
-								// Stop and reset timer if all active crops are gathered
 								if (!activeCropsRemaining)
 								{
 									batchActive = 0;
@@ -958,12 +909,8 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// ==========================================
-		// LEVEL 2
-		// ==========================================
 		else if (gameState == STATE_LEVEL_2)
 		{
-			// Top Navigation Bar clicks
 			if (my >= 550 && my <= 590)
 			{
 				if (mx >= 320 && mx <= 420) { saveGameProgress(currentSaveSlot); return; }
@@ -972,7 +919,6 @@ void iMouse(int button, int state, int mx, int my)
 				if (mx >= 670 && mx <= 780) { gameState = STATE_MENU; return; }
 			}
 
-			// If Ranch Market is Open
 			if (isRanchMarketOpen)
 			{
 				if (mx >= 580 && mx <= 700 && my >= 70 && my <= 130)
@@ -1076,23 +1022,20 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
-			// Bottom Toolbar Tool Selection (Feed vs Collect Tool)
 			if (my >= 475 && my <= 535)
 			{
 				if (mx >= 530 && mx <= 660)
 				{
-					selectedRanchTool = 1; // Feed Tool
+					selectedRanchTool = 1;
 					return;
 				}
 				if (mx >= 661 && mx <= 790)
 				{
-					selectedRanchTool = 2; // Collect Tool
+					selectedRanchTool = 2;
 					return;
 				}
 			}
 
-			// Direct Animal Clicking
-			// 1. Hens
 			for (int i = 0; i < henCount; i++)
 			{
 				if (hens[i].isAlive && mx >= hens[i].x - 15 && mx <= hens[i].x + 65 && my >= hens[i].y - 15 && my <= hens[i].y + 65)
@@ -1113,7 +1056,6 @@ void iMouse(int button, int state, int mx, int my)
 				}
 			}
 
-			// 2. Cows
 			for (int i = 0; i < cowCount; i++)
 			{
 				if (cows[i].isAlive && mx >= cows[i].x - 15 && mx <= cows[i].x + 65 && my >= cows[i].y - 15 && my <= cows[i].y + 65)
@@ -1134,7 +1076,6 @@ void iMouse(int button, int state, int mx, int my)
 				}
 			}
 
-			// 3. Sheep
 			for (int i = 0; i < sheepCount; i++)
 			{
 				if (sheep[i].isAlive && mx >= sheep[i].x - 15 && mx <= sheep[i].x + 65 && my >= sheep[i].y - 15 && my <= sheep[i].y + 65)
@@ -1156,9 +1097,6 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// ==========================================
-		// LEVEL 3
-		// ==========================================
 		else if (gameState == STATE_LEVEL_3)
 		{
 			if (my >= 550 && my <= 590)
@@ -1203,7 +1141,6 @@ void updateRanchTimer()
 	if (gameState != STATE_LEVEL_2 || isRanchMarketOpen)
 		return;
 
-	// Start timer if products are present and collection timer is not running
 	if (hasAnyRanchProduce())
 	{
 		if (!ranchCollectionTimerRunning)
@@ -1214,7 +1151,6 @@ void updateRanchTimer()
 	}
 	else
 	{
-		// Stop collection timer if all products are gathered
 		ranchCollectionTimerRunning = false;
 	}
 
@@ -1250,21 +1186,17 @@ void updateRanchTimer()
 
 void fixedUpdate()
 {
-	// --- LEVEL PROGRESSION CHECKS ---
-	// 1. Level 1 Goal: Reaching 200 Gold unlocks Level 2
 	if (playerGold >= 200 && !level2Unlocked)
 	{
 		level2Unlocked = 1;
 	}
 
-	// 2. Level 2 Goal: Reaching LEVEL2_GOLD_TARGET (300 Gold) completes Level 2 and unlocks Level 3
 	if (playerGold >= LEVEL2_GOLD_TARGET && !level3Unlocked)
 	{
 		ranchLevelCompleted = true;
 		level3Unlocked = 1;
 	}
 
-	// --- TOWN MOVEMENT & DIRECTION TRACKING ---
 	if (gameState == STATE_TOWN && !showDialogue)
 	{
 		if (isKeyPressed('w') || isKeyPressed('W') || isSpecialKeyPressed(GLUT_KEY_UP))
@@ -1281,17 +1213,16 @@ void fixedUpdate()
 		{
 			int nextX = playerX - playerSpeed;
 			if (canWalk(nextX, playerY) && isWithinBounds(nextX, playerY)) playerX = nextX;
-			playerFacing = 1; // Facing Left (farmman2.bmp)
+			playerFacing = 1;
 		}
 		if (isKeyPressed('d') || isKeyPressed('D') || isSpecialKeyPressed(GLUT_KEY_RIGHT))
 		{
 			int nextX = playerX + playerSpeed;
 			if (canWalk(nextX, playerY) && isWithinBounds(nextX, playerY)) playerX = nextX;
-			playerFacing = 0; // Facing Right (farmman1.bmp)
+			playerFacing = 0;
 		}
 	}
 
-	// --- LEVEL 2 MOVEMENT ---
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		int step = 8;
@@ -1299,7 +1230,6 @@ void fixedUpdate()
 		if (isKeyPressed('d') || isKeyPressed('D') || isSpecialKeyPressed(GLUT_KEY_RIGHT)) moveRanchMan(step, 0);
 	}
 
-	// --- LEVEL 3 MOVEMENT ---
 	if (gameState == STATE_LEVEL_3)
 	{
 		if (isKeyPressed('w') || isKeyPressed('W')) handleLevel3Keyboard('w');
@@ -1308,7 +1238,6 @@ void fixedUpdate()
 		if (isKeyPressed('d') || isKeyPressed('D')) handleLevel3Keyboard('d');
 	}
 
-	// --- TOWN NPC & LEVEL INTERACTION ---
 	if (gameState == STATE_TOWN)
 	{
 		int eIsDown = isKeyPressed('e') || isKeyPressed('E') || isKeyPressed('\r');
@@ -1334,14 +1263,12 @@ void fixedUpdate()
 			}
 			else
 			{
-				// 1. NADIRA (Top-Left)
 				if (playerX >= 120 && playerX <= 240 && playerY >= 340 && playerY <= 450)
 				{
 					strcpy(npcName, "Nadira");
 					strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
 					showDialogue = 1;
 				}
-				// 2. RAGIB (Bottom-Middle)
 				else if (playerX >= 320 && playerX <= 460 && playerY >= 150 && playerY <= 260)
 				{
 					strcpy(npcName, "Ragib");
@@ -1356,7 +1283,6 @@ void fixedUpdate()
 						showDialogue = 1;
 					}
 				}
-				// 3. ANIKA (Top-Right)
 				else if (playerX >= 550 && playerX <= 720 && playerY >= 320 && playerY <= 440)
 				{
 					strcpy(npcName, "Anika");
@@ -1383,7 +1309,6 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
-	// --- STATE: SETTINGS ---
 	if (gameState == STATE_SETTING)
 	{
 		if (key == 27 || key == 8 || key == 'b' || key == 'B')
@@ -1393,14 +1318,12 @@ void iKeyboard(unsigned char key)
 		return;
 	}
 
-	// --- STATE: STORYLINE ---
 	if (gameState == STATE_STORYLINE)
 	{
 		handleStorylineKeyboard(key);
 		return;
 	}
 
-	// --- STATE: TOWN ---
 	if (gameState == STATE_TOWN)
 	{
 		if (key == 27)
@@ -1410,7 +1333,6 @@ void iKeyboard(unsigned char key)
 		return;
 	}
 
-	// --- STATE: LOADING LEVEL 3 ---
 	if (gameState == STATE_LOADING_LEVEL3)
 	{
 		initLevel3();
@@ -1419,7 +1341,6 @@ void iKeyboard(unsigned char key)
 		return;
 	}
 
-	// --- STATE: LEVEL 3 ---
 	if (gameState == STATE_LEVEL_3)
 	{
 		handleLevel3Keyboard(key);
@@ -1430,7 +1351,6 @@ void iKeyboard(unsigned char key)
 		return;
 	}
 
-	// --- STATE: LEVEL 2 ---
 	if (gameState == STATE_LEVEL_2)
 	{
 		if (isRanchMarketOpen)
@@ -1452,13 +1372,11 @@ void iKeyboard(unsigned char key)
 
 void iSpecialKeyboard(unsigned char key)
 {
-	// --- TOWN MOVEMENT ---
 	if (gameState == STATE_TOWN)
 	{
 		return;
 	}
 
-	// --- LEVEL 2 MOVEMENT ---
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		if (key == GLUT_KEY_LEFT) moveRanchMan(-15, 0);
@@ -1531,7 +1449,6 @@ int main()
 	initLevel3();
 	initAudio();
 
-	// Set Timers
 	iSetTimer(1000, updateCropGrowth);
 	iSetTimer(1000, updateAnimalGrowth);
 	iSetTimer(1000, updateSeasonTimer);

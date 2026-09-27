@@ -1,6 +1,8 @@
 #ifndef DRAWLEVEL3_H
 #define DRAWLEVEL3_H
 
+#pragma once
+
 #include "iGraphics.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +20,7 @@
 // Link global variables from main
 extern int gameState;
 extern int playerGold;
+extern int playerBait;
 extern int currentSaveSlot;
 extern void saveGameProgress(int slot);
 
@@ -31,20 +34,24 @@ extern void saveGameProgress(int slot);
 #define FISH_STATE_CAUGHT 3
 #define FISH_STATE_NOTHING 4
 #define FISH_STATE_TOO_EARLY 5
+#define FISH_STATE_NO_BAIT 6
 
 #ifndef NUM_FISH_TYPES
 #define NUM_FISH_TYPES 9
 #endif
 
-#define NUM_MARKET_FISH 6 // Only the first 6 fish are for sale in the market
+#define NUM_MARKET_FISH 6 // First 6 fish are sellable in market
 
 #define FISH_POPUP_W 399
 #define FISH_POPUP_H 300
-#define FISH_POPUP_X 235 // Centered pop-up graphic position
+#define FISH_POPUP_X 235
 #define FISH_POPUP_Y 150
 
 #define FISHERMAN_HEAD_X 465
 #define FISHERMAN_HEAD_Y 330
+
+#define BAIT_PACK_PRICE 10
+#define BAIT_PACK_COUNT 5
 
 // ============================================================
 // LEVEL 3 GLOBAL VARIABLES
@@ -92,15 +99,6 @@ char fishImages[NUM_FISH_TYPES][100] = {
 };
 
 // Probability weights (Sum = 100%)
-// Index 0: Goonch      (3%)  - Rare
-// Index 1: Perch       (13%) - High
-// Index 2: Catfish     (13%) - High
-// Index 3: Tilapia     (18%) - Common
-// Index 4: Rui         (10%) - Mid
-// Index 5: Chitol      (4%)  - Rare
-// Index 6: Puffer Fish (18%) - Common (Challenge/Trash)
-// Index 7: Pleco       (18%) - Common
-// Index 8: Turtle      (3%)  - Rare
 static const int fishWeights[NUM_FISH_TYPES] = { 3, 13, 13, 18, 10, 4, 18, 18, 3 };
 
 int isFishMarketOpen = 0;
@@ -109,9 +107,9 @@ int isFishMarketOpen = 0;
 // PROBABILITY HELPER
 // ============================================================
 
-int getRandomFishType()
+inline int getRandomFishType()
 {
-    int roll = rand() % 100; // Roll 0 to 99
+    int roll = rand() % 100;
     int accumulated = 0;
 
     for (int i = 0; i < NUM_FISH_TYPES; i++)
@@ -122,14 +120,14 @@ int getRandomFishType()
             return i;
         }
     }
-    return 3; // Default fallback to Tilapia
+    return 3;
 }
 
 // ============================================================
 // INITIALIZATION
 // ============================================================
 
-void initLevel3()
+inline void initLevel3()
 {
     fishingState = FISH_STATE_IDLE;
     fishingWaitTimer = 0;
@@ -144,7 +142,7 @@ void initLevel3()
 // LOGIC UPDATES
 // ============================================================
 
-void updateLevel3Logic()
+inline void updateLevel3Logic()
 {
     if (gameState != STATE_LEVEL_3)
         return;
@@ -195,7 +193,8 @@ void updateLevel3Logic()
     // 3. Auto-reset timer back to idle if no click occurs
     if (fishingState == FISH_STATE_CAUGHT ||
         fishingState == FISH_STATE_NOTHING ||
-        fishingState == FISH_STATE_TOO_EARLY)
+        fishingState == FISH_STATE_TOO_EARLY ||
+        fishingState == FISH_STATE_NO_BAIT)
     {
         if (resultDisplayTimer > 0)
         {
@@ -212,7 +211,7 @@ void updateLevel3Logic()
 // DRAW LEVEL 3
 // ============================================================
 
-void drawLevel3()
+inline void drawLevel3()
 {
     // 1. Pixel Art Background
     if (fishingState == FISH_STATE_CAUGHT || fishingState == FISH_STATE_HOOKED)
@@ -231,10 +230,10 @@ void drawLevel3()
     iSetColor(255, 255, 255);
     iText(10, 572, "LEVEL 3: FISHERY", GLUT_BITMAP_HELVETICA_12);
 
-    char goldText[50];
-    sprintf(goldText, "Gold: $%d", playerGold);
+    char statsText[80];
+    sprintf(statsText, "Gold: $%d  |  Bait: %d", playerGold, playerBait);
     iSetColor(255, 215, 0);
-    iText(160, 572, goldText, GLUT_BITMAP_HELVETICA_12);
+    iText(150, 572, statsText, GLUT_BITMAP_HELVETICA_12);
 
     // SAVE BUTTON
     iSetColor(240, 140, 30);
@@ -264,7 +263,6 @@ void drawLevel3()
     iSetColor(255, 255, 255);
     iRectangle(670, 552, 110, 34);
     iText(705, 564, "MENU", GLUT_BITMAP_HELVETICA_12);
-
 
     // 3. Exclamation mark when hooked
     if (fishingState == FISH_STATE_HOOKED)
@@ -314,7 +312,21 @@ void drawLevel3()
         iText(180, 100, "You reeled in too quickly before the fish could even bite.", GLUT_BITMAP_HELVETICA_12);
     }
 
-    // 7. "FISH CAUGHT" Popup & Special Turtle Release Banner
+    // 7. "OUT OF BAIT" Popup
+    if (fishingState == FISH_STATE_NO_BAIT)
+    {
+        iSetColor(25, 15, 15);
+        iFilledRectangle(180, 60, 440, 95);
+        iSetColor(220, 50, 50);
+        iRectangle(180, 60, 440, 95);
+
+        iSetColor(255, 80, 80);
+        iText(200, 125, "OUT OF BAIT!", GLUT_BITMAP_HELVETICA_18);
+        iSetColor(255, 220, 220);
+        iText(200, 100, "Sell your fish at the Market to buy more bait!", GLUT_BITMAP_HELVETICA_12);
+    }
+
+    // 8. "FISH CAUGHT" Popup & Special Turtle Release Banner
     if (fishingState == FISH_STATE_CAUGHT && lastCaughtFishType >= 0)
     {
         iShowBMP(FISH_POPUP_X, FISH_POPUP_Y, fishImages[lastCaughtFishType]);
@@ -332,28 +344,28 @@ void drawLevel3()
         }
     }
 
-    // 8. MARKET OVERLAY (Only displays sellable fish 0 to 5)
+    // 9. MARKET OVERLAY (Sell fish & Buy Bait)
     if (isFishMarketOpen)
     {
         iSetColor(15, 25, 35);
-        iFilledRectangle(180, 80, 440, 420);
+        iFilledRectangle(180, 50, 440, 460);
         iSetColor(40, 120, 200);
-        iRectangle(180, 80, 440, 420);
+        iRectangle(180, 50, 440, 460);
 
-        // Header Banner Placeholder
-        iShowBMPAlternative2(280, 455, "assets/market.bmp", 0xFFFFFF);
+        // Header Banner
+        iShowBMPAlternative2(280, 465, "assets/market.bmp", 0xFFFFFF);
 
-        // Gold Icon & Current Balance
-        iShowBMPAlternative2(200, 410, "assets/gold.bmp", 0xFFFFFF);
-        char goldBuf[64];
-        sprintf(goldBuf, "$%d", playerGold);
+        // Gold & Bait Info Display
+        iShowBMPAlternative2(195, 425, "assets/gold.bmp", 0xFFFFFF);
+        char marketStatsBuf[80];
+        sprintf(marketStatsBuf, "$%d  |  Bait: %d", playerGold, playerBait);
         iSetColor(240, 200, 80);
-        iText(370, 417, goldBuf, GLUT_BITMAP_HELVETICA_18);
+        iText(330, 432, marketStatsBuf, GLUT_BITMAP_HELVETICA_12); // <-- Fixed font constant here
 
         // Sellable Fish List (Goonch, Perch, Catfish, Tilapia, Rui, Chitol)
         for (int i = 0; i < NUM_MARKET_FISH; i++)
         {
-            int itemY = 360 - (i * 38);
+            int itemY = 380 - (i * 35);
             char lineStr[100];
             sprintf(lineStr, "%s: %d owned (%d Gold)", fishNames[i], fishCount[i], fishPrices[i]);
 
@@ -367,11 +379,20 @@ void drawLevel3()
             iText(538, itemY + 7, "SELL", GLUT_BITMAP_HELVETICA_10);
         }
 
+        // BUY BAIT BUTTON
+        iSetColor(220, 160, 40);
+        iFilledRectangle(195, 135, 410, 32);
+        iSetColor(255, 255, 255);
+        iRectangle(195, 135, 410, 32);
+
+        iSetColor(0, 0, 0);
+        iText(220, 146, "BUY BAIT PACK (5 Baits for $10 Gold)", GLUT_BITMAP_HELVETICA_12);
+
         // Close Button
         iSetColor(200, 50, 50);
-        iFilledRectangle(360, 95, 80, 30);
+        iFilledRectangle(360, 70, 80, 30);
         iSetColor(255, 255, 255);
-        iText(380, 105, "CLOSE", GLUT_BITMAP_HELVETICA_12);
+        iText(380, 80, "CLOSE", GLUT_BITMAP_HELVETICA_12);
     }
 }
 
@@ -379,7 +400,7 @@ void drawLevel3()
 // CONTROLS & INPUT
 // ============================================================
 
-void handleLevel3Keyboard(unsigned char key)
+inline void handleLevel3Keyboard(unsigned char key)
 {
     if (isFishMarketOpen)
     {
@@ -393,20 +414,33 @@ void handleLevel3Keyboard(unsigned char key)
     }
 }
 
-void handleLevel3MouseClick(int mx, int my)
+inline void handleLevel3MouseClick(int mx, int my)
 {
     // 1. Handle Market interactions
     if (isFishMarketOpen)
     {
-        if (mx >= 360 && mx <= 440 && my >= 95 && my <= 125)
+        // Close button click
+        if (mx >= 360 && mx <= 440 && my >= 70 && my <= 100)
         {
             isFishMarketOpen = 0;
             return;
         }
 
+        // Buy Bait Pack Click (195 to 605 X, 135 to 167 Y)
+        if (mx >= 195 && mx <= 605 && my >= 135 && my <= 167)
+        {
+            if (playerGold >= BAIT_PACK_PRICE)
+            {
+                playerGold -= BAIT_PACK_PRICE;
+                playerBait += BAIT_PACK_COUNT;
+            }
+            return;
+        }
+
+        // Sell Fish Buttons Click
         for (int i = 0; i < NUM_MARKET_FISH; i++)
         {
-            int itemY = 360 - (i * 38);
+            int itemY = 380 - (i * 35);
             if (mx >= 520 && mx <= 590 && my >= itemY && my <= itemY + 24)
             {
                 if (fishCount[i] > 0)
@@ -430,9 +464,19 @@ void handleLevel3MouseClick(int mx, int my)
     if (fishingState == FISH_STATE_IDLE ||
         fishingState == FISH_STATE_NOTHING ||
         fishingState == FISH_STATE_TOO_EARLY ||
-        fishingState == FISH_STATE_CAUGHT)
+        fishingState == FISH_STATE_CAUGHT ||
+        fishingState == FISH_STATE_NO_BAIT)
     {
-        // Immediately cast line, bypassing display timer wait
+        // Check if player has bait left before casting
+        if (playerBait <= 0)
+        {
+            fishingState = FISH_STATE_NO_BAIT;
+            resultDisplayTimer = 35;
+            return;
+        }
+
+        // Consume 1 bait and cast line
+        playerBait--;
         fishingState = FISH_STATE_WAITING;
         fishingWaitTimer = 25 + rand() % 25;
         castPopupTimer = 10;
