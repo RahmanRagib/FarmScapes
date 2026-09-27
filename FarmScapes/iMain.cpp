@@ -68,8 +68,8 @@ int showDialogue = 0;
 char dialogueText[200] = "";
 char npcName[50] = "";
 
-int level2Unlocked = 1;
-int level3Unlocked = 1;
+int level2Unlocked = 0;
+int level3Unlocked = 0;
 
 // ============================================================
 // LEVEL 2 RANCHMAN
@@ -438,6 +438,7 @@ void resetGameData()
 	cropTomatoCount = 0;
 	cropBerryCount = 0;
 	massPlowUnlocked = 0;
+	level2Unlocked = 0;
 
 	// Farm Grid Reset
 	for (int r = 0; r < GRID_ROWS; r++)
