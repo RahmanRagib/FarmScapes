@@ -20,22 +20,16 @@ int canWalk(int newX, int newY) {
 	int py = newY + 8;
 
 	// --- MAIN HORIZONTAL DIRT ROAD (WEST TO EAST) ---
-	if (px >= 10 && px <= 790 && py >= 270 && py <= 330) return 1;
+	if (px >= 10 && px <= 790 && py >= 260 && py <= 340) return 1;
 
 	// --- SECTION 1: NADIRA'S HERBARY & CROPLANDS (TOP LEFT) ---
-	// Vertical Branch from Main Road to Herbary
-	if (px >= 140 && px <= 240 && py >= 320 && py <= 460) return 1;
-
-	// Horizontal path across crops & front door of Herbary
-	if (px >= 80 && px <= 260 && py >= 340 && py <= 400) return 1;
+	if (px >= 60 && px <= 280 && py >= 310 && py <= 470) return 1;
 
 	// --- SECTION 2: RAGIB'S RANCH (BOTTOM MIDDLE) ---
-	// Vertical Branch going down into Ranch (Extended so player can reach Y = 160)
-	if (px >= 320 && px <= 460 && py >= 150 && py <= 280) return 1;
+	if (px >= 300 && px <= 490 && py >= 140 && py <= 300) return 1;
 
 	// --- SECTION 3: ANIKA'S FISHING & POND (TOP RIGHT) ---
-	// Vertical Branch & area around Boathouse/Pier
-	if (px >= 550 && px <= 730 && py >= 320 && py <= 450) return 1;
+	if (px >= 530 && px <= 750 && py >= 310 && py <= 470) return 1;
 
 	return 0; // Block movement off-road
 }
