@@ -11,7 +11,7 @@
 #pragma comment(lib, "winmm.lib")
 
 // ============================================================
-// SCREEN
+// SCREEN & TARGET CONFIGURATION
 // ============================================================
 
 #define SCREEN_WIDTH 800
@@ -19,6 +19,9 @@
 
 #define PLAYER_WIDTH 48
 #define PLAYER_HEIGHT 48
+
+// Target currency needed in Level 2 to clear the level and unlock Level 3
+#define LEVEL2_GOLD_TARGET 300
 
 // ============================================================
 // GAME STATES
@@ -587,15 +590,12 @@ void iMouse(int button, int state, int mx, int my)
 
 				if (f1 == NULL) {
 					currentSaveSlot = 1;
-					if (f1) fclose(f1);
 				}
 				else if (f2 == NULL) {
 					currentSaveSlot = 2;
-					if (f2) fclose(f2);
 				}
 				else if (f3 == NULL) {
 					currentSaveSlot = 3;
-					if (f3) fclose(f3);
 				}
 				else {
 					if (f1) fclose(f1);
@@ -987,27 +987,18 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						countEgg--;
 						playerGold += eggSellPrice;
-						return;
 					}
 					else if (my >= 300 && my <= 340 && countMilk > 0)
 					{
 						countMilk--;
 						playerGold += milkSellPrice;
-						return;
 					}
 					else if (my >= 235 && my <= 290 && countWool > 0)
 					{
 						countWool--;
 						playerGold += woolSellPrice;
-						return;
 					}
-
-					if (playerGold >= 200 && !ranchLevelCompleted)
-					{
-						ranchLevelCompleted = true;
-						ranchCompleteMessageTimer = 3;
-						level3Unlocked = 1;
-					}
+					return;
 				}
 
 				if (mx >= 580 && mx <= 700)
@@ -1259,6 +1250,20 @@ void updateRanchTimer()
 
 void fixedUpdate()
 {
+	// --- LEVEL PROGRESSION CHECKS ---
+	// 1. Level 1 Goal: Reaching 200 Gold unlocks Level 2
+	if (playerGold >= 200 && !level2Unlocked)
+	{
+		level2Unlocked = 1;
+	}
+
+	// 2. Level 2 Goal: Reaching LEVEL2_GOLD_TARGET (300 Gold) completes Level 2 and unlocks Level 3
+	if (playerGold >= LEVEL2_GOLD_TARGET && !level3Unlocked)
+	{
+		ranchLevelCompleted = true;
+		level3Unlocked = 1;
+	}
+
 	// --- TOWN MOVEMENT & DIRECTION TRACKING ---
 	if (gameState == STATE_TOWN && !showDialogue)
 	{
@@ -1290,8 +1295,8 @@ void fixedUpdate()
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		int step = 8;
-		if (isKeyPressed('a') || isKeyPressed('A')) moveRanchMan(-step, 0);
-		if (isKeyPressed('d') || isKeyPressed('D')) moveRanchMan(step, 0);
+		if (isKeyPressed('a') || isKeyPressed('A') || isSpecialKeyPressed(GLUT_KEY_LEFT)) moveRanchMan(-step, 0);
+		if (isKeyPressed('d') || isKeyPressed('D') || isSpecialKeyPressed(GLUT_KEY_RIGHT)) moveRanchMan(step, 0);
 	}
 
 	// --- LEVEL 3 MOVEMENT ---
@@ -1342,12 +1347,12 @@ void fixedUpdate()
 					strcpy(npcName, "Ragib");
 					if (level2Unlocked)
 					{
-						strcpy(dialogueText, "Ready for the Ranch? Press E again to enter Level 2.");
+						sprintf(dialogueText, "Ready for the Ranch? Reach %d Gold to complete Level 2 and unlock Level 3!", LEVEL2_GOLD_TARGET);
 						showDialogue = 1;
 					}
 					else
 					{
-						strcpy(dialogueText, "Level 2 is locked! Complete Level 1 first.");
+						strcpy(dialogueText, "Level 2 is locked! Earn 200 Gold in Level 1 first.");
 						showDialogue = 1;
 					}
 				}
@@ -1362,7 +1367,7 @@ void fixedUpdate()
 					}
 					else
 					{
-						strcpy(dialogueText, "Level 3 is locked! Complete previous levels first.");
+						strcpy(dialogueText, "Level 3 is locked! Complete Level 2 target ($300 Gold) first.");
 						showDialogue = 1;
 					}
 				}
@@ -1450,7 +1455,6 @@ void iSpecialKeyboard(unsigned char key)
 	// --- TOWN MOVEMENT ---
 	if (gameState == STATE_TOWN)
 	{
-		// Handled smoothly in fixedUpdate() to prevent double-stepping and overshooting bounds
 		return;
 	}
 
@@ -1541,7 +1545,6 @@ int main()
 
 	slotMenuBgImage = iLoadImage("assets/loadscreen.bmp");
 	initStorylineAssets();
-	printf("DEBUG: Loaded slotMenuBgImage ID = %d\n", slotMenuBgImage);
 
 	iStart();
 
