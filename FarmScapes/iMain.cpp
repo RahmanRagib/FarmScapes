@@ -269,7 +269,7 @@ void iDraw()
 		iText(368, 316, "LOAD GAME", GLUT_BITMAP_HELVETICA_12);
 		if (noSaveFileWarning)
 		{
-			// Background color (Button-er moto box color)
+			// Background color
 			iSetColor(180, 40, 40);
 			iFilledRectangle(250, 120, 320, 45);
 
@@ -387,7 +387,7 @@ void iDraw()
 	}
 	if (slotFullWarning == 1) {
 		iSetColor(220, 20, 60); // Crimson / Red box fill
-		iFilledRectangle(230, 215, 320, 35); // Box-er X, Y, Width, Height
+		iFilledRectangle(230, 215, 320, 35);
 
 		iSetColor(255, 255, 255);
 		iRectangle(230, 215, 320, 35);
@@ -425,6 +425,11 @@ void iDraw()
 
 void resetGameData()
 {
+	// Reset Player Spawn Position & Dialogue State
+	playerX = 360;
+	playerY = 270;
+	showDialogue = 0;
+
 	// Global / General Currency & Inventory
 	playerGold = 0;
 
@@ -452,7 +457,7 @@ void resetGameData()
 	}
 
 	// Level 2: Ranch & Animals Initial Setup (2 Hens, 1 Cow, 1 Sheep)
-	countFeed = 5; // Starter feed dorkar hote pare
+	countFeed = 5;
 	countEgg = 0;
 	countMilk = 0;
 	countWool = 0;
@@ -1247,8 +1252,8 @@ void updateRanchTimer()
 
 void fixedUpdate()
 {
-	// --- TOWN & LEVEL 1 MOVEMENT ---
-	if ((gameState == STATE_TOWN && !showDialogue) || gameState == STATE_LEVEL_1)
+	// --- TOWN MOVEMENT ---
+	if (gameState == STATE_TOWN && !showDialogue)
 	{
 		if (isKeyPressed('w') || isKeyPressed('W') || isSpecialKeyPressed(GLUT_KEY_UP))
 		{
@@ -1433,27 +1438,10 @@ void iKeyboard(unsigned char key)
 
 void iSpecialKeyboard(unsigned char key)
 {
-	// --- TOWN MOVEMENT WITH COLLISION CHECKING ---
+	// --- TOWN MOVEMENT ---
 	if (gameState == STATE_TOWN)
 	{
-		int step = 10;
-
-		if (key == GLUT_KEY_LEFT)
-		{
-			if (canWalk(playerX - step, playerY)) playerX -= step;
-		}
-		else if (key == GLUT_KEY_RIGHT)
-		{
-			if (canWalk(playerX + step, playerY)) playerX += step;
-		}
-		else if (key == GLUT_KEY_UP)
-		{
-			if (canWalk(playerX, playerY + step)) playerY += step;
-		}
-		else if (key == GLUT_KEY_DOWN)
-		{
-			if (canWalk(playerX, playerY - step)) playerY -= step;
-		}
+		// Handled smoothly in fixedUpdate() to prevent double-stepping and overshooting bounds
 		return;
 	}
 
