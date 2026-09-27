@@ -1098,11 +1098,6 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						countFeed--;
 						hens[i].fedState = 1;
-
-						if (!isRanchTimerActive) {
-							ranchTimer = 30;
-							isRanchTimerActive = 1;
-						}
 						return;
 					}
 					else if (selectedRanchTool == 2 && hens[i].hasProduce)
@@ -1124,11 +1119,6 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						countFeed--;
 						cows[i].fedState = 1;
-
-						if (!isRanchTimerActive) {
-							ranchTimer = 30;
-							isRanchTimerActive = 1;
-						}
 						return;
 					}
 					else if (selectedRanchTool == 2 && cows[i].hasProduce)
@@ -1150,11 +1140,6 @@ void iMouse(int button, int state, int mx, int my)
 					{
 						countFeed--;
 						sheep[i].fedState = 1;
-
-						if (!isRanchTimerActive) {
-							ranchTimer = 30;
-							isRanchTimerActive = 1;
-						}
 						return;
 					}
 					else if (selectedRanchTool == 2 && sheep[i].hasProduce)
@@ -1215,10 +1200,19 @@ void updateRanchTimer()
 	if (gameState != STATE_LEVEL_2 || isRanchMarketOpen)
 		return;
 
-	if (hasAnyRanchProduce() && !ranchCollectionTimerRunning)
+	// Start timer if products are present and collection timer is not running
+	if (hasAnyRanchProduce())
 	{
-		ranchCollectionTimer = 30;
-		ranchCollectionTimerRunning = true;
+		if (!ranchCollectionTimerRunning)
+		{
+			ranchCollectionTimer = 30;
+			ranchCollectionTimerRunning = true;
+		}
+	}
+	else
+	{
+		// Stop collection timer if all products are gathered
+		ranchCollectionTimerRunning = false;
 	}
 
 	if (ranchCollectionTimerRunning)
