@@ -1030,8 +1030,13 @@ void updateRanchTimer()
 // CONTINUOUS GAME LOOP
 // ============================================================
 
+// ============================================================
+// CONTINUOUS GAME LOOP
+// ============================================================
+
 void fixedUpdate()
 {
+	// --- TOWN & LEVEL 1 MOVEMENT ---
 	if ((gameState == STATE_TOWN && !showDialogue) || gameState == STATE_LEVEL_1)
 	{
 		if (isKeyPressed('w') || isKeyPressed('W') || isSpecialKeyPressed(GLUT_KEY_UP))
@@ -1056,6 +1061,7 @@ void fixedUpdate()
 		}
 	}
 
+	// --- LEVEL 2 MOVEMENT ---
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		int step = 8;
@@ -1063,6 +1069,7 @@ void fixedUpdate()
 		if (isKeyPressed('d') || isKeyPressed('D')) moveRanchMan(step, 0);
 	}
 
+	// --- LEVEL 3 MOVEMENT ---
 	if (gameState == STATE_LEVEL_3)
 	{
 		if (isKeyPressed('w') || isKeyPressed('W')) handleLevel3Keyboard('w');
@@ -1071,9 +1078,9 @@ void fixedUpdate()
 		if (isKeyPressed('d') || isKeyPressed('D')) handleLevel3Keyboard('d');
 	}
 
+	// --- TOWN NPC & LEVEL INTERACTION ---
 	if (gameState == STATE_TOWN)
 	{
-		// Listen for 'E' / 'e' or Enter key ('\r')
 		int eIsDown = isKeyPressed('e') || isKeyPressed('E') || isKeyPressed('\r');
 
 		if (eIsDown && !eKeyPressedLastFrame)
@@ -1097,26 +1104,30 @@ void fixedUpdate()
 			}
 			else
 			{
-				// Nadira (Level 1)
-				if (playerX >= 480 && playerX <= 570 && playerY >= 370 && playerY <= 460)
+				// 1. NADIRA (Top-Left)
+				if (playerX >= 120 && playerX <= 240 && playerY >= 340 && playerY <= 450)
 				{
 					strcpy(npcName, "Nadira");
 					strcpy(dialogueText, "Welcome to the Farm! Press E again to enter Level 1.");
 					showDialogue = 1;
 				}
-				// Ragib (Level 2)
-				else if (playerX >= 450 && playerX <= 550 && playerY >= 240 && playerY <= 330)
+				// 2. RAGIB (Bottom-Middle)
+				else if (playerX >= 320 && playerX <= 460 && playerY >= 150 && playerY <= 260)
 				{
 					strcpy(npcName, "Ragib");
-					if (playerGold >= 0)
+					if (level2Unlocked)
 					{
-						level2Unlocked = 1;
-						strcpy(dialogueText, "You have unlocked Level 2! Press E again to enter.");
+						strcpy(dialogueText, "Ready for the Ranch? Press E again to enter Level 2.");
+						showDialogue = 1;
+					}
+					else
+					{
+						strcpy(dialogueText, "Level 2 is locked! Complete Level 1 first.");
 						showDialogue = 1;
 					}
 				}
-				// Anika (Level 3) - Bounds matched to drawTown.h (X: 530-670, Y: 80-180)
-				else if (playerX >= 530 && playerX <= 670 && playerY >= 80 && playerY <= 180)
+				// 3. ANIKA (Top-Right)
+				else if (playerX >= 550 && playerX <= 720 && playerY >= 320 && playerY <= 440)
 				{
 					strcpy(npcName, "Anika");
 					if (level3Unlocked)
@@ -1142,6 +1153,7 @@ void fixedUpdate()
 
 void iKeyboard(unsigned char key)
 {
+	// --- STATE: SETTINGS ---
 	if (gameState == STATE_SETTING)
 	{
 		if (key == 27 || key == 8 || key == 'b' || key == 'B') // ESC, Backspace, or 'b'
@@ -1151,12 +1163,25 @@ void iKeyboard(unsigned char key)
 		return;
 	}
 
+	// --- STATE: STORYLINE ---
 	if (gameState == STATE_STORYLINE)
 	{
 		handleStorylineKeyboard(key);
 		return;
 	}
 
+	// --- STATE: TOWN ---
+	if (gameState == STATE_TOWN)
+	{
+		// Press ESC to return to Menu
+		if (key == 27)
+		{
+			gameState = STATE_MENU;
+		}
+		return;
+	}
+
+	// --- STATE: LOADING LEVEL 3 ---
 	if (gameState == STATE_LOADING_LEVEL3)
 	{
 		initLevel3();
@@ -1165,6 +1190,7 @@ void iKeyboard(unsigned char key)
 		return;
 	}
 
+	// --- STATE: LEVEL 3 ---
 	if (gameState == STATE_LEVEL_3)
 	{
 		handleLevel3Keyboard(key);
@@ -1175,12 +1201,7 @@ void iKeyboard(unsigned char key)
 		return;
 	}
 
-	if (key == '3')
-	{
-		loadingTimer = 0;
-		gameState = STATE_LOADING_LEVEL3;
-	}
-
+	// --- STATE: LEVEL 2 ---
 	if (gameState == STATE_LEVEL_2)
 	{
 		if (isRanchMarketOpen)
@@ -1202,6 +1223,31 @@ void iKeyboard(unsigned char key)
 
 void iSpecialKeyboard(unsigned char key)
 {
+	// --- TOWN MOVEMENT WITH COLLISION CHECKING ---
+	if (gameState == STATE_TOWN)
+	{
+		int step = 10; // Movement speed in pixels
+
+		if (key == GLUT_KEY_LEFT)
+		{
+			if (canWalk(playerX - step, playerY)) playerX -= step;
+		}
+		else if (key == GLUT_KEY_RIGHT)
+		{
+			if (canWalk(playerX + step, playerY)) playerX += step;
+		}
+		else if (key == GLUT_KEY_UP)
+		{
+			if (canWalk(playerX, playerY + step)) playerY += step;
+		}
+		else if (key == GLUT_KEY_DOWN)
+		{
+			if (canWalk(playerX, playerY - step)) playerY -= step;
+		}
+		return;
+	}
+
+	// --- LEVEL 2 MOVEMENT ---
 	if (gameState == STATE_LEVEL_2 && !isRanchMarketOpen)
 	{
 		if (key == GLUT_KEY_LEFT) moveRanchMan(-15, 0);
