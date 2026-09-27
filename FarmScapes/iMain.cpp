@@ -560,11 +560,10 @@ void iMouse(int button, int state, int mx, int my)
 			{
 				noSaveFileWarning = 0;
 
-				// Bulletproof Serial Slot Assignment: 1 -> 2 -> 3
-				// Amra direct file open kore check korbo file ache kina.
-				FILE *f1 = fopen("slot1.txt", "r");
-				FILE *f2 = fopen("slot2.txt", "r");
-				FILE *f3 = fopen("slot3.txt", "r");
+				// Bulletproof Serial Slot Assignment: 1 -> 2 -> 3 (Using exact save_slot_X.txt naming)
+				FILE *f1 = fopen("save_slot_1.txt", "r");
+				FILE *f2 = fopen("save_slot_2.txt", "r");
+				FILE *f3 = fopen("save_slot_3.txt", "r");
 
 				if (f1 == NULL) {
 					currentSaveSlot = 1;
@@ -603,10 +602,10 @@ void iMouse(int button, int state, int mx, int my)
 			}
 			else if (mx >= 320 && mx <= 480 && my >= 300 && my <= 345)
 			{
-				// LOAD GAME: Check if ANY save file exists
-				FILE *f1 = fopen("slot1.txt", "r");
-				FILE *f2 = fopen("slot2.txt", "r");
-				FILE *f3 = fopen("slot3.txt", "r");
+				// LOAD GAME: Check if ANY save file exists (Using exact save_slot_X.txt naming)
+				FILE *f1 = fopen("save_slot_1.txt", "r");
+				FILE *f2 = fopen("save_slot_2.txt", "r");
+				FILE *f3 = fopen("save_slot_3.txt", "r");
 
 				if (f1 == NULL && f2 == NULL && f3 == NULL)
 				{
