@@ -265,9 +265,6 @@ void drawLevel3()
     iRectangle(670, 552, 110, 34);
     iText(705, 564, "MENU", GLUT_BITMAP_HELVETICA_12);
 
-    // Prompt
-    iSetColor(255, 255, 255);
-    iText(20, 20, "LEFT CLICK: Cast Line / Reel In Fish", GLUT_BITMAP_HELVETICA_12);
 
     // 3. Exclamation mark when hooked
     if (fishingState == FISH_STATE_HOOKED)
