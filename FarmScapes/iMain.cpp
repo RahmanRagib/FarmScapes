@@ -60,6 +60,7 @@ int noSaveFileWarning = 0;
 int playerX = 360;
 int playerY = 270;
 int playerSpeed = 8;
+int playerFacing = 0; // 0 = Facing Right (farmman1.bmp), 1 = Facing Left (farmman2.bmp)
 
 int currentSeason = 0;
 int seasonTimer = 40;
@@ -373,7 +374,6 @@ void iDraw()
 		iSetColor(255, 215, 100);
 		iText(330, 275, slotText, GLUT_BITMAP_HELVETICA_12);
 
-
 		// BACK BUTTON
 		iSetColor(140, 75, 30);
 		iFilledRectangle(340, 170, 120, 40);
@@ -425,9 +425,10 @@ void iDraw()
 
 void resetGameData()
 {
-	// Reset Player Spawn Position & Dialogue State
+	// Reset Player Spawn Position, Orientation & Dialogue State
 	playerX = 360;
 	playerY = 270;
+	playerFacing = 0; // Reset facing right
 	showDialogue = 0;
 
 	// Global / General Currency & Inventory
@@ -1252,7 +1253,7 @@ void updateRanchTimer()
 
 void fixedUpdate()
 {
-	// --- TOWN MOVEMENT ---
+	// --- TOWN MOVEMENT & DIRECTION TRACKING ---
 	if (gameState == STATE_TOWN && !showDialogue)
 	{
 		if (isKeyPressed('w') || isKeyPressed('W') || isSpecialKeyPressed(GLUT_KEY_UP))
@@ -1269,11 +1270,13 @@ void fixedUpdate()
 		{
 			int nextX = playerX - playerSpeed;
 			if (canWalk(nextX, playerY) && isWithinBounds(nextX, playerY)) playerX = nextX;
+			playerFacing = 1; // Facing Left (farmman2.bmp)
 		}
 		if (isKeyPressed('d') || isKeyPressed('D') || isSpecialKeyPressed(GLUT_KEY_RIGHT))
 		{
 			int nextX = playerX + playerSpeed;
 			if (canWalk(nextX, playerY) && isWithinBounds(nextX, playerY)) playerX = nextX;
+			playerFacing = 0; // Facing Right (farmman1.bmp)
 		}
 	}
 

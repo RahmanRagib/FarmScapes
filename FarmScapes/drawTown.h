@@ -7,6 +7,7 @@
 extern int currentSeason;
 extern int playerX;
 extern int playerY;
+extern int playerFacing; // 0 = Facing Right (farmman1.bmp), 1 = Facing Left (farmman2.bmp)
 extern int showDialogue;
 extern char dialogueText[200];
 extern char npcName[50];
@@ -43,8 +44,12 @@ void drawTown() {
 	else if (currentSeason == 1) iShowBMP(0, 0, "assets/town_rainy_bg.bmp");
 	else if (currentSeason == 2) iShowBMP(0, 0, "assets/town_winter_bg.bmp");
 
-	// Render 48x48 player (ignoring pure black background key 0)
-	iShowBMP2(playerX, playerY, "assets/farmman1.bmp", 0);
+	// Render 48x48 player based on direction (ignoring pure black background key 0)
+	if (playerFacing == 1) {
+		iShowBMP2(playerX, playerY, "assets/farmman2.bmp", 0); // Facing Left
+	} else {
+		iShowBMP2(playerX, playerY, "assets/farmman1.bmp", 0); // Facing Right
+	}
 
 	// --- LEVEL LABELS MOVED HIGHER ABOVE BUILDINGS ---
 
