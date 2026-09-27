@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "animalgrowth.h"
-#include "sound.h"
 
 // ============================================================
 // LEVEL 2 EXTERNAL VARIABLES
@@ -1057,16 +1056,11 @@ inline void drawLevel2()
 	}
 
 	// ========================================================
-	// MARKET OVERLAY & MUSIC
+	// MARKET OVERLAY
 	// ========================================================
 
-	if (isRanchMarketOpen) {
-		playMarketBGM();
+	if (isRanchMarketOpen)
 		drawRanchMarketUI();
-	}
-	else {
-		playDefaultBGM();
-	}
 }
 
 #endif
