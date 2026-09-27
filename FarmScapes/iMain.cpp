@@ -560,26 +560,22 @@ void iMouse(int button, int state, int mx, int my)
 			{
 				noSaveFileWarning = 0;
 
-				// Bulletproof Serial Slot Assignment: 1 -> 2 -> 3
-				// Amra direct file open kore check korbo file ache kina.
+				// Safe sequential file checks: 1 -> 2 -> 3
 				FILE *f1 = fopen("slot1.txt", "r");
 				FILE *f2 = fopen("slot2.txt", "r");
 				FILE *f3 = fopen("slot3.txt", "r");
 
 				if (f1 == NULL) {
 					currentSaveSlot = 1;
-					if (f1) fclose(f1);
 				}
 				else if (f2 == NULL) {
 					currentSaveSlot = 2;
-					if (f2) fclose(f2);
 				}
 				else if (f3 == NULL) {
 					currentSaveSlot = 3;
-					if (f3) fclose(f3);
 				}
 				else {
-					// Jodi 3 tai file thake, tokhoni shudhu slot menu-te jabe
+					// All 3 slots full -> redirect to slot menu warning
 					if (f1) fclose(f1);
 					if (f2) fclose(f2);
 					if (f3) fclose(f3);
@@ -590,12 +586,11 @@ void iMouse(int button, int state, int mx, int my)
 					return;
 				}
 
-				// Clean up pointers safely if they were opened
+				// Clean up valid file descriptors safely
 				if (f1) fclose(f1);
 				if (f2) fclose(f2);
 				if (f3) fclose(f3);
 
-				// Reset state, save to the found sequential slot, and go to Storyline directly!
 				resetGameData();
 				saveGameProgress(currentSaveSlot);
 				gameState = STATE_STORYLINE;
@@ -610,11 +605,13 @@ void iMouse(int button, int state, int mx, int my)
 
 				if (f1 == NULL && f2 == NULL && f3 == NULL)
 				{
-					if (f1) fclose(f1); if (f2) fclose(f2); if (f3) fclose(f3);
 					noSaveFileWarning = 1;
 					return;
 				}
-				if (f1) fclose(f1); if (f2) fclose(f2); if (f3) fclose(f3);
+
+				if (f1) fclose(f1);
+				if (f2) fclose(f2);
+				if (f3) fclose(f3);
 
 				noSaveFileWarning = 0;
 				slotActionMode = 2;
@@ -635,6 +632,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 		}
+
 		// ==========================================
 		// SLOT MENU
 		// ==========================================
@@ -721,7 +719,8 @@ void iMouse(int button, int state, int mx, int my)
 			}
 		}
 
-		// LEVEL 1
+		// ==========================================
+		// LEVEL 1 (FARMING)
 		// ==========================================
 		else if (gameState == STATE_LEVEL_1)
 		{
@@ -841,7 +840,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
-			// 4. Grid Interactions (Fixed for Rice, Tomato & Berry Planting)
+			// 4. Grid Interactions
 			for (int r = 0; r < GRID_ROWS; r++)
 			{
 				for (int c = 0; c < GRID_COLS; c++)
@@ -858,7 +857,7 @@ void iMouse(int button, int state, int mx, int my)
 								t->growTimer = 0;
 							}
 						}
-						else if (selectedTool == 2) // Plant Tool
+						else if (selectedTool == 2)
 						{
 							if (t->state == CROP_PLOWED)
 							{
@@ -869,7 +868,6 @@ void iMouse(int button, int state, int mx, int my)
 									t->cropType = 0;
 									seedRice--;
 
-									// Timer jodi age theke active na thake, tokhoni 20 theke shuru hobe
 									if (!batchActive) {
 										batchTimer = 20;
 										batchActive = 1;
@@ -911,7 +909,6 @@ void iMouse(int button, int state, int mx, int my)
 						}
 						else if (selectedTool == 4)
 						{
-							// Harvest based on specific crop type
 							if (t->state == CROP_READY || t->state == TOMATO_READY || t->state == BERRY_READY)
 							{
 								if (t->cropType == 0) cropRiceCount++;
@@ -928,11 +925,11 @@ void iMouse(int button, int state, int mx, int my)
 		}
 
 		// ==========================================
-		// LEVEL 2
+		// LEVEL 2 (RANCH)
 		// ==========================================
 		else if (gameState == STATE_LEVEL_2)
 		{
-			// Top Navigation Bar clicks (Save, Market, Town, Menu)
+			// Top Navigation Bar clicks
 			if (my >= 550 && my <= 590)
 			{
 				if (mx >= 320 && mx <= 420) { saveGameProgress(currentSaveSlot); return; }
@@ -981,7 +978,7 @@ void iMouse(int button, int state, int mx, int my)
 
 				if (mx >= 580 && mx <= 700)
 				{
-					// Buy Feed (Expanded hit box)
+					// Buy Feed
 					if (my >= 355 && my <= 405)
 					{
 						if (playerGold >= feedBuyPrice)
@@ -1058,7 +1055,7 @@ void iMouse(int button, int state, int mx, int my)
 				return;
 			}
 
-			// Bottom Toolbar Tool Selection (Feed Tool vs Collect Tool)
+			// Bottom Toolbar Tool Selection
 			if (my >= 475 && my <= 535)
 			{
 				if (mx >= 530 && mx <= 660)
@@ -1073,7 +1070,7 @@ void iMouse(int button, int state, int mx, int my)
 				}
 			}
 
-			// Direct Animal Clicking Check (Timer Fixed to 30s + Jump Prevention Guard)
+			// Animal Interactions
 			// 1. Hens
 			for (int i = 0; i < henCount; i++)
 			{
@@ -1085,7 +1082,7 @@ void iMouse(int button, int state, int mx, int my)
 						hens[i].fedState = 1;
 
 						if (!isRanchTimerActive) {
-							ranchTimer = 30; // 30 seconds timer
+							ranchTimer = 30;
 							isRanchTimerActive = 1;
 						}
 						return;
@@ -1151,36 +1148,39 @@ void iMouse(int button, int state, int mx, int my)
 					}
 				}
 			}
-		
-			 if (gameState == STATE_LEVEL_3)
-			{
-				if (my >= 550 && my <= 590)
-				{
-					if (mx >= 320 && mx <= 420)
-					{
-						saveGameProgress(currentSaveSlot);
-						return;
-					}
-					else if (mx >= 430 && mx <= 530)
-					{
-						isFishMarketOpen = !isFishMarketOpen;
-						return;
-					}
-					else if (mx >= 545 && mx <= 655)
-					{
-						gameState = STATE_TOWN;
-						return;
-					}
-					else if (mx >= 670 && mx <= 780)
-					{
-						gameState = STATE_MENU;
-						return;
-					}
-				}
+		}
 
-				handleLevel3MouseClick(mx, my);
-				return;
+		// ==========================================
+		// LEVEL 3 (FISHING)
+		// ==========================================
+		else if (gameState == STATE_LEVEL_3)
+		{
+			if (my >= 550 && my <= 590)
+			{
+				if (mx >= 320 && mx <= 420)
+				{
+					saveGameProgress(currentSaveSlot);
+					return;
+				}
+				else if (mx >= 430 && mx <= 530)
+				{
+					isFishMarketOpen = !isFishMarketOpen;
+					return;
+				}
+				else if (mx >= 545 && mx <= 655)
+				{
+					gameState = STATE_TOWN;
+					return;
+				}
+				else if (mx >= 670 && mx <= 780)
+				{
+					gameState = STATE_MENU;
+					return;
+				}
 			}
+
+			handleLevel3MouseClick(mx, my);
+			return;
 		}
 	}
 }
